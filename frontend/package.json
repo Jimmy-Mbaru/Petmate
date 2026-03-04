@@ -8,6 +8,7 @@
     "watch": "ng build --watch --configuration development",
     "test": "ng test"
   },
+  "author": "Jimmy-Mbaru <jamesbande999@gmail.com>",
   "private": true,
   "packageManager": "npm@11.4.1",
   "dependencies": {
