@@ -1,0 +1,246 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  email                    String                        @unique
+  password                 String
+  name                     String
+  role                     Role                          @default(OWNER)
+  avatarUrl                String?
+  isActive                 Boolean                       @default(true)
+  createdAt                DateTime                      @default(now())
+  deletedAt                DateTime?
+  emailVerified            Boolean                       @default(false)
+  resetPasswordExpires     DateTime?
+  resetPasswordToken       String?
+  verificationToken        String?
+  verificationTokenExpires DateTime?
+  id                       String                        @id @default(uuid())
+  boardingProfile          BoardingProfile?
+  bookingsAsOwner          Booking[]                     @relation("OwnerBookings")
+  receivedMessages         Message[]                     @relation("ReceivedMessages")
+  sentMessages             Message[]                     @relation("SentMessages")
+  orders                   Order[]
+  pets                     Pet[]
+  refreshTokens            RefreshToken[]
+  blockedMe                UserBlock[]                   @relation("Blocked")
+  blockedByMe              UserBlock[]                   @relation("Blocker")
+  favoriteBoardingProfiles UserFavoriteBoardingProfile[]
+  favoritePets             UserFavoritePet[]
+  reportsAgainstMe         UserReport[]                  @relation("ReportedUser")
+  reportsSubmitted         UserReport[]                  @relation("Reporter")
+}
+
+model RefreshToken {
+  tokenHash String    @unique
+  expiresAt DateTime
+  revokedAt DateTime?
+  createdAt DateTime  @default(now())
+  userId    String
+  id        String    @id @default(uuid())
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model UserFavoritePet {
+  createdAt DateTime @default(now())
+  userId    String
+  id        String   @id @default(uuid())
+  petId     String
+  pet       Pet      @relation(fields: [petId], references: [id], onDelete: Cascade)
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model UserFavoriteBoardingProfile {
+  createdAt         DateTime        @default(now())
+  userId            String
+  id                String          @id @default(uuid())
+  boardingProfileId String
+  boardingProfile   BoardingProfile @relation(fields: [boardingProfileId], references: [id], onDelete: Cascade)
+  user              User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Pet {
+  name        String
+  species     String
+  breed       String
+  age         Int
+  gender      String
+  healthNotes String?
+  photoUrl    String?
+  isAvailable Boolean           @default(true)
+  createdAt   DateTime          @default(now())
+  photoUrls   String[]          @default([])
+  ownerId     String
+  id          String            @id @default(uuid())
+  owner       User              @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  favoritedBy UserFavoritePet[]
+}
+
+model UserBlock {
+  createdAt DateTime @default(now())
+  blockerId String
+  blockedId String
+  id        String   @id @default(uuid())
+  blocked   User     @relation("Blocked", fields: [blockedId], references: [id], onDelete: Cascade)
+  blocker   User     @relation("Blocker", fields: [blockerId], references: [id], onDelete: Cascade)
+
+  @@unique([blockerId, blockedId])
+}
+
+model UserReport {
+  reason         String?
+  status         ReportStatus @default(PENDING)
+  adminNotes     String?
+  reviewedAt     DateTime?
+  createdAt      DateTime     @default(now())
+  reporterId     String
+  reportedUserId String
+  id             String       @id @default(uuid())
+  reportedUser   User         @relation("ReportedUser", fields: [reportedUserId], references: [id], onDelete: Cascade)
+  reporter       User         @relation("Reporter", fields: [reporterId], references: [id], onDelete: Cascade)
+
+  @@index([status])
+}
+
+model BoardingProfile {
+  location        String
+  capacity        Int
+  pricePerDay     Float
+  description     String?
+  isApproved      Boolean                       @default(false)
+  documentUrls    String[]                      @default([])
+  latitude        Float?
+  longitude       Float?
+  photoUrls       String[]                      @default([])
+  maxPetsPerNight Int?
+  hostId          String                        @unique
+  id              String                        @id @default(uuid())
+  blackoutDates   BlackoutDate[]
+  host            User                          @relation(fields: [hostId], references: [id], onDelete: Cascade)
+  bookings        Booking[]
+  reviews         Review[]
+  favoritedBy     UserFavoriteBoardingProfile[]
+}
+
+model BlackoutDate {
+  date              DateTime        @db.Date
+  createdAt         DateTime        @default(now())
+  id                String          @id @default(uuid())
+  boardingProfileId String
+  boardingProfile   BoardingProfile @relation(fields: [boardingProfileId], references: [id], onDelete: Cascade)
+}
+
+model Booking {
+  startDate         DateTime
+  endDate           DateTime
+  status            BookingStatus   @default(PENDING)
+  createdAt         DateTime        @default(now())
+  ownerId           String
+  id                String          @id @default(uuid())
+  boardingProfileId String
+  boardingProfile   BoardingProfile @relation(fields: [boardingProfileId], references: [id], onDelete: Cascade)
+  owner             User            @relation("OwnerBookings", fields: [ownerId], references: [id], onDelete: Cascade)
+  review            Review?
+}
+
+model Review {
+  rating            Int
+  comment           String?
+  createdAt         DateTime        @default(now())
+  id                String          @id @default(uuid())
+  bookingId         String          @unique
+  boardingProfileId String
+  boardingProfile   BoardingProfile @relation(fields: [boardingProfileId], references: [id], onDelete: Cascade)
+  booking           Booking         @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+}
+
+model Product {
+  name        String
+  description String?
+  price       Float
+  stock       Int
+  category    ProductCategory
+  imageUrl    String?
+  isActive    Boolean         @default(true)
+  id          String          @id @default(uuid())
+  imageUrls   String?
+  orderItems  OrderItem[]
+}
+
+model Order {
+  total     Float
+  createdAt DateTime    @default(now())
+  status    OrderStatus @default(PLACED)
+  userId    String
+  id        String      @id @default(uuid())
+  user      User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  items     OrderItem[]
+}
+
+model OrderItem {
+  quantity  Int
+  unitPrice Float
+  id        String  @id @default(uuid())
+  orderId   String
+  productId String
+  order     Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+}
+
+model Message {
+  content    String
+  read       Boolean  @default(false)
+  sentAt     DateTime @default(now())
+  senderId   String
+  receiverId String
+  id         String   @id @default(uuid())
+  receiver   User     @relation("ReceivedMessages", fields: [receiverId], references: [id], onDelete: Cascade)
+  sender     User     @relation("SentMessages", fields: [senderId], references: [id], onDelete: Cascade)
+}
+
+enum Role {
+  OWNER
+  HOST
+  ADMIN
+}
+
+enum BookingStatus {
+  PENDING
+  ACCEPTED
+  DECLINED
+  COMPLETED
+}
+
+enum OrderStatus {
+  PLACED
+  PAID
+  PROCESSING
+  SHIPPED
+  DELIVERED
+  CANCELLED
+}
+
+enum ReportStatus {
+  PENDING
+  REVIEWED
+  DISMISSED
+}
+
+enum ProductCategory {
+  FOOD
+  TOYS
+  ACCESSORIES
+  HEALTH
+  GROOMING
+  BEDS
+  CLOTHING
+  TRAINING
+  OUTDOOR
+  OTHER
+}
