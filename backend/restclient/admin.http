@@ -1,0 +1,89 @@
+@baseUrl = http://localhost:3000
+@adminToken = {{adminToken}}
+
+###
+### Admin: Get Users (paginated, optional filters)
+GET {{baseUrl}}/admin/users?limit=20&offset=0&role=HOST&email=
+Authorization: Bearer {{adminToken}}
+
+###
+### Admin: Get Boarding Profiles (pending approval by default)
+GET {{baseUrl}}/admin/boarding?limit=20&offset=0&isApproved=false
+Authorization: Bearer {{adminToken}}
+
+###
+### Admin: Get Orders (with optional filters)
+GET {{baseUrl}}/admin/orders?limit=20&offset=0&status=&from=&to=
+Authorization: Bearer {{adminToken}}
+
+###
+### Admin: Dashboard Stats
+GET {{baseUrl}}/admin/dashboard
+Authorization: Bearer {{adminToken}}
+
+###
+### Admin: Analytics - Bookings by status per month (optional year, month)
+GET {{baseUrl}}/admin/analytics/bookings-by-status
+Authorization: Bearer {{adminToken}}
+
+###
+GET {{baseUrl}}/admin/analytics/bookings-by-status?year=2025&month=3
+Authorization: Bearer {{adminToken}}
+
+###
+### Admin: Analytics - Revenue by month (optional year)
+GET {{baseUrl}}/admin/analytics/revenue-by-month
+Authorization: Bearer {{adminToken}}
+
+###
+GET {{baseUrl}}/admin/analytics/revenue-by-month?year=2025
+Authorization: Bearer {{adminToken}}
+
+###
+### Admin: Analytics - Top products (optional limit)
+GET {{baseUrl}}/admin/analytics/top-products?limit=10
+Authorization: Bearer {{adminToken}}
+
+###
+### Admin: Analytics - Top hosts (optional limit)
+GET {{baseUrl}}/admin/analytics/top-hosts?limit=10
+Authorization: Bearer {{adminToken}}
+
+###
+### Admin: Suspend User
+PATCH {{baseUrl}}/admin/users/1/suspend
+Authorization: Bearer {{adminToken}}
+
+###
+### Admin: Activate User
+PATCH {{baseUrl}}/admin/users/1/activate
+Authorization: Bearer {{adminToken}}
+
+###
+### Admin: Update User Role (e.g. make admin or host)
+PATCH {{baseUrl}}/admin/users/1/role
+Authorization: Bearer {{adminToken}}
+Content-Type: application/json
+
+{
+  "role": "ADMIN"
+}
+
+###
+### Admin: Export users as CSV (default) or PDF (optional: format=csv|pdf, role, email, from, to)
+GET {{baseUrl}}/admin/export/users?format=csv&role=OWNER&from=2025-01-01&to=2025-12-31
+Authorization: Bearer {{adminToken}}
+
+###
+GET {{baseUrl}}/admin/export/users?format=pdf
+Authorization: Bearer {{adminToken}}
+
+###
+### Admin: Export orders as CSV (default) or PDF (optional: format=csv|pdf, status, from, to)
+GET {{baseUrl}}/admin/export/orders?format=csv&status=PLACED&from=2025-01-01&to=2025-12-31
+Authorization: Bearer {{adminToken}}
+
+###
+GET {{baseUrl}}/admin/export/orders?format=pdf
+Authorization: Bearer {{adminToken}}
+

@@ -1,0 +1,98 @@
+@baseUrl = http://localhost:3000
+
+### ============================================================================
+     ADMIN - BOARDING PROFILE APPROVAL WORKFLOW
+     Use this to approve your Chuka boarding profile
+=============================================================================
+
+### Step 1: Login as Admin (get admin token)
+### Replace email/password with your admin credentials
+POST {{baseUrl}}/auth/login
+Content-Type: application/json
+
+{
+  "email": "admin@petmate.com",
+  "password": "admin123"
+}
+
+> {%
+    if (response.status === 200) {
+        client.global.set("adminToken", response.body.access_token);
+        console.log("✅ Admin token saved: " + response.body.access_token.substring(0, 50) + "...");
+    } else {
+        console.log("❌ Login failed. Check credentials.");
+    }
+%}
+
+### ============================================================================
+
+### Step 2: Get PENDING Boarding Profiles (to find your Chuka profile)
+GET {{baseUrl}}/admin/boarding?limit=20&offset=0&isApproved=false
+Authorization: Bearer {{adminToken}}
+
+> {%
+    if (response.status === 200) {
+        const profiles = response.body.data || [];
+        console.log("📋 Found " + profiles.length + " pending profiles:");
+        profiles.forEach(p => {
+            console.log("   - ID: " + p.id + " | Location: " + p.location + " | Host: " + (p.host?.name || 'Unknown'));
+        });
+    }
+%}
+
+### ============================================================================
+
+### Step 3: Approve Your Chuka Profile
+### Replace :id with your profile ID from Step 2
+PATCH {{baseUrl}}/boarding/:id/approve
+Authorization: Bearer {{adminToken}}
+
+> {%
+    if (response.status === 200) {
+        console.log("✅ Profile approved successfully!");
+    } else {
+        console.log("❌ Approval failed: " + JSON.stringify(response.body));
+    }
+%}
+
+### ============================================================================
+
+### Step 4: Verify Approval - Search Boarding (should now include your profile)
+GET {{baseUrl}}/boarding?limit=20&offset=0
+Authorization: Bearer {{adminToken}}
+
+> {%
+    if (response.status === 200) {
+        const profiles = response.body.data || [];
+        const chuka = profiles.find(p => p.location.toLowerCase().includes('chuka'));
+        if (chuka) {
+            console.log("✅ SUCCESS! Chuka profile is now visible in search!");
+            console.log("   Location: " + chuka.location);
+            console.log("   Approved: " + chuka.isApproved);
+        } else {
+            console.log("⚠️ Chuka profile not found in search results");
+            console.log("   Total profiles: " + profiles.length);
+        }
+    }
+%}
+
+### ============================================================================
+
+### BONUS: Approve ALL Pending Profiles (for testing)
+### Run this after Step 1 to approve all pending profiles at once
+# @name approveAll
+GET {{baseUrl}}/admin/boarding?limit=100&offset=0&isApproved=false
+Authorization: Bearer {{adminToken}}
+
+> {%
+    if (response.status === 200) {
+        const profiles = response.body.data || [];
+        console.log("🔄 Approving " + profiles.length + " profiles...");
+        
+        // Note: You'd need to make individual PATCH requests for each
+        // This is just showing which profiles would be approved
+        profiles.forEach(p => {
+            console.log("   Would approve: " + p.id + " - " + p.location);
+        });
+    }
+%}

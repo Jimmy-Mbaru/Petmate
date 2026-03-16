@@ -1,0 +1,42 @@
+@baseUrl = http://localhost:3000
+@authToken = {{auth_token}}
+
+### Upload Pet Photo (Cloudinary)
+### Use an HTTP client that supports file uploads (e.g. VS Code REST Client or Thunder Client).
+POST {{baseUrl}}/upload/image?folder=pets
+Authorization: Bearer {{authToken}}
+Content-Type: multipart/form-data; boundary=BOUNDARY
+
+--BOUNDARY
+Content-Disposition: form-data; name="file"; filename="pet.jpg"
+Content-Type: image/jpeg
+
+< ./samples/pet.jpg
+--BOUNDARY--
+
+###
+### Upload Boarding Profile Photo
+POST {{baseUrl}}/upload/image?folder=boarding
+Authorization: Bearer {{authToken}}
+Content-Type: multipart/form-data; boundary=BOUNDARY
+
+--BOUNDARY
+Content-Disposition: form-data; name="file"; filename="boarding1.jpg"
+Content-Type: image/jpeg
+
+< ./samples/boarding1.jpg
+--BOUNDARY--
+
+###
+### Upload Document (Vaccination Record as Image/PDF)
+POST {{baseUrl}}/upload/image?folder=documents
+Authorization: Bearer {{authToken}}
+Content-Type: multipart/form-data; boundary=BOUNDARY
+
+--BOUNDARY
+Content-Disposition: form-data; name="file"; filename="vaccination-card.jpg"
+Content-Type: image/jpeg
+
+< ./samples/vaccination-card.jpg
+--BOUNDARY--
+

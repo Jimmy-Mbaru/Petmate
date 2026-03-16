@@ -29,6 +29,7 @@ import { Role } from '@prisma/client';
 import { ApiResponsesProtected } from '../common/decorators/api-responses.decorator';
 import { UpdateUserRoleDto } from './dto/update-user-role.dto';
 import { AdminAuditInterceptor } from '../common/interceptors/admin-audit.interceptor';
+import { ReportsService } from '../reports/reports.service';
 
 @ApiTags('admin')
 @Controller('admin')
@@ -39,7 +40,18 @@ import { AdminAuditInterceptor } from '../common/interceptors/admin-audit.interc
 export class AdminController {
   private readonly logger = new Logger(AdminController.name);
 
-  constructor(private readonly adminService: AdminService) {}
+  constructor(
+    private readonly adminService: AdminService,
+    private readonly reportsService: ReportsService,
+  ) {}
+
+  @Get('health')
+  @ApiOperation({ summary: 'Admin service health check' })
+  @ApiResponse({ status: 200, description: 'Service is up' })
+  @ApiResponsesProtected()
+  async health() {
+    return await this.adminService.healthCheck();
+  }
 
   @Get('users')
   @ApiOperation({ summary: 'All users (paginated)' })
@@ -181,6 +193,26 @@ export class AdminController {
     }
   }
 
+  @Get('stats')
+  @ApiOperation({
+    summary: 'Comprehensive system statistics (users, boarding, store, activity)',
+  })
+  @ApiResponse({
+    status: 200,
+    description:
+      'Object with detailed breakdowns: users, boarding, store, and activity metrics',
+  })
+  @ApiResponsesProtected()
+  async getSystemStats() {
+    try {
+      this.logger.debug('Admin getSystemStats requested');
+      return await this.adminService.getSystemStats();
+    } catch (error) {
+      this.logger.error('Admin getSystemStats failed', (error as Error)?.stack);
+      throw error;
+    }
+  }
+
   @Get('analytics/bookings-by-status')
   @ApiOperation({ summary: 'Bookings count by status per month' })
   @ApiQuery({
@@ -257,6 +289,26 @@ export class AdminController {
     }
   }
 
+  @Get('analytics/revenue-comparison')
+  @ApiOperation({ summary: 'Revenue comparison between this month and last month' })
+  @ApiResponse({
+    status: 200,
+    description: 'Object with currentMonthRevenue, lastMonthRevenue, percentageChange',
+  })
+  @ApiResponsesProtected()
+  async getRevenueComparison() {
+    try {
+      this.logger.debug('Admin getRevenueComparison requested');
+      return await this.adminService.getRevenueComparison();
+    } catch (error) {
+      this.logger.error(
+        'Admin getRevenueComparison failed',
+        (error as Error)?.stack,
+      );
+      throw error;
+    }
+  }
+
   @Get('analytics/top-products')
   @ApiOperation({ summary: 'Top products by quantity sold (excludes cancelled orders)' })
   @ApiQuery({
@@ -311,6 +363,64 @@ export class AdminController {
         'Admin getTopHosts failed',
         (error as Error)?.stack,
       );
+      throw error;
+    }
+  }
+
+  @Get('analytics/platform-growth')
+  @ApiOperation({ summary: 'User registrations over time' })
+  @ApiQuery({
+    name: 'period',
+    required: false,
+    enum: ['daily', 'monthly'],
+    description: 'Aggregation period (default daily)',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Array of { date, count }',
+  })
+  @ApiResponsesProtected()
+  async getPlatformGrowth(@Query('period') period?: 'daily' | 'monthly') {
+    try {
+      this.logger.debug('Admin getPlatformGrowth requested');
+      return await this.adminService.getPlatformGrowth(period || 'daily');
+    } catch (error) {
+      this.logger.error('Admin getPlatformGrowth failed', (error as Error)?.stack);
+      throw error;
+    }
+  }
+
+  @Get('analytics/system-activity')
+  @ApiOperation({ summary: 'Daily counts of key actions (bookings, orders, etc.)' })
+  @ApiResponse({
+    status: 200,
+    description: 'Array of { date, bookings, orders, messages, newUsers }',
+  })
+  @ApiResponsesProtected()
+  async getSystemActivity() {
+    try {
+      this.logger.debug('Admin getSystemActivity requested');
+      return await this.adminService.getSystemActivity();
+    } catch (error) {
+      this.logger.error('Admin getSystemActivity failed', (error as Error)?.stack);
+      throw error;
+    }
+  }
+
+  @Get('reports/stats')
+  @ApiOperation({ summary: 'Get user report statistics (Admin only)' })
+  @ApiResponse({
+    status: 200,
+    description:
+      'Aggregated user report statistics: total, pending, underReview, resolved, dismissed, actionTaken',
+  })
+  @ApiResponsesProtected()
+  async getReportStats() {
+    try {
+      this.logger.debug('Admin getReportStats requested');
+      return await this.reportsService.getStats();
+    } catch (error) {
+      this.logger.error('Admin getReportStats failed', (error as Error)?.stack);
       throw error;
     }
   }
@@ -524,5 +634,32 @@ export class AdminController {
       type: 'text/csv; charset=utf-8',
       disposition: `attachment; filename="orders-export-${dateStr}.csv"`,
     });
+  }
+
+  @Get('export/system-report')
+  @ApiOperation({
+    summary: 'Export a comprehensive system report as PDF',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'File download (PDF)',
+    content: {
+      'application/pdf': { schema: { type: 'string', format: 'binary' } },
+    },
+  })
+  @ApiResponsesProtected()
+  async exportSystemReport() {
+    try {
+      this.logger.debug('Admin exportSystemReport requested');
+      const buffer = await this.adminService.exportSystemReportPdf();
+      const dateStr = new Date().toISOString().slice(0, 10);
+      return new StreamableFile(buffer, {
+        type: 'application/pdf',
+        disposition: `attachment; filename="system-report-${dateStr}.pdf"`,
+      });
+    } catch (error) {
+      this.logger.error('Admin exportSystemReport failed', (error as Error)?.stack);
+      throw error;
+    }
   }
 }

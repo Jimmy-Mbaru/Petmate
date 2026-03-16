@@ -49,6 +49,27 @@ export class BoardingController {
 
   constructor(private readonly boardingService: BoardingService) {}
 
+  @Get('my-profile')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.HOST)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Get current host\'s boarding profile' })
+  @ApiResponse({ status: 200, description: 'Current host\'s boarding profile with stats' })
+  @ApiResponse({ status: 404, description: 'Profile not found' })
+  @ApiResponsesProtected()
+  async getMyProfile(@CurrentUser() user: CurrentUserPayload) {
+    try {
+      this.logger.debug(`Get my profile requested by host ${user.id}`);
+      return await this.boardingService.getMyProfile(user.id);
+    } catch (error) {
+      this.logger.error(
+        `Get my profile failed for host ${user.id}`,
+        (error as Error)?.stack,
+      );
+      throw error;
+    }
+  }
+
   @Get('profile/host/:hostId')
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth()
@@ -277,22 +298,24 @@ export class BoardingController {
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(Role.ADMIN)
   @ApiBearerAuth()
-  @ApiOperation({ summary: 'Admin approves host profile' })
-  @ApiParam({ name: 'id', type: Number, description: 'Boarding profile ID' })
-  @ApiResponse({ status: 200, description: 'Profile approved' })
+  @ApiOperation({ summary: 'Admin approves or rejects host profile' })
+  @ApiParam({ name: 'id', type: String, description: 'Boarding profile ID' })
+  @ApiBody({ schema: { type: 'object', properties: { isApproved: { type: 'boolean' } } } })
+  @ApiResponse({ status: 200, description: 'Profile approved or rejected' })
   @ApiResponsesProtected()
   async approveProfile(
     @Param('id') id: string,
+    @Body('isApproved') isApproved: boolean,
     @CurrentUser() user: CurrentUserPayload,
   ) {
     try {
       this.logger.log(
-        `Approve boarding profile requested: ${id} by admin ${user.id}`,
+        `Approve/Reject boarding profile requested: ${id} by admin ${user.id} (approve: ${isApproved})`,
       );
-      return await this.boardingService.approveProfile(id, user.id);
+      return await this.boardingService.approveProfile(id, user.id, isApproved !== false);
     } catch (error) {
       this.logger.error(
-        `Approve profile failed for id: ${id}`,
+        `Approve/Reject profile failed for id: ${id}`,
         (error as Error)?.stack,
       );
       throw error;
@@ -326,8 +349,7 @@ export class BoardingController {
   }
 
   @Get(':id/blackout')
-  @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(Role.HOST)
+  @UseGuards(JwtAuthGuard)
   @ApiBearerAuth()
   @ApiOperation({ summary: 'List blackout dates for host profile (optional date range)' })
   @ApiParam({ name: 'id', type: Number, description: 'Boarding profile ID' })

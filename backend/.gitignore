@@ -29,5 +29,8 @@ Thumbs.db
 coverage/
 .nyc_output/
 
+# Local uploads (when not using Cloudinary)
+uploads/
+
 # Misc
 *.tsbuildinfo

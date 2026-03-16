@@ -1,0 +1,50 @@
+<%- include('header') %>
+<h2>Thank you for your purchase!</h2>
+<p>Hi <%= name %>,</p>
+<p>We've received your order and our team is already working on getting it to you. You'll receive another email when your items have shipped.</p>
+
+<div class="receipt-card">
+    <div style="text-align: center; margin-bottom: 20px;">
+        <p style="margin: 0; color: #888888; text-transform: uppercase; font-size: 12px; letter-spacing: 1px;">Order Number</p>
+        <p style="margin: 5px 0; font-size: 20px; font-weight: bold; color: #000000;">#<%= orderId %></p>
+    </div>
+
+    <table style="width: 100%; border-collapse: collapse;">
+        <thead>
+            <tr>
+                <th style="text-align: left; padding-bottom: 15px; border-bottom: 2px solid #f0f0f0; color: #888888; font-size: 12px; text-transform: uppercase;">Item</th>
+                <th style="text-align: right; padding-bottom: 15px; border-bottom: 2px solid #f0f0f0; color: #888888; font-size: 12px; text-transform: uppercase;">Price</th>
+            </tr>
+        </thead>
+        <tbody>
+            <% items.forEach(function(item) { %>
+                <tr>
+                    <td style="padding: 15px 0; border-bottom: 1px solid #f9f9f9;">
+                        <div style="font-weight: bold; color: #000000;"><%= item.name %></div>
+                        <div style="font-size: 12px; color: #888888;">Quantity: <%= item.quantity %></div>
+                    </td>
+                    <td style="padding: 15px 0; border-bottom: 1px solid #f9f9f9; text-align: right; font-weight: bold;">
+                        KES <%= (item.price * item.quantity).toLocaleString(undefined, { minimumFractionDigits: 2 }) %>
+                    </td>
+                </tr>
+            <% }); %>
+        </tbody>
+        <tfoot>
+            <tr>
+                <td style="padding-top: 20px; font-weight: 700; color: #000000; font-size: 18px;">Total Amount</td>
+                <td style="padding-top: 20px; text-align: right; font-weight: 800; color: #d72323; font-size: 22px;">
+                    KES <%= total.toLocaleString(undefined, { minimumFractionDigits: 2 }) %>
+                </td>
+            </tr>
+        </tfoot>
+    </table>
+</div>
+
+<div style="text-align: center;">
+    <a href="<%= orderLink %>" class="btn">Track Your Order</a>
+</div>
+
+<p style="font-size: 14px; color: #888888; text-align: center; margin-top: 30px;">
+    Questions about your order? Just reply to this email or visit our <a href="<%= orderLink %>" class="brand-text">help center</a>.
+</p>
+<%- include('footer') %>

@@ -9,6 +9,7 @@ import {
   Query,
   UseGuards,
   Logger,
+  Res,
 } from '@nestjs/common';
 import {
   ApiTags,
@@ -28,6 +29,7 @@ import { CurrentUser } from '../auth/decorators/current-user.decorator';
 import type { CurrentUserPayload } from '../auth/decorators/current-user.decorator';
 import { Role } from '@prisma/client';
 import { ApiResponsesProtected } from '../common/decorators/api-responses.decorator';
+import { Response } from 'express';
 
 @ApiTags('reports')
 @Controller('reports')
@@ -80,18 +82,47 @@ export class ReportsController {
     }
   }
 
-  @Get(':id')
+  @Get('export/excel')
   @UseGuards(RolesGuard)
   @Roles(Role.ADMIN)
-  @ApiOperation({ summary: 'Get report by ID (Admin only)' })
-  @ApiParam({ name: 'id', type: String })
-  @ApiResponse({ status: 200, description: 'Report details' })
+  @ApiOperation({ summary: 'Export all reports to Excel (Admin only)' })
+  @ApiResponse({ status: 200, description: 'Excel file' })
   @ApiResponsesProtected()
-  async findOne(@Param('id') id: string) {
+  async exportExcel(@Res() res: Response) {
     try {
-      return await this.reportsService.findOne(id);
+      return await this.reportsService.exportReportsToExcel(res);
     } catch (error) {
-      this.logger.error('Find one report failed', error);
+      this.logger.error('Export Excel failed', error);
+      throw error;
+    }
+  }
+
+  @Get('export/pdf')
+  @UseGuards(RolesGuard)
+  @Roles(Role.ADMIN)
+  @ApiOperation({ summary: 'Export all reports to PDF (Admin only)' })
+  @ApiResponse({ status: 200, description: 'PDF file' })
+  @ApiResponsesProtected()
+  async exportPdf(@Res() res: Response) {
+    try {
+      return await this.reportsService.exportReportsToPdf(res);
+    } catch (error) {
+      this.logger.error('Export PDF failed', error);
+      throw error;
+    }
+  }
+
+  @Get('stats')
+  @UseGuards(RolesGuard)
+  @Roles(Role.ADMIN)
+  @ApiOperation({ summary: 'Get report statistics (Admin only)' })
+  @ApiResponse({ status: 200, description: 'Report statistics' })
+  @ApiResponsesProtected()
+  async getStats() {
+    try {
+      return await this.reportsService.getStats();
+    } catch (error) {
+      this.logger.error('Get stats failed', error);
       throw error;
     }
   }
@@ -108,6 +139,22 @@ export class ReportsController {
       return await this.reportsService.findByUser(userId);
     } catch (error) {
       this.logger.error('Find by user failed', error);
+      throw error;
+    }
+  }
+
+  @Get(':id')
+  @UseGuards(RolesGuard)
+  @Roles(Role.ADMIN)
+  @ApiOperation({ summary: 'Get report by ID (Admin only)' })
+  @ApiParam({ name: 'id', type: String })
+  @ApiResponse({ status: 200, description: 'Report details' })
+  @ApiResponsesProtected()
+  async findOne(@Param('id') id: string) {
+    try {
+      return await this.reportsService.findOne(id);
+    } catch (error) {
+      this.logger.error('Find one report failed', error);
       throw error;
     }
   }
@@ -130,21 +177,6 @@ export class ReportsController {
       return await this.reportsService.update(id, dto, user.id, user.role as Role);
     } catch (error) {
       this.logger.error('Update report failed', error);
-      throw error;
-    }
-  }
-
-  @Get('stats')
-  @UseGuards(RolesGuard)
-  @Roles(Role.ADMIN)
-  @ApiOperation({ summary: 'Get report statistics (Admin only)' })
-  @ApiResponse({ status: 200, description: 'Report statistics' })
-  @ApiResponsesProtected()
-  async getStats() {
-    try {
-      return await this.reportsService.getStats();
-    } catch (error) {
-      this.logger.error('Get stats failed', error);
       throw error;
     }
   }

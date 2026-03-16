@@ -1,5 +1,8 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
+import * as nodemailer from 'nodemailer';
+import * as ejs from 'ejs';
+import * as path from 'path';
 
 /**
  * Email verification payload
@@ -20,7 +23,7 @@ export interface SendResetPasswordEmailDto {
 }
 
 /**
- * Welcome email payload (sent after email is verified)
+ * Welcome email payload
  */
 export interface SendWelcomeEmailDto {
   email: string;
@@ -28,162 +31,168 @@ export interface SendWelcomeEmailDto {
 }
 
 /**
- * Email service - abstraction layer for sending emails.
- * Currently uses console logging for development.
- * Ready for Brevo (Sendinblue) integration when BREVO_API_KEY is configured.
+ * Order confirmation payload
  */
+export interface OrderConfirmationDto {
+  email: string;
+  name: string;
+  orderId: string;
+  total: number;
+  items: Array<{ name: string; quantity: number; price: number }>;
+}
+
+/**
+ * Booking update payload
+ */
+export interface BookingUpdateDto {
+  email: string;
+  name: string;
+  bookingId: string;
+  status: string;
+  hostName: string;
+  startDate: string;
+  endDate: string;
+}
+
 @Injectable()
 export class EmailService {
   private readonly logger = new Logger(EmailService.name);
-  private readonly brevoApiKey: string | undefined;
+  private readonly transporter: nodemailer.Transporter;
+  private readonly senderEmail: string;
   private readonly frontendUrl: string;
 
   constructor(private readonly configService: ConfigService) {
-    this.brevoApiKey = this.configService.get<string>('BREVO_API_KEY');
+    this.senderEmail =
+      this.configService.get<string>('BREVO_SENDER_EMAIL') ||
+      this.configService.get<string>('SMTP_FROM') ||
+      'PetMate <noreply@petmate.com>';
     this.frontendUrl =
       this.configService.get<string>('FRONTEND_URL') || 'http://localhost:4200';
+
+    // SMTP config. For Brevo: use your Brevo login EMAIL as SMTP_USER and SMTP KEY (from
+    // https://app.brevo.com/settings/keys/smtp) as SMTP_PASS — not the API key.
+    const host =
+      this.configService.get<string>('SMTP_HOST') || 'smtp-relay.brevo.com';
+    const port = Number(this.configService.get<string>('SMTP_PORT') ?? 587);
+    const secure =
+      (this.configService.get<string>('SMTP_SECURE') ?? 'false').toLowerCase() ===
+      'true';
+    const user =
+      this.configService.get<string>('SMTP_USER') ||
+      this.configService.get<string>('BREVO_SMTP_USER') ||
+      'apikey';
+    const pass =
+      this.configService.get<string>('SMTP_PASS') ||
+      this.configService.get<string>('BREVO_API_KEY') ||
+      '';
+
+    this.logger.debug(
+      `SMTP config -> host=${host}, port=${port}, secure=${secure}, user=${user}, passLength=${pass?.length ?? 0}`,
+    );
+
+    this.transporter = nodemailer.createTransport({
+      host,
+      port,
+      secure,
+      auth: {
+        user,
+        pass,
+      },
+    });
   }
 
   /**
-   * Check if Brevo is configured
+   * Render EJS template
    */
-  private isBrevoConfigured(): boolean {
-    return !!this.brevoApiKey;
+  private async renderTemplate(templateName: string, data: any): Promise<string> {
+    const templatePath = path.join(process.cwd(), 'src/email/templates', `${templateName}.ejs`);
+    return ejs.renderFile(templatePath, data);
   }
 
   /**
-   * Send email verification link
-   * @param dto - Email verification data
+   * Send mail wrapper
+   */
+  private async sendMail(to: string, subject: string, html: string): Promise<void> {
+    try {
+      await this.transporter.sendMail({
+        from: this.senderEmail,
+        to,
+        subject,
+        html,
+      });
+      this.logger.log(`Email sent successfully to ${to}`);
+    } catch (error) {
+      this.logger.error(`Failed to send email to ${to}`, error);
+    }
+  }
+
+  /**
+   * Send verification email
    */
   async sendVerificationEmail(dto: SendVerificationEmailDto): Promise<void> {
     const verificationLink = `${this.frontendUrl}/auth/verify-email?token=${dto.verificationToken}`;
+    
+    const html = await this.renderTemplate('welcome', {
+      name: dto.name,
+      verificationLink,
+    });
 
-    if (this.isBrevoConfigured()) {
-      await this.sendViaBrevo({
-        to: dto.email,
-        subject: 'Verify Your Email - PetMate',
-        templateId: 1, // Brevo template ID for email verification (configure in Brevo dashboard)
-        params: {
-          name: dto.name,
-          verificationLink,
-        },
-      });
-    } else {
-      // Development mode: log the verification link
-      this.logger.log('===========================================');
-      this.logger.log('EMAIL VERIFICATION LINK (Development Mode)');
-      this.logger.log('===========================================');
-      this.logger.log(`To: ${dto.email}`);
-      this.logger.log(`Name: ${dto.name}`);
-      this.logger.log(`Verification Link: ${verificationLink}`);
-      this.logger.log('===========================================');
-      this.logger.log(
-        `Direct API: ${this.frontendUrl.replace('http://localhost:4200', 'http://localhost:3000')}/auth/verify-email?token=${dto.verificationToken}`,
-      );
-      this.logger.log('===========================================');
-    }
+    await this.sendMail(dto.email, 'Welcome to PetMate - Verify Your Email', html);
   }
 
   /**
-   * Send password reset link
-   * @param dto - Password reset data
+   * Send password reset email
    */
   async sendResetPasswordEmail(dto: SendResetPasswordEmailDto): Promise<void> {
     const resetLink = `${this.frontendUrl}/auth/reset-password?token=${dto.resetToken}`;
+    
+    const html = await this.renderTemplate('reset-password', {
+      name: dto.name,
+      resetLink,
+    });
 
-    if (this.isBrevoConfigured()) {
-      await this.sendViaBrevo({
-        to: dto.email,
-        subject: 'Reset Your Password - PetMate',
-        templateId: 2, // Brevo template ID for password reset (configure in Brevo dashboard)
-        params: {
-          name: dto.name,
-          resetLink,
-        },
-      });
-    } else {
-      // Development mode: log the reset link
-      this.logger.log('===========================================');
-      this.logger.log('PASSWORD RESET LINK (Development Mode)');
-      this.logger.log('===========================================');
-      this.logger.log(`To: ${dto.email}`);
-      this.logger.log(`Name: ${dto.name}`);
-      this.logger.log(`Reset Link: ${resetLink}`);
-      this.logger.log('===========================================');
-      this.logger.log(
-        `Direct API: ${this.frontendUrl.replace('http://localhost:4200', 'http://localhost:3000')}/auth/reset-password?token=${dto.resetToken}`,
-      );
-      this.logger.log('===========================================');
-    }
+    await this.sendMail(dto.email, 'Reset Your Password - PetMate', html);
   }
 
   /**
-   * Send welcome email (after email is verified)
-   * @param dto - Welcome email data
+   * Send welcome email (after verified)
    */
   async sendWelcomeEmail(dto: SendWelcomeEmailDto): Promise<void> {
-    if (this.isBrevoConfigured()) {
-      await this.sendViaBrevo({
-        to: dto.email,
-        subject: 'Welcome to PetMate!',
-        templateId: 3, // Brevo template ID for welcome email (configure in Brevo dashboard)
-        params: {
-          name: dto.name,
-        },
-      });
-    } else {
-      this.logger.log('===========================================');
-      this.logger.log('WELCOME EMAIL (Development Mode)');
-      this.logger.log('===========================================');
-      this.logger.log(`To: ${dto.email}`);
-      this.logger.log(`Name: ${dto.name}`);
-      this.logger.log('Welcome to PetMate! Your email has been verified.');
-      this.logger.log('===========================================');
-    }
+    // We can reuse the welcome template without the verification link or have a simplified one
+    // For now, let's just send a plain text or simple HTML welcome
+    const html = await this.renderTemplate('header', {}) + 
+                 `<h2>Account Verified!</h2><p>Hi ${dto.name},</p><p>Your PetMate account has been successfully verified. You can now access all features of the platform.</p>` +
+                 `<div style="text-align: center;"><a href="${this.frontendUrl}/auth/login" class="btn">Login to PetMate</a></div>` +
+                 await this.renderTemplate('footer', {});
+
+    await this.sendMail(dto.email, 'Account Verified - Welcome to PetMate', html);
   }
 
   /**
-   * Send email via Brevo API
-   * @param options - Email options
+   * Send order confirmation
    */
-  private async sendViaBrevo(options: {
-    to: string;
-    subject: string;
-    templateId: number;
-    params: Record<string, string>;
-  }): Promise<void> {
-    try {
-      const response = await fetch(
-        'https://api.brevo.com/v3/smtp/email',
-        {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'api-key': this.brevoApiKey!,
-          },
-          body: JSON.stringify({
-            sender: {
-              name: 'PetMate',
-              email: this.configService.get<string>('BREVO_SENDER_EMAIL') || 'noreply@petmate.com',
-            },
-            to: [{ email: options.to }],
-            subject: options.subject,
-            templateId: options.templateId,
-            params: options.params,
-          }),
-        },
-      );
+  async sendOrderConfirmation(dto: OrderConfirmationDto): Promise<void> {
+    const orderLink = `${this.frontendUrl}/app/store/orders`;
+    
+    const html = await this.renderTemplate('order-confirmation', {
+      ...dto,
+      orderLink,
+    });
 
-      if (!response.ok) {
-        const errorData = await response.json();
-        this.logger.error('Brevo API error:', errorData);
-        throw new Error(`Brevo API error: ${response.status}`);
-      }
+    await this.sendMail(dto.email, `Order Confirmation #${dto.orderId} - PetMate`, html);
+  }
 
-      this.logger.log(`Email sent via Brevo to ${options.to}`);
-    } catch (error) {
-      this.logger.error('Failed to send email via Brevo', error);
-      throw error;
-    }
+  /**
+   * Send booking update
+   */
+  async sendBookingUpdate(dto: BookingUpdateDto): Promise<void> {
+    const bookingLink = `${this.frontendUrl}/app/bookings`;
+    
+    const html = await this.renderTemplate('booking-update', {
+      ...dto,
+      bookingLink,
+    });
+
+    await this.sendMail(dto.email, `Booking Update #${dto.bookingId} - PetMate`, html);
   }
 }

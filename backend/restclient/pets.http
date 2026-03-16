@@ -1,0 +1,31 @@
+@baseUrl = http://localhost:3000
+@authToken = {{auth_token}}
+
+### Create Pet (with Cloudinary URLs)
+POST {{baseUrl}}/pets
+Authorization: Bearer {{authToken}}
+Content-Type: application/json
+
+{
+  "name": "Fluffy",
+  "species": "dog",
+  "breed": "Golden Retriever",
+  "age": 24,
+  "gender": "female",
+  "healthNotes": "Up to date on vaccinations",
+  "photoUrl": "https://res.cloudinary.com/your-cloud/image/upload/v123/pets/fluffy-main.jpg",
+  "photoUrls": [
+    "https://res.cloudinary.com/your-cloud/image/upload/v123/pets/fluffy-1.jpg",
+    "https://res.cloudinary.com/your-cloud/image/upload/v123/pets/fluffy-2.jpg"
+  ],
+  "isAvailable": true
+}
+
+###
+### Get All Pets (search)
+GET {{baseUrl}}/pets?species=dog&limit=10&offset=0
+
+###
+### Get Single Pet
+GET {{baseUrl}}/pets/1
+

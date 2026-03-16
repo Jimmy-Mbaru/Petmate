@@ -64,6 +64,8 @@ function haversineKm(
   return EARTH_RADIUS_KM * c;
 }
 
+import { EmailService } from '../email/email.service';
+
 /**
  * Boarding service: host profiles, search, bookings, reviews, approval.
  */
@@ -74,6 +76,7 @@ export class BoardingService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly blockReport: BlockReportService,
+    private readonly emailService: EmailService,
   ) {}
 
   private get blackout(): BlackoutDateDelegate {
@@ -280,21 +283,147 @@ export class BoardingService {
    * @throws ForbiddenException if non-host/non-admin tries to access
    * @throws NotFoundException if profile not found
    */
-  async getProfileByHost(hostId: string, currentUserId: string, currentUserRole: Role) {
+  async getProfileByHost(
+    hostId: string,
+    currentUserId: string,
+    currentUserRole: Role,
+  ) {
     try {
       // Allow hosts to view their own profile, admins can view any
       if (currentUserId !== hostId && currentUserRole !== Role.ADMIN) {
-        throw new ForbiddenException('You can only view your own boarding profile');
+        throw new ForbiddenException(
+          'You can only view your own boarding profile',
+        );
       }
-      
+
       const profile = await this.prisma.boardingProfile.findUnique({
         where: { hostId },
       });
-      
+
       return profile;
     } catch (error) {
-      if (error instanceof ForbiddenException || error instanceof NotFoundException) throw error;
+      if (
+        error instanceof ForbiddenException ||
+        error instanceof NotFoundException
+      )
+        throw error;
       this.logger.error('Get boarding profile by host ID failed', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Get current host's boarding profile with stats (reviews count, average rating, bookings stats).
+   * @param hostId - The host user ID
+   * @returns The boarding profile with stats
+   * @throws NotFoundException if profile not found
+   */
+  async getMyProfile(hostId: string) {
+    try {
+      const profileWithRelations = await this.prisma.boardingProfile.findUnique({
+        where: { hostId },
+        include: {
+          reviews: {
+            select: { rating: true },
+          },
+          bookings: {
+            select: {
+              id: true,
+              status: true,
+              startDate: true,
+              endDate: true,
+              boardingProfile: {
+                select: {
+                  pricePerDay: true,
+                },
+              },
+            },
+          },
+        },
+      }) as any; // Type assertion to handle Prisma's complex include types
+
+      if (!profileWithRelations) {
+        throw new NotFoundException('Boarding profile not found');
+      }
+
+      const profile = profileWithRelations as {
+        id: string;
+        hostId: string;
+        location: string;
+        capacity: number;
+        pricePerDay: number;
+        description: string | null;
+        isApproved: boolean;
+        documentUrls: string[];
+        latitude: number | null;
+        longitude: number | null;
+        photoUrls: string[];
+        maxPetsPerNight: number | null;
+        createdAt: Date;
+        updatedAt: Date;
+        reviews: { rating: number }[];
+        bookings: {
+          id: string;
+          status: string;
+          startDate: Date;
+          endDate: Date;
+          boardingProfile: { pricePerDay: number };
+        }[];
+      };
+
+      // Calculate average rating
+      const averageRating =
+        profile.reviews.length > 0
+          ? profile.reviews.reduce((sum, r) => sum + r.rating, 0) / profile.reviews.length
+          : 0;
+
+      // Helper to calculate booking total price
+      const getBookingTotal = (b: typeof profile.bookings[0]) => {
+        const days = Math.ceil(
+          (b.endDate.getTime() - b.startDate.getTime()) / (1000 * 60 * 60 * 24)
+        );
+        return days * b.boardingProfile.pricePerDay;
+      };
+
+      // Calculate total earnings from completed/accepted bookings
+      const totalEarnings = profile.bookings
+        .filter((b) => b.status === 'COMPLETED' || b.status === 'ACCEPTED')
+        .reduce((sum, b) => sum + getBookingTotal(b), 0);
+
+      // Count bookings by status
+      const totalBookings = profile.bookings.length;
+      const pendingBookings = profile.bookings.filter((b) => b.status === 'PENDING').length;
+      const completedBookings = profile.bookings.filter((b) => b.status === 'COMPLETED').length;
+
+      const reviewCount = profile.reviews.length;
+
+      return {
+        id: profile.id,
+        hostId: profile.hostId,
+        location: profile.location,
+        capacity: profile.capacity,
+        pricePerDay: profile.pricePerDay,
+        description: profile.description,
+        isApproved: profile.isApproved,
+        documentUrls: profile.documentUrls,
+        latitude: profile.latitude,
+        longitude: profile.longitude,
+        photoUrls: profile.photoUrls,
+        maxPetsPerNight: profile.maxPetsPerNight,
+        createdAt: profile.createdAt,
+        updatedAt: profile.updatedAt,
+        averageRating: Math.round(averageRating * 10) / 10,
+        reviewCount,
+        stats: {
+          totalEarnings,
+          totalBookings,
+          pendingBookings,
+          completedBookings,
+        },
+      };
+    } catch (error) {
+      if (error instanceof NotFoundException) throw error;
+      this.logger.error('Get my profile failed', error);
       throw error;
     }
   }
@@ -465,6 +594,18 @@ export class BoardingService {
       this.logger.log(
         `New booking #${booking.id} created by owner ${booking.owner.email} for host ${booking.boardingProfile.host.email}`,
       );
+
+      // Send initial booking email
+      await this.emailService.sendBookingUpdate({
+        email: booking.owner.email,
+        name: booking.owner.name,
+        bookingId: booking.id.slice(0, 8).toUpperCase(),
+        status: 'PENDING',
+        hostName: booking.boardingProfile.host.name,
+        startDate: booking.startDate.toLocaleDateString(),
+        endDate: booking.endDate.toLocaleDateString(),
+      });
+
       return booking;
     } catch (error) {
       if (
@@ -528,6 +669,18 @@ export class BoardingService {
           `Booking #${updated.id} declined by host ${updated.boardingProfile.host.email} (owner ${updated.owner.email})`,
         );
       }
+
+      // Send status update email
+      await this.emailService.sendBookingUpdate({
+        email: updated.owner.email,
+        name: updated.owner.name,
+        bookingId: updated.id.slice(0, 8).toUpperCase(),
+        status: updated.status,
+        hostName: updated.boardingProfile.host.name,
+        startDate: updated.startDate.toLocaleDateString(),
+        endDate: updated.endDate.toLocaleDateString(),
+      });
+
       return updated;
     } catch (error) {
       if (
@@ -580,7 +733,19 @@ export class BoardingService {
           }),
           this.prisma.booking.count({ where }),
         ]);
-        return { data, total, limit: take, offset: skip };
+
+        // Calculate total price for each booking
+        const withTotalPrice = data.map((b) => {
+          const start = new Date(b.startDate);
+          const end = new Date(b.endDate);
+          const days = Math.ceil(
+            (end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24),
+          );
+          const totalPrice = Math.max(1, days) * b.boardingProfile.pricePerDay;
+          return { ...b, totalPrice };
+        });
+
+        return { data: withTotalPrice, total, limit: take, offset: skip };
       }
       if (role === Role.HOST) {
         const profile = await this.prisma.boardingProfile.findUnique({
@@ -604,7 +769,19 @@ export class BoardingService {
           }),
           this.prisma.booking.count({ where }),
         ]);
-        return { data, total, limit: take, offset: skip };
+
+        // Calculate total price for each booking
+        const withTotalPrice = data.map((b) => {
+          const start = new Date(b.startDate);
+          const end = new Date(b.endDate);
+          const days = Math.ceil(
+            (end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24),
+          );
+          const totalPrice = Math.max(1, days) * b.boardingProfile.pricePerDay;
+          return { ...b, totalPrice };
+        });
+
+        return { data: withTotalPrice, total, limit: take, offset: skip };
       }
       return { data: [], total: 0, limit: take, offset: skip };
     } catch (error) {
@@ -668,12 +845,20 @@ export class BoardingService {
       throw new ForbiddenException('Not your boarding profile');
     const d = new Date(date);
     d.setUTCHours(0, 0, 0, 0);
-    return this.blackout.upsert({
+
+    const existing = await this.blackout.findFirst({
       where: {
-        boardingProfileId_date: { boardingProfileId, date: d },
+        boardingProfileId,
+        date: { gte: d, lt: new Date(d.getTime() + 86400000) },
       },
-      create: { boardingProfileId, date: d },
-      update: {},
+    });
+
+    if (existing) {
+      return existing;
+    }
+
+    return this.prisma.blackoutDate.create({
+      data: { boardingProfileId, date: d },
     });
   }
 
@@ -693,14 +878,14 @@ export class BoardingService {
       throw new ForbiddenException('Not your boarding profile');
     const d = new Date(date);
     d.setUTCHours(0, 0, 0, 0);
-    await this.blackout.deleteMany({
+    await this.prisma.blackoutDate.deleteMany({
       where: { boardingProfileId, date: d },
     });
     return { success: true };
   }
 
   /**
-   * Get blackout dates for a profile (host only). Optional start/end filter.
+   * Get blackout dates for a profile. Any authenticated user can view, only host can modify.
    */
   async getBlackoutDates(
     boardingProfileId: string,
@@ -712,8 +897,7 @@ export class BoardingService {
       where: { id: boardingProfileId },
     });
     if (!profile) throw new NotFoundException('Profile not found');
-    if (profile.hostId !== hostId)
-      throw new ForbiddenException('Not your boarding profile');
+    // Any authenticated user can view blackout dates (needed for booking)
     const where: {
       boardingProfileId: string;
       date?: { gte?: Date; lte?: Date };
@@ -734,20 +918,27 @@ export class BoardingService {
   }
 
   /**
-   * Approve a boarding profile (admin only). Sets isApproved to true.
+   * Approve or reject a boarding profile (admin only).
    * @param id - The boarding profile ID
    * @param _adminId - The ID of the admin (required by API, unused)
-   * @returns The updated boarding profile
+   * @param isApproved - Whether to approve (true) or reject (false)
+   * @returns The updated boarding profile or deletion message
    * @throws NotFoundException if profile not found
    */
   // eslint-disable-next-line @typescript-eslint/no-unused-vars -- adminId required by API
-  async approveProfile(id: string, _adminId: string) {
+  async approveProfile(id: string, _adminId: string, isApproved: boolean = true) {
     try {
       const profile = await this.prisma.boardingProfile.findUnique({
         where: { id },
       });
       if (!profile) throw new NotFoundException('Profile not found');
-      return this.prisma.boardingProfile.update({
+      
+      if (!isApproved) {
+        await this.prisma.boardingProfile.delete({ where: { id } });
+        return { message: 'Profile rejected and deleted' };
+      }
+      
+      return await this.prisma.boardingProfile.update({
         where: { id },
         data: { isApproved: true },
       });

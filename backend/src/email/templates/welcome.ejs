@@ -1,0 +1,11 @@
+<%- include('header') %>
+<h2>Welcome to PetMate, <%= name %>!</h2>
+<p>We're thrilled to have you join our community of pet lovers. PetMate is designed to make pet boarding and shopping easier than ever.</p>
+<p>To get started, please verify your email address by clicking the button below:</p>
+<div style="text-align: center;">
+    <a href="<%= verificationLink %>" class="btn">Verify My Email</a>
+</div>
+<p>If the button doesn't work, you can copy and paste this link into your browser:</p>
+<p style="word-break: break-all;"><a href="<%= verificationLink %>" class="brand-text"><%= verificationLink %></a></p>
+<p>Welcome aboard!<br>The PetMate Team</p>
+<%- include('footer') %>

@@ -14,6 +14,8 @@ import type { Prisma } from '@prisma/client';
 import type { PaginatedResponse } from '../common/interfaces/paginated-response.interface';
 import { getPaginationParams } from '../common/dto/pagination-query.dto';
 
+import { EmailService } from '../email/email.service';
+
 /**
  * Store service: products catalog, orders, checkout, order status, cancel.
  */
@@ -21,7 +23,10 @@ import { getPaginationParams } from '../common/dto/pagination-query.dto';
 export class StoreService {
   private readonly logger = new Logger(StoreService.name);
 
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly emailService: EmailService,
+  ) {}
 
   /**
    * Parse imageUrls from JSON string to array if present.
@@ -270,11 +275,30 @@ export class StoreService {
             data: { stock: { decrement: item.quantity } },
           });
         }
-        return tx.order.findUnique({
+        const result = await tx.order.findUnique({
           where: { id: newOrder.id },
-          include: { items: { include: { product: true } } },
+          include: { 
+            items: { include: { product: true } },
+            user: { select: { email: true, name: true } }
+          },
         });
+        return result;
       });
+
+      if (order && order.user) {
+        await this.emailService.sendOrderConfirmation({
+          email: order.user.email,
+          name: order.user.name,
+          orderId: order.id.slice(0, 8).toUpperCase(),
+          total: order.total,
+          items: order.items.map(item => ({
+            name: item.product.name,
+            quantity: item.quantity,
+            price: item.unitPrice
+          }))
+        });
+      }
+
       return order;
     } catch (error) {
       if (error instanceof BadRequestException) throw error;

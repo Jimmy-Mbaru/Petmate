@@ -1,7 +1,21 @@
-import { Injectable, NotFoundException, ForbiddenException, BadRequestException, Logger } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  ForbiddenException,
+  BadRequestException,
+  Logger,
+} from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
-import { CreateReportDto, UpdateReportDto, ReportReason, ReportStatus as ReportStatusDto } from './dto/create-report.dto';
+import {
+  CreateReportDto,
+  UpdateReportDto,
+  ReportReason,
+  ReportStatus as ReportStatusDto,
+} from './dto/create-report.dto';
 import { Role, ReportStatus } from '@prisma/client';
+import * as ExcelJS from 'exceljs';
+import PDFDocument from 'pdfkit';
+import { Response } from 'express';
 
 function dtoStatusToPrisma(s: ReportStatusDto): ReportStatus {
   const map: Record<ReportStatusDto, ReportStatus> = {
@@ -35,7 +49,9 @@ export class ReportsService {
       });
 
       if (existingReport) {
-        throw new BadRequestException('You have already reported this user for this reason');
+        throw new BadRequestException(
+          'You have already reported this user for this reason',
+        );
       }
 
       // Verify reported user exists
@@ -88,7 +104,11 @@ export class ReportsService {
         createdAt: report.createdAt,
       };
     } catch (error) {
-      if (error instanceof NotFoundException || error instanceof BadRequestException) throw error;
+      if (
+        error instanceof NotFoundException ||
+        error instanceof BadRequestException
+      )
+        throw error;
       this.logger.error('Create report failed', error);
       throw error;
     }
@@ -104,7 +124,7 @@ export class ReportsService {
     offset: number = 0,
   ) {
     try {
-      const where: any = {};
+      const where: Record<string, any> = {};
       const prismaStatus =
         status === undefined
           ? undefined
@@ -230,10 +250,7 @@ export class ReportsService {
     try {
       const reports = await this.prisma.userReport.findMany({
         where: {
-          OR: [
-            { reporterId: userId },
-            { reportedUserId: userId },
-          ],
+          OR: [{ reporterId: userId }, { reportedUserId: userId }],
         },
         include: {
           reporter: {
@@ -276,7 +293,12 @@ export class ReportsService {
   /**
    * Update report (Admin only)
    */
-  async update(id: string, dto: UpdateReportDto, adminId: string, adminRole: Role) {
+  async update(
+    id: string,
+    dto: UpdateReportDto,
+    adminId: string,
+    adminRole: Role,
+  ) {
     try {
       if (adminRole !== Role.ADMIN) {
         throw new ForbiddenException('Only admins can update reports');
@@ -290,7 +312,9 @@ export class ReportsService {
         throw new NotFoundException('Report not found');
       }
 
-      const prismaStatus = dto.status ? dtoStatusToPrisma(dto.status) : undefined;
+      const prismaStatus = dto.status
+        ? dtoStatusToPrisma(dto.status)
+        : undefined;
       const updated = await this.prisma.userReport.update({
         where: { id },
         data: {
@@ -333,7 +357,11 @@ export class ReportsService {
         adminNotes: updated.adminNotes,
       };
     } catch (error) {
-      if (error instanceof NotFoundException || error instanceof ForbiddenException) throw error;
+      if (
+        error instanceof NotFoundException ||
+        error instanceof ForbiddenException
+      )
+        throw error;
       this.logger.error('Update report failed', error);
       throw error;
     }
@@ -344,14 +372,25 @@ export class ReportsService {
    */
   async getStats() {
     try {
-      const [total, pending, underReview, resolved, dismissed, actionTaken] = await Promise.all([
-        this.prisma.userReport.count(),
-        this.prisma.userReport.count({ where: { status: ReportStatus.PENDING } }),
-        this.prisma.userReport.count({ where: { status: ReportStatus.UNDER_REVIEW } }),
-        this.prisma.userReport.count({ where: { status: ReportStatus.RESOLVED } }),
-        this.prisma.userReport.count({ where: { status: ReportStatus.DISMISSED } }),
-        this.prisma.userReport.count({ where: { status: ReportStatus.ACTION_TAKEN } }),
-      ]);
+      const [total, pending, underReview, resolved, dismissed, actionTaken] =
+        await Promise.all([
+          this.prisma.userReport.count(),
+          this.prisma.userReport.count({
+            where: { status: ReportStatus.PENDING },
+          }),
+          this.prisma.userReport.count({
+            where: { status: ReportStatus.UNDER_REVIEW },
+          }),
+          this.prisma.userReport.count({
+            where: { status: ReportStatus.RESOLVED },
+          }),
+          this.prisma.userReport.count({
+            where: { status: ReportStatus.DISMISSED },
+          }),
+          this.prisma.userReport.count({
+            where: { status: ReportStatus.ACTION_TAKEN },
+          }),
+        ]);
 
       return {
         total,
@@ -384,14 +423,150 @@ export class ReportsService {
         throw new NotFoundException('Report not found');
       }
 
-      await this.prisma.userReport.delete({
-        where: { id },
-      });
-
+      await this.prisma.userReport.delete({ where: { id } });
       return { message: 'Report deleted successfully' };
     } catch (error) {
-      if (error instanceof NotFoundException || error instanceof ForbiddenException) throw error;
+      if (
+        error instanceof NotFoundException ||
+        error instanceof ForbiddenException
+      )
+        throw error;
       this.logger.error('Remove report failed', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Export reports to Excel
+   */
+  async exportReportsToExcel(res: Response) {
+    try {
+      const reports = await this.prisma.userReport.findMany({
+        include: {
+          reporter: { select: { name: true, email: true } },
+          reportedUser: { select: { name: true, email: true } },
+        },
+        orderBy: { createdAt: 'desc' },
+      });
+
+      const workbook = new ExcelJS.Workbook();
+      const worksheet = workbook.addWorksheet('User Reports');
+
+      worksheet.columns = [
+        { header: 'ID', key: 'id', width: 36 },
+        { header: 'Reporter Name', key: 'reporterName', width: 25 },
+        { header: 'Reporter Email', key: 'reporterEmail', width: 30 },
+        { header: 'Reported User Name', key: 'reportedUserName', width: 25 },
+        { header: 'Reported User Email', key: 'reportedUserEmail', width: 30 },
+        { header: 'Reason', key: 'reason', width: 20 },
+        { header: 'Description', key: 'description', width: 40 },
+        { header: 'Status', key: 'status', width: 15 },
+        { header: 'Created At', key: 'createdAt', width: 20 },
+      ];
+
+      reports.forEach((report) => {
+        worksheet.addRow({
+          id: report.id,
+          reporterName: report.reporter.name,
+          reporterEmail: report.reporter.email,
+          reportedUserName: report.reportedUser.name,
+          reportedUserEmail: report.reportedUser.email,
+          reason: report.reason,
+          description: report.description,
+          status: report.status,
+          createdAt: report.createdAt.toISOString(),
+        });
+      });
+
+      // Style header row
+      worksheet.getRow(1).font = { bold: true };
+      worksheet.getRow(1).fill = {
+        type: 'pattern',
+        pattern: 'solid',
+        fgColor: { argb: 'FFE0E0E0' },
+      };
+
+      res.setHeader(
+        'Content-Type',
+        'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+      );
+      res.setHeader(
+        'Content-Disposition',
+        'attachment; filename=user-reports.xlsx',
+      );
+
+      await workbook.xlsx.write(res);
+      res.end();
+    } catch (error) {
+      this.logger.error('Export Excel failed', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Export reports to PDF
+   */
+  async exportReportsToPdf(res: Response) {
+    try {
+      const reports = await this.prisma.userReport.findMany({
+        include: {
+          reporter: { select: { name: true, email: true } },
+          reportedUser: { select: { name: true, email: true } },
+        },
+        orderBy: { createdAt: 'desc' },
+      });
+
+      const doc = new PDFDocument({ margin: 30, size: 'A4' });
+
+      res.setHeader('Content-Type', 'application/pdf');
+      res.setHeader(
+        'Content-Disposition',
+        'attachment; filename=user-reports.pdf',
+      );
+
+      doc.pipe(res);
+
+      // Title
+      doc.fontSize(20).text('User Reports Export', { align: 'center' });
+      doc.fontSize(10).text(`Generated on: ${new Date().toLocaleString()}`, {
+        align: 'center',
+      });
+      doc.moveDown(2);
+
+      reports.forEach((report, index) => {
+        if (index > 0 && index % 3 === 0) {
+          doc.addPage();
+        }
+
+        doc
+          .fontSize(12)
+          .fillColor('#333333')
+          .text(`Report ID: ${report.id}`, { underline: true });
+        doc.fontSize(10).fillColor('#000000');
+        doc.text(
+          `Reporter: ${report.reporter.name} (${report.reporter.email})`,
+        );
+        doc.text(
+          `Reported User: ${report.reportedUser.name} (${report.reportedUser.email})`,
+        );
+        doc.text(`Reason: ${report.reason}`);
+        doc.text(`Status: ${report.status}`);
+        doc.text(`Date: ${report.createdAt.toLocaleString()}`);
+        doc.moveDown(0.5);
+        doc.font('Helvetica-Bold').text('Description:');
+        doc.text(report.description);
+        doc.moveDown(1.5);
+        doc
+          .moveTo(30, doc.y)
+          .lineTo(565, doc.y)
+          .strokeColor('#CCCCCC')
+          .stroke();
+        doc.moveDown(1.5);
+      });
+
+      doc.end();
+    } catch (error) {
+      this.logger.error('Export PDF failed', error);
       throw error;
     }
   }

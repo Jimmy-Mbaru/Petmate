@@ -1,0 +1,65 @@
+@baseUrl = http://localhost:3000
+@authToken = {{authToken}}
+
+### Get my profile (for context)
+GET {{baseUrl}}/users/me
+Authorization: Bearer {{authToken}}
+
+###
+### Create/Update Boarding Profile
+### (Host user; add Cloudinary URLs from /upload/image)
+POST {{baseUrl}}/boarding/profile
+Authorization: Bearer {{authToken}}
+Content-Type: application/json
+
+{
+  "location": "Nairobi, Kenya",
+  "capacity": 3,
+  "pricePerDay": 15.5,
+  "description": "Cozy apartment, daily walks included.",
+  "photoUrls": [
+    "https://res.cloudinary.com/your-cloud/image/upload/v123/boarding/photo1.jpg"
+  ],
+  "documentUrls": [
+    "https://res.cloudinary.com/your-cloud/image/upload/v123/docs/vaccination-card1.jpg"
+  ]
+}
+
+###
+### Search Boarding Profiles (full-text + filters)
+GET {{baseUrl}}/boarding?location=Nairobi&limit=10&offset=0
+
+###
+### Search with advanced filters (q, price range, capacity, min rating)
+GET {{baseUrl}}/boarding?q=cozy&minPrice=10&maxPrice=50&minCapacity=2&minRating=4&limit=20&offset=0
+
+###
+### Get Single Boarding Profile
+GET {{baseUrl}}/boarding/1
+
+###
+### Create Booking (Owner → Host)
+POST {{baseUrl}}/boarding/profile/1/book
+Authorization: Bearer {{authToken}}
+Content-Type: application/json
+
+{
+  "startDate": "2026-03-10T10:00:00.000Z",
+  "endDate": "2026-03-15T10:00:00.000Z"
+}
+
+###
+### Host: Update Booking Status (ACCEPTED / DECLINED)
+PATCH {{baseUrl}}/boarding/bookings/1/status
+Authorization: Bearer {{authToken}}
+Content-Type: application/json
+
+{
+  "status": "ACCEPTED"
+}
+
+###
+### Owner/Host: My Bookings (paginated)
+GET {{baseUrl}}/boarding/my-bookings?limit=10&offset=0
+Authorization: Bearer {{authToken}}
+

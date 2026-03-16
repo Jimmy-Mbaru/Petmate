@@ -1,0 +1,74 @@
+@baseUrl = http://localhost:3000
+
+### User Sign Up (Owner - default role)
+POST {{baseUrl}}/auth/register
+Content-Type: application/json
+
+{
+  "email": "owner1@example.com",
+  "password": "Password123!",
+  "name": "Owner One"
+}
+
+###
+### User Login (Owner) - returns access_token and refresh_token
+POST {{baseUrl}}/auth/login
+Content-Type: application/json
+
+{
+  "email": "owner1@example.com",
+  "password": "Password123!"
+}
+
+###
+### Refresh access token (use refresh_token from login/register; optional ?rotate=false to reuse same refresh token)
+POST {{baseUrl}}/auth/refresh
+Content-Type: application/json
+
+{
+  "refresh_token": "PASTE_REFRESH_TOKEN_HERE"
+}
+
+###
+### Host Sign Up (register, then promote to HOST via admin)
+### Step 1: Register as normal user
+POST {{baseUrl}}/auth/register
+Content-Type: application/json
+
+{
+  "email": "host1@example.com",
+  "password": "Password123!",
+  "name": "Host One"
+}
+
+###
+### Host Login
+POST {{baseUrl}}/auth/login
+Content-Type: application/json
+
+{
+  "email": "host1@example.com",
+  "password": "Password123!"
+}
+
+###
+### Admin Sign Up (initial admin via register, then role updated with admin.http)
+POST {{baseUrl}}/auth/register
+Content-Type: application/json
+
+{
+  "email": "admin1@example.com",
+  "password": "Password123!",
+  "name": "Admin One"
+}
+
+###
+### Admin Login
+POST {{baseUrl}}/auth/login
+Content-Type: application/json
+
+{
+  "email": "admin1@example.com",
+  "password": "Password123!"
+}
+

@@ -1,0 +1,32 @@
+@baseUrl = http://localhost:3000
+@accessToken = {{accessToken}}
+
+###
+### List favorite pets
+GET {{baseUrl}}/favorites/pets
+Authorization: Bearer {{accessToken}}
+
+###
+### Add pet to favorites
+POST {{baseUrl}}/favorites/pets/1
+Authorization: Bearer {{accessToken}}
+
+###
+### Remove pet from favorites
+DELETE {{baseUrl}}/favorites/pets/1
+Authorization: Bearer {{accessToken}}
+
+###
+### List favorite boarding profiles (saved hosts)
+GET {{baseUrl}}/favorites/boarding
+Authorization: Bearer {{accessToken}}
+
+###
+### Add boarding profile to favorites
+POST {{baseUrl}}/favorites/boarding/1
+Authorization: Bearer {{accessToken}}
+
+###
+### Remove boarding profile from favorites
+DELETE {{baseUrl}}/favorites/boarding/1
+Authorization: Bearer {{accessToken}}

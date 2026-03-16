@@ -31,6 +31,16 @@
 $ npm install
 ```
 
+### Environment
+
+Create a `.env` in the backend root. Required for Cloudinary image uploads:
+
+- `CLOUDINARY_CLOUD_NAME` – from [Cloudinary Dashboard](https://cloudinary.com/console)
+- `CLOUDINARY_API_KEY`
+- `CLOUDINARY_API_SECRET`
+
+Optional: `CLOUDINARY_URL` (alternative to the three vars above).
+
 ## Compile and run the project
 
 ```bash
