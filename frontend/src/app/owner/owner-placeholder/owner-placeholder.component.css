@@ -1,0 +1,23 @@
+.placeholder {
+  text-align: center;
+  padding: 3rem 2rem;
+  font-family: var(--font-body);
+}
+.placeholder-title {
+  font-family: var(--font-display);
+  font-size: 1.5rem;
+  color: var(--color-text);
+  margin: 0 0 0.5rem 0;
+}
+.placeholder-text {
+  color: var(--color-text-muted);
+  margin: 0 0 1.5rem 0;
+}
+.placeholder-link {
+  color: var(--color-primary);
+  font-weight: 600;
+  text-decoration: none;
+}
+.placeholder-link:hover {
+  text-decoration: underline;
+}

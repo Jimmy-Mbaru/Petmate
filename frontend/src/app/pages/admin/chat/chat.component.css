@@ -1,0 +1,79 @@
+/* Admin Chat – theme-aligned chat bubbles (red + cream) */
+
+.admin-chat-messages {
+  background-color: var(--color-surface);
+}
+
+/* Box shadow for all chat bubbles */
+.admin-chat-bubble,
+.admin-chat-bubble--own,
+.admin-chat-bubble--other {
+  box-shadow: rgba(50, 50, 93, 0.25) 0px 50px 100px -20px, rgba(0, 0, 0, 0.3) 0px 30px 60px -30px, rgba(10, 37, 64, 0.35) 0px -2px 6px 0px inset !important;
+}
+
+/* Sent (own) – theme red gradient */
+.admin-chat-bubble--own {
+  background: linear-gradient(135deg, var(--color-primary), var(--color-primary-hover));
+  color: var(--color-white);
+}
+
+.admin-chat-bubble--own .admin-chat-bubble-time {
+  color: rgba(255, 255, 255, 0.85);
+}
+
+/* Received (other) – cream surface, dark text so it doesn’t blend with bg */
+.admin-chat-bubble--other {
+  background: var(--color-white);
+  color: var(--color-text);
+  border: 1px solid var(--color-orange-soft);
+  box-shadow: rgba(50, 50, 93, 0.25) 0px 50px 100px -20px, rgba(0, 0, 0, 0.3) 0px 30px 60px -30px, rgba(10, 37, 64, 0.35) 0px -2px 6px 0px inset !important;
+}
+
+.admin-chat-bubble--other .admin-chat-bubble-time {
+  color: var(--color-text-muted);
+}
+
+/* Red initials circle when user has no profile image */
+.admin-chat-initials {
+  background: linear-gradient(135deg, #dc2626, #b91c1c);
+  color: white;
+}
+
+/* Typing indicator bubble with animated dots */
+.admin-chat-typing-bubble {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  min-height: 2.5rem;
+}
+
+.admin-chat-typing-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--color-text-muted, #6b7280);
+  animation: admin-chat-typing-bounce 1.4s ease-in-out infinite both;
+}
+
+.admin-chat-typing-dot:nth-child(1) {
+  animation-delay: 0s;
+}
+.admin-chat-typing-dot:nth-child(2) {
+  animation-delay: 0.2s;
+}
+.admin-chat-typing-dot:nth-child(3) {
+  animation-delay: 0.4s;
+}
+
+@keyframes admin-chat-typing-bounce {
+  0%,
+  80%,
+  100% {
+    transform: scale(0.6);
+    opacity: 0.5;
+  }
+  40% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}

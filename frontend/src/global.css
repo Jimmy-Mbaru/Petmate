@@ -1,0 +1,173 @@
+/* Design tokens & global styles */
+@import "aos/dist/aos.css";
+
+:root {
+  /* Main theme colors */
+  --color-black: #000000;
+  --color-primary: #d72323;
+  --color-primary-hover: #bc1f1f;
+  --color-surface: #f5eded;
+  --color-gray: #363636;
+
+  /* Derived / semantic */
+  --font-display: 'Playfair Display', Georgia, serif;
+  --font-body: 'Lato', -apple-system, BlinkMacSystemFont, sans-serif;
+  --color-dark: var(--color-black);
+  --color-cream: var(--color-surface);
+  --color-text: var(--color-black);
+  --color-text-muted: var(--color-gray);
+  --color-orange: var(--color-primary);
+  --color-orange-hover: var(--color-primary-hover);
+  --color-orange-soft: rgba(215, 35, 35, 0.12);
+  --color-accent-tag: var(--color-gray);
+  --color-white: #ffffff;
+  --radius-btn: 8px;
+  --radius-card: 24px;
+  --radius-card-sm: 16px;
+  /* Go-to card box-shadow – use for all cards */
+  --shadow-soft: rgba(50, 50, 93, 0.25) 0px 50px 100px -20px, rgba(0, 0, 0, 0.3) 0px 30px 60px -30px, rgba(10, 37, 64, 0.35) 0px -2px 6px 0px inset;
+  --shadow-card: rgba(50, 50, 93, 0.25) 0px 50px 100px -20px, rgba(0, 0, 0, 0.3) 0px 30px 60px -30px, rgba(10, 37, 64, 0.35) 0px -2px 6px 0px inset;
+}
+
+html {
+  background-color: #f5eded;
+  min-height: 100vh;
+  overflow-x: hidden;
+  scroll-padding-top: 64px;
+}
+
+body {
+  margin: 0;
+  font-family: var(--font-body);
+  color: var(--color-text);
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+  /* Global textured background - matches landing page exactly */
+  background-color: #f5eded;
+  background-image:
+    radial-gradient(circle at 1px 1px, rgba(215, 35, 35, 0.15) 1px, transparent 0),
+    linear-gradient(rgba(215, 35, 35, 0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(215, 35, 35, 0.03) 1px, transparent 1px);
+  background-size: 24px 24px, 40px 40px, 40px 40px;
+  background-attachment: fixed;
+  background-position: 0 0, 0 0, 0 0;
+  min-height: 100vh;
+  /* No padding-top: navbar is sticky and in flow, so content starts below it naturally */
+}
+
+/* Global noise texture overlay - matches landing page (opacity 0.04 = 4%) */
+body::before {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+  opacity: 0.04;
+  pointer-events: none;
+  z-index: -1;
+}
+
+body {
+  position: relative;
+}
+
+/* Custom scrollbar - global */
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 8px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, #d72323, #bc1f1f);
+  border-radius: 8px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(180deg, #bc1f1f, #d72323);
+}
+
+/* Smooth scroll behavior */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Custom animations */
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+.animate-float {
+  animation: float 3s ease-in-out infinite;
+}
+
+/* Stats marquee */
+@keyframes stats-marquee {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
+}
+
+.stats-marquee-track {
+  display: flex;
+  width: max-content;
+  animation: stats-marquee 30s linear infinite;
+}
+
+.stats-marquee-track:hover {
+  animation-play-state: paused;
+}
+
+/* Optional: focus visible for accessibility */
+:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+/* Background textures */
+.bg-dot-pattern {
+  background-image: radial-gradient(circle at 1px 1px, rgba(215, 35, 35, 0.15) 1px, transparent 0);
+  background-size: 24px 24px;
+}
+
+.bg-dot-pattern-dark {
+  background-image: radial-gradient(circle at 1px 1px, rgba(255, 255, 255, 0.1) 1px, transparent 0);
+  background-size: 24px 24px;
+}
+
+.bg-grid-pattern {
+  background-image:
+    linear-gradient(rgba(215, 35, 35, 0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(215, 35, 35, 0.03) 1px, transparent 1px);
+  background-size: 40px 40px;
+}
+
+.bg-noise {
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+  opacity: 0.04;
+}
+
+.bg-wave-pattern {
+  background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23d72323' fill-opacity='0.05'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-4V26h-2v4h-4v2h4v4h2v-4h4v-2h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 30V22H4v8H0v2h4v4h2v-4h4v-2H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+}
+
+/* Go-to card styling – use class .card or var(--shadow-card) for consistent card look */
+.card {
+  box-shadow: var(--shadow-card);
+  background-color: #ffffff;
+  border-radius: var(--radius-card-sm);
+}

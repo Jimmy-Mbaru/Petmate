@@ -1,0 +1,104 @@
+<div class="user-profile-page">
+  <header class="page-header">
+    <div>
+      <h1 class="page-title">
+        {{ isSelf ? 'Your public profile' : 'User profile' }}
+      </h1>
+      <p class="page-subtitle">
+        View basic information and start a conversation
+      </p>
+    </div>
+  </header>
+
+  @if (isLoading) {
+    <div class="card loading-card">
+      <div class="loading-spinner" aria-hidden="true"></div>
+      <p class="loading-text">Loading profile...</p>
+    </div>
+  } @else if (!profile) {
+    <div class="card error-card">
+      <p class="error-title">Profile not found</p>
+      <p class="error-text">This user may no longer exist or the link is invalid.</p>
+      <a routerLink="/app/dashboard" class="back-btn">Back to dashboard</a>
+    </div>
+  } @else {
+    <div class="card profile-card">
+      <div class="avatar-section">
+        @if (profile.avatarUrl) {
+          <img
+            [src]="profile.avatarUrl"
+            [alt]="profile.name"
+            class="avatar-image"
+          />
+        } @else {
+          <div class="avatar-fallback">
+            @if (getInitials()) {
+              <span class="avatar-initials">{{ getInitials() }}</span>
+            } @else {
+              <ng-icon name="lucideUser" size="40" class="avatar-icon" />
+            }
+          </div>
+        }
+      </div>
+
+      <div class="info-section">
+        <div class="name-row">
+          <h2 class="name">{{ profile.name }}</h2>
+          @if (profile.role) {
+            <span class="role-pill">{{ getFormattedRole() }}</span>
+          }
+        </div>
+
+        <div class="meta-row">
+          @if (profile.email) {
+            <div class="meta-item">
+              <ng-icon name="lucideMail" size="16" />
+              <span>{{ profile.email }}</span>
+            </div>
+          }
+          @if (profile.createdAt) {
+            <span class="meta-sep" aria-hidden="true">·</span>
+            <div class="meta-item">
+              <span>Member since {{ getMemberSince() }}</span>
+            </div>
+          }
+        </div>
+
+        <div class="bio-block">
+          @if (profile.bio) {
+            <p class="bio">{{ profile.bio }}</p>
+          } @else {
+            <p class="bio bio-placeholder">This user has not added a bio yet.</p>
+          }
+        </div>
+
+        <div class="actions-row">
+          @if (!isSelf) {
+            <button type="button" class="btn-message" (click)="messageUser()">
+              <ng-icon name="lucideMessageCircle" size="20" />
+              <span>Message</span>
+            </button>
+            <button type="button" class="btn-report" (click)="openReportModal()">
+              <ng-icon name="lucideFlag" size="18" />
+              <span>Report</span>
+            </button>
+            <button type="button" class="btn-block" (click)="blockUser()" [class.is-blocked]="isBlocked">
+              <ng-icon [name]="isBlocked ? 'lucideShieldAlert' : 'lucideShieldOff'" size="18" />
+              <span>{{ isBlocked ? 'Unblock' : 'Block' }}</span>
+            </button>
+          } @else {
+            <p class="hint-text">This is how other users see your basic profile.</p>
+          }
+        </div>
+      </div>
+    </div>
+  }
+
+  <!-- Report User Modal -->
+  @if (showReportModal && getReportModalData()) {
+    <app-report-user-modal
+      [data]="getReportModalData()!"
+      (close)="closeReportModal()"
+    />
+  }
+</div>

@@ -1,0 +1,104 @@
+<div class="report-modal-backdrop" id="report-modal-backdrop">
+  <div class="report-modal" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+    <!-- Header -->
+    <div class="modal-header">
+      <div class="modal-title-wrapper">
+        <div class="modal-icon">
+          <ng-icon name="lucideShield" size="24" />
+        </div>
+        <div>
+          <h2 class="modal-title" id="modal-title">Report User</h2>
+          <p class="modal-subtitle">Reporting: {{ data?.reportedUserName }}</p>
+        </div>
+      </div>
+      <button type="button" class="modal-close" (click)="closeModal()" aria-label="Close modal">
+        <ng-icon name="lucideX" size="20" />
+      </button>
+    </div>
+
+    <!-- Body -->
+    <div class="modal-body">
+      <form [formGroup]="form" (ngSubmit)="onSubmit()">
+        <!-- Reason Selection -->
+        <div class="form-section">
+          <label class="section-label">
+            <ng-icon name="lucideAlertTriangle" size="16" />
+            <span>Select a reason for reporting</span>
+          </label>
+          <div class="reasons-grid">
+            @for (reasonOption of reportReasons; track reasonOption.value) {
+              <div 
+                class="reason-option" 
+                [class.selected]="getSelectedReason() === reasonOption.value"
+                (click)="selectReason(reasonOption.value)"
+              >
+                <div class="reason-icon">
+                  <ng-icon [name]="reasonOption.icon" size="20" />
+                </div>
+                <div class="reason-content">
+                  <span class="reason-label">{{ reasonOption.label }}</span>
+                  <span class="reason-description">{{ reasonOption.description }}</span>
+                </div>
+              </div>
+            }
+          </div>
+          @if (reason?.invalid && reason?.touched) {
+            <p class="field-error">Please select a reason for reporting</p>
+          }
+        </div>
+
+        <!-- Description -->
+        <div class="form-section">
+          <label for="description" class="section-label">
+            <ng-icon name="lucideMessageSquare" size="16" />
+            <span>Provide more details</span>
+          </label>
+          <div class="input-wrap">
+            <textarea 
+              id="description" 
+              formControlName="description" 
+              rows="4" 
+              class="description-input"
+              placeholder="Please describe what happened in detail. This information will only be shared with our moderation team..."
+              maxlength="500"
+            ></textarea>
+            <span class="char-count">{{ description?.value?.length || 0 }}/500</span>
+          </div>
+          @if (description?.invalid && description?.touched) {
+            <p class="field-error">
+              @if (description?.errors?.['required']) {
+                Please provide details about your report
+              } @else if (description?.errors?.['minlength']) {
+                Description must be at least 20 characters
+              }
+            </p>
+          }
+        </div>
+
+        <!-- Info Notice -->
+        <div class="info-notice">
+          <ng-icon name="lucideShield" size="18" />
+          <div class="notice-content">
+            <p class="notice-title">Your report is anonymous</p>
+            <p class="notice-text">The reported user will not be notified that you reported them. Our team will review and take appropriate action.</p>
+          </div>
+        </div>
+      </form>
+    </div>
+
+    <!-- Footer -->
+    <div class="modal-footer">
+      <button type="button" class="btn-cancel" (click)="closeModal()" [disabled]="isSubmitting">
+        Cancel
+      </button>
+      <button type="submit" class="btn-submit" (click)="onSubmit()" [disabled]="isSubmitting || form.invalid">
+        @if (isSubmitting) {
+          <span class="submitting-text">Submitting...</span>
+        } @else {
+          <ng-icon name="lucideSend" size="18" />
+          <span>Submit Report</span>
+        }
+      </button>
+    </div>
+  </div>
+</div>

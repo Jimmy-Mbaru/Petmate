@@ -1,0 +1,57 @@
+<div class="block-modal-backdrop" id="block-modal-backdrop">
+  <div class="block-modal" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+    <!-- Header -->
+    <div class="modal-header">
+      <div class="modal-title-wrapper">
+        <div class="modal-icon">
+          <ng-icon name="lucideShield" size="24" />
+        </div>
+        <div>
+          <h2 class="modal-title" id="modal-title">Block User</h2>
+          <p class="modal-subtitle">{{ data.blockedUserName }}</p>
+        </div>
+      </div>
+      <button type="button" class="modal-close" (click)="closeModal()" aria-label="Close modal">
+        <ng-icon name="lucideX" size="20" />
+      </button>
+    </div>
+
+    <!-- Body -->
+    <div class="modal-body">
+      <div class="warning-box">
+        <ng-icon name="lucideAlertTriangle" size="24" />
+        <div class="warning-content">
+          <h3 class="warning-title">Are you sure?</h3>
+          <p class="warning-text">
+            When you block this user, they will not be able to:
+          </p>
+          <ul class="warning-list">
+            <li>Send you messages</li>
+            <li>View your full profile</li>
+            <li>Book your services</li>
+            <li>See your activity</li>
+          </ul>
+        </div>
+      </div>
+
+      <p class="info-text">
+        You can unblock this user at any time from your settings.
+      </p>
+    </div>
+
+    <!-- Footer -->
+    <div class="modal-footer">
+      <button type="button" class="btn-cancel" (click)="closeModal()" [disabled]="isBlocking">
+        Cancel
+      </button>
+      <button type="button" class="btn-block" (click)="blockUser()" [disabled]="isBlocking">
+        @if (isBlocking) {
+          <span class="blocking-text">Blocking...</span>
+        } @else {
+          <ng-icon name="lucideUserX" size="18" />
+          <span>Block User</span>
+        }
+      </button>
+    </div>
+  </div>
+</div>

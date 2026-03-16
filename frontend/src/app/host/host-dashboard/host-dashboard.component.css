@@ -1,0 +1,74 @@
+.content-wrapper {
+  padding: 2rem 1.5rem;
+  min-height: 100%;
+}
+
+@media (min-width: 640px) {
+  .content-wrapper {
+    padding: 2rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .content-wrapper {
+    padding: 2rem 3rem;
+  }
+}
+
+/* Stat card accents – theme red */
+.stat-card {
+  border-left-color: var(--color-primary) !important;
+}
+.stat-card-icon-bg {
+  background: linear-gradient(135deg, rgba(215, 35, 35, 0.1), rgba(188, 31, 31, 0.15));
+}
+.stat-card-icon {
+  color: var(--color-primary);
+}
+.stat-card-value {
+  color: var(--color-primary);
+}
+.stat-card-badge {
+  color: var(--color-primary);
+  background: rgba(215, 35, 35, 0.12);
+}
+.stat-card-progress {
+  background: linear-gradient(90deg, var(--color-primary), var(--color-primary-hover));
+}
+
+:host {
+  display: block;
+}
+
+a {
+  cursor: pointer;
+}
+
+/* Table styles */
+table {
+  border-collapse: collapse;
+}
+
+th, td {
+  text-align: left;
+}
+
+/* Card hover effects */
+.card {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.card:hover {
+  transform: translateY(-4px);
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .text-3xl {
+    font-size: 1.5rem;
+  }
+  
+  .grid-cols-1 {
+    grid-template-columns: 1fr;
+  }
+}

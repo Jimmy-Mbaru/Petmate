@@ -1,0 +1,97 @@
+// Animated underline for section headings (triggers when heading scrolls into view via AOS)
+.heading-with-underline {
+  position: relative;
+  display: inline-block;
+
+  .heading-underline {
+    display: block;
+    height: 4px;
+    width: 100%;
+    max-width: 120px;
+    margin: 0.5rem auto 0;
+    background: linear-gradient(90deg, #d72323, #bc1f1f);
+    border-radius: 2px;
+    transform-origin: left center;
+    transform: scaleX(0);
+    opacity: 0;
+  }
+
+  &.aos-animate .heading-underline {
+    animation: underline-draw 0.8s ease-out forwards,
+               underline-shimmer 2.5s ease-in-out 0.8s infinite;
+  }
+
+  &.heading-with-underline--center .heading-underline {
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  &.heading-with-underline--left .heading-underline {
+    margin-left: 0;
+    margin-right: auto;
+  }
+}
+
+@keyframes underline-draw {
+  from {
+    transform: scaleX(0);
+    opacity: 0;
+  }
+  to {
+    transform: scaleX(1);
+    opacity: 1;
+  }
+}
+
+@keyframes underline-shimmer {
+  0%, 100% {
+    opacity: 1;
+    filter: brightness(1);
+  }
+  50% {
+    opacity: 0.85;
+    filter: brightness(1.15);
+  }
+}
+
+// Hero "perfect" word SVG underline – draw-in animation
+.hero-underline-svg path {
+  stroke-dasharray: 220;
+  stroke-dashoffset: 220;
+  animation: hero-underline-draw 1s ease-out 0.4s forwards;
+}
+
+@keyframes hero-underline-draw {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+// Testimonials marquee
+.testimonials-marquee {
+  overflow: hidden;
+  width: 100%;
+  mask-image: linear-gradient(to right, transparent, black 8%, black 92%, transparent);
+  -webkit-mask-image: linear-gradient(to right, transparent, black 8%, black 92%, transparent);
+}
+
+.testimonials-marquee-track {
+  display: flex;
+  gap: 2rem;
+  width: max-content;
+  animation: testimonials-marquee 45s linear infinite;
+}
+
+.testimonial-card {
+  min-width: 320px;
+  max-width: 320px;
+}
+
+@keyframes testimonials-marquee {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
+}

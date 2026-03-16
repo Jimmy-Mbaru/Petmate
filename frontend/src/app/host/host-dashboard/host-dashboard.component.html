@@ -1,0 +1,244 @@
+<div class="content-wrapper">
+  <div class="max-w-7xl mx-auto">
+    <!-- Welcome Header -->
+    <div class="mb-8" data-aos="fade-down">
+      <div class="card bg-white rounded-3xl p-8 border border-gray-100 shadow-lg relative overflow-hidden">
+        <div class="absolute inset-0 opacity-5">
+          <div class="absolute inset-0" style="background-image: radial-gradient(circle at 1px 1px, rgba(215, 35, 35, 0.3) 1px, transparent 0); background-size: 24px 24px;"></div>
+        </div>
+        
+        <div class="relative z-10">
+          <div class="flex items-center gap-4 mb-4">
+            <div class="w-16 h-16 rounded-2xl flex items-center justify-center" style="background: linear-gradient(135deg, #d72323 0%, #bc1f1f 100%);">
+              <svg class="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+              </svg>
+            </div>
+            <div>
+              <h1 class="text-3xl font-bold text-gray-900 m-0">Welcome back, {{ userName }}!</h1>
+              <p class="text-gray-500 m-0 mt-1">Here's what's happening with your hosting business today.</p>
+            </div>
+          </div>
+          
+          <div class="flex flex-wrap gap-3 mt-6">
+            <span class="inline-flex items-center gap-2 px-4 py-2 bg-green-50 text-green-700 rounded-full text-sm font-medium">
+              <span class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
+              Your profile is {{ stats().profile?.isApproved ? 'approved' : 'pending approval' }}
+            </span>
+            @if (stats().pendingBookings > 0) {
+              <span class="inline-flex items-center gap-2 px-4 py-2 bg-yellow-50 text-yellow-700 rounded-full text-sm font-medium">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                {{ stats().pendingBookings }} pending booking{{ stats().pendingBookings > 1 ? 's' : '' }}
+              </span>
+            }
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Stats Grid -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+      <!-- Earnings Card -->
+      <div class="card stat-card bg-white rounded-3xl p-6 border-l-4 border-t border-r border-b border-t-gray-100 border-r-gray-100 border-b-gray-100 shadow-lg hover:shadow-xl transition-all duration-300" data-aos="fade-up" data-aos-delay="0">
+        <div class="flex items-center justify-between">
+          <div>
+            <p class="text-sm font-medium text-gray-500 uppercase tracking-wide m-0">Total Earnings</p>
+            <p class="text-3xl font-bold stat-card-value m-0 mt-2">KES {{ stats().earnings | number }}</p>
+          </div>
+          <div class="w-16 h-16 rounded-2xl flex items-center justify-center stat-card-icon-bg">
+            <svg class="w-8 h-8 stat-card-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+          </div>
+        </div>
+        @if (earningsChangePercent() !== null) {
+          <div class="mt-4 flex items-center gap-2">
+            <span class="text-xs font-medium stat-card-badge px-2 py-1 rounded-full">
+              <svg class="w-3 h-3 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
+              </svg>
+              {{ earningsChangePercent()! >= 0 ? '+' : '' }}{{ earningsChangePercent() }}% vs last month
+            </span>
+          </div>
+        }
+      </div>
+
+      <!-- Total Bookings Card -->
+      <div class="card stat-card bg-white rounded-3xl p-6 border-l-4 border-t border-r border-b border-t-gray-100 border-r-gray-100 border-b-gray-100 shadow-lg hover:shadow-xl transition-all duration-300" data-aos="fade-up" data-aos-delay="100">
+        <div class="flex items-center justify-between">
+          <div>
+            <p class="text-sm font-medium text-gray-500 uppercase tracking-wide m-0">Total Bookings</p>
+            <p class="text-3xl font-bold text-gray-900 m-0 mt-2">{{ stats().bookings | number }}</p>
+          </div>
+          <div class="w-16 h-16 rounded-2xl flex items-center justify-center stat-card-icon-bg">
+            <svg class="w-8 h-8 stat-card-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+            </svg>
+          </div>
+        </div>
+        <div class="mt-4 h-2 bg-gray-100 rounded-full overflow-hidden">
+          <div class="h-full stat-card-progress rounded-full transition-all duration-1000" style="width: 75%;"></div>
+        </div>
+      </div>
+
+      <!-- Pending Bookings Card -->
+      <div class="card stat-card bg-white rounded-3xl p-6 border-l-4 border-t border-r border-b border-t-gray-100 border-r-gray-100 border-b-gray-100 shadow-lg hover:shadow-xl transition-all duration-300" data-aos="fade-up" data-aos-delay="200">
+        <div class="flex items-center justify-between">
+          <div>
+            <p class="text-sm font-medium text-gray-500 uppercase tracking-wide m-0">Pending</p>
+            <p class="text-3xl font-bold stat-card-value m-0 mt-2">{{ stats().pendingBookings | number }}</p>
+          </div>
+          <div class="w-16 h-16 rounded-2xl flex items-center justify-center stat-card-icon-bg">
+            <svg class="w-8 h-8 stat-card-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+          </div>
+        </div>
+        <div class="mt-4 flex items-center gap-2">
+          <span class="text-xs font-medium stat-card-badge px-2 py-1 rounded-full">
+            Needs attention
+          </span>
+        </div>
+      </div>
+
+      <!-- Reviews Card -->
+      <div class="card stat-card bg-white rounded-3xl p-6 border-l-4 border-t border-r border-b border-t-gray-100 border-r-gray-100 border-b-gray-100 shadow-lg hover:shadow-xl transition-all duration-300" data-aos="fade-up" data-aos-delay="300">
+        <div class="flex items-center justify-between">
+          <div>
+            <p class="text-sm font-medium text-gray-500 uppercase tracking-wide m-0">Avg Rating</p>
+            <p class="text-3xl font-bold text-gray-900 m-0 mt-2">
+              {{ stats().profile?.averageRating?.toFixed(1) || '0.0' }}
+            </p>
+          </div>
+          <div class="w-16 h-16 rounded-2xl flex items-center justify-center stat-card-icon-bg">
+            <svg class="w-8 h-8 stat-card-icon" fill="currentColor" viewBox="0 0 24 24">
+              <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
+            </svg>
+          </div>
+        </div>
+        <div class="mt-4 flex items-center gap-1">
+          @for (star of [1,2,3,4,5]; track star) {
+            <svg class="w-4 h-4" [class.text-yellow-400]="star <= (stats().profile?.averageRating || 0)" [class.text-gray-300]="star > (stats().profile?.averageRating || 0)" fill="currentColor" viewBox="0 0 24 24">
+              <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
+            </svg>
+          }
+        </div>
+      </div>
+    </div>
+
+    <!-- Charts Row -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+      <!-- Earnings Chart -->
+      <div class="card bg-white rounded-3xl p-6 border border-gray-100 shadow-lg" data-aos="fade-up" data-aos-delay="400">
+        <div class="flex items-center justify-between mb-6">
+          <div>
+            <h3 class="text-xl font-bold text-gray-900 m-0">Earnings Overview</h3>
+            <p class="text-sm text-gray-500 m-0 mt-1">Monthly revenue trend</p>
+          </div>
+          <div class="flex items-center gap-2">
+            <span class="flex items-center gap-1.5 text-xs font-medium text-gray-600">
+              <span class="w-3 h-3 rounded-full" style="background: #d72323;"></span> Revenue
+            </span>
+          </div>
+        </div>
+        <div class="h-72">
+          <canvas #earningsChart></canvas>
+        </div>
+      </div>
+
+      <!-- Bookings Chart -->
+      <div class="card bg-white rounded-3xl p-6 border border-gray-100 shadow-lg" data-aos="fade-up" data-aos-delay="500">
+        <div class="flex items-center justify-between mb-6">
+          <div>
+            <h3 class="text-xl font-bold text-gray-900 m-0">Bookings Activity</h3>
+            <p class="text-sm text-gray-500 m-0 mt-1">This week's bookings</p>
+          </div>
+          <div class="flex items-center gap-2">
+            <span class="flex items-center gap-1.5 text-xs font-medium text-gray-600">
+              <span class="w-3 h-3 rounded-full" style="background: #10b981;"></span> Completed
+            </span>
+            <span class="flex items-center gap-1.5 text-xs font-medium text-gray-600">
+              <span class="w-3 h-3 rounded-full" style="background: #f59e0b;"></span> Pending
+            </span>
+          </div>
+        </div>
+        <div class="h-72">
+          <canvas #bookingsChart></canvas>
+        </div>
+      </div>
+    </div>
+
+    <!-- Recent Bookings -->
+    <div class="card bg-white rounded-3xl p-8 border border-gray-100 shadow-lg" data-aos="fade-up" data-aos-delay="600">
+      <div class="flex items-center justify-between mb-6">
+        <h2 class="text-2xl font-bold text-gray-900 m-0">Recent Bookings</h2>
+        <a routerLink="/app/host/bookings" class="inline-flex items-center gap-2 text-(--color-primary) font-medium hover:underline">
+          View All
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+          </svg>
+        </a>
+      </div>
+
+      @if (loading()) {
+        <div class="space-y-4">
+          @for (item of [1,2,3]; track item) {
+            <div class="flex items-center gap-4 p-4 bg-gray-50 rounded-xl">
+              <div class="w-12 h-12 rounded-full bg-gray-200 animate-pulse"></div>
+              <div class="flex-1 space-y-2">
+                <div class="h-4 bg-gray-200 rounded w-1/3 animate-pulse"></div>
+                <div class="h-3 bg-gray-200 rounded w-1/4 animate-pulse"></div>
+              </div>
+            </div>
+          }
+        </div>
+      } @else if (recentBookings.length === 0) {
+        <div class="text-center py-12">
+          <div class="w-20 h-20 mx-auto mb-4 rounded-full bg-gray-100 flex items-center justify-center">
+            <svg class="w-10 h-10 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+            </svg>
+          </div>
+          <h3 class="text-lg font-bold text-gray-900 m-0 mb-2">No bookings yet</h3>
+          <p class="text-gray-500">Bookings will appear here once guests start booking your service.</p>
+        </div>
+      } @else {
+        <div class="overflow-x-auto">
+          <table class="w-full">
+            <thead>
+              <tr class="border-b border-gray-100">
+                <th class="text-left py-4 px-4 text-sm font-semibold text-gray-600">Guest</th>
+                <th class="text-left py-4 px-4 text-sm font-semibold text-gray-600">Date</th>
+                <th class="text-left py-4 px-4 text-sm font-semibold text-gray-600">Amount</th>
+                <th class="text-left py-4 px-4 text-sm font-semibold text-gray-600">Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (booking of recentBookings; track booking.id) {
+                <tr class="border-b border-gray-50 hover:bg-gray-50 transition-colors">
+                  <td class="py-4 px-4">
+                    <div class="flex items-center gap-3">
+                      <div class="w-10 h-10 rounded-full bg-linear-to-br from-(--color-primary) to-(--color-primary-hover) flex items-center justify-center text-white font-bold text-sm">
+                        {{ booking.ownerName.charAt(0).toUpperCase() }}
+                      </div>
+                      <span class="font-medium text-gray-900">{{ booking.ownerName }}</span>
+                    </div>
+                  </td>
+                  <td class="py-4 px-4 text-gray-600">{{ booking.date }}</td>
+                  <td class="py-4 px-4 font-semibold text-gray-900">KES {{ booking.totalPrice | number }}</td>
+                  <td class="py-4 px-4">
+                    <span class="px-3 py-1 text-xs font-bold rounded-full uppercase tracking-wide" [class]="getStatusClass(booking.status)">
+                      {{ booking.status }}
+                    </span>
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      }
+    </div>
+  </div>
+</div>

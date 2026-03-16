@@ -1,0 +1,73 @@
+<div class="owner-shell" [class.collapsed]="collapsed" [style.--sidebar-width.px]="collapsed ? 72 : 260">
+  <aside class="sidebar">
+    <a routerLink="/app/dashboard" class="logo">
+      <span class="logo-icon" aria-hidden="true">
+        <ng-icon name="lucideCat" size="24" />
+      </span>
+      <span class="logo-text">PetMate</span>
+    </a>
+    <button
+      type="button"
+      class="toggle-btn"
+      (click)="toggleSidebar()"
+      [attr.aria-label]="collapsed ? 'Expand sidebar' : 'Collapse sidebar'"
+    >
+      <ng-icon [name]="collapsed ? 'lucideChevronsRight' : 'lucideChevronsLeft'" size="20" />
+    </button>
+    <nav class="nav">
+      <a routerLink="/app/dashboard" routerLinkActive="active" class="nav-item">
+        <ng-icon name="lucideLayoutDashboard" size="20" />
+        <span>Dashboard</span>
+      </a>
+      <a routerLink="/app/pets" routerLinkActive="active" class="nav-item" [routerLinkActiveOptions]="{ exact: false }">
+        <ng-icon name="lucideCat" size="20" />
+        <span>My Pets</span>
+      </a>
+      <a routerLink="/app/bookings" routerLinkActive="active" class="nav-item">
+        <ng-icon name="lucideCalendar" size="20" />
+        <span>Bookings</span>
+      </a>
+      <a routerLink="/app/favorites" routerLinkActive="active" class="nav-item">
+        <ng-icon name="lucideHeart" size="20" />
+        <span>Favorites</span>
+      </a>
+      <a routerLink="/app/wishlist" routerLinkActive="active" class="nav-item">
+        <ng-icon name="lucideShoppingBag" size="20" />
+        <span>Wishlist</span>
+      </a>
+      <a routerLink="/app/boarding" routerLinkActive="active" class="nav-item">
+        <ng-icon name="lucideMapPin" size="20" />
+        <span>Find boarding</span>
+      </a>
+      <a routerLink="/app/matches" routerLinkActive="active" class="nav-item">
+        <ng-icon name="lucideSparkles" size="20" />
+        <span>Matches</span>
+      </a>
+      <a routerLink="/app/store" routerLinkActive="active" class="nav-item">
+        <ng-icon name="lucideShoppingBag" size="20" />
+        <span>Store</span>
+      </a>
+      <a routerLink="/app/chat" routerLinkActive="active" class="nav-item">
+        <ng-icon name="lucideMessageCircle" size="20" />
+        <span>Chat</span>
+      </a>
+      <a routerLink="/app/profile" routerLinkActive="active" class="nav-item">
+        <ng-icon name="lucideUser" size="20" />
+        <span>Profile</span>
+      </a>
+    </nav>
+    <div class="sidebar-footer">
+      <a routerLink="/" class="nav-item out">
+        <ng-icon name="lucideHome" size="20" />
+        <span>Back to site</span>
+      </a>
+      <button type="button" class="nav-item logout" (click)="logout()">
+        <ng-icon name="lucideLogOut" size="20" />
+        <span>Log out</span>
+      </button>
+    </div>
+  </aside>
+  <main class="main">
+    <router-outlet />
+  </main>
+</div>

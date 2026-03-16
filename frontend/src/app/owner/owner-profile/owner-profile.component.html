@@ -1,0 +1,154 @@
+<div class="profile-page">
+  <div class="profile-container">
+    <!-- Header -->
+    <div class="profile-header">
+      <h1 class="profile-title">My Profile</h1>
+      <p class="profile-subtitle">Manage your personal information and profile picture</p>
+    </div>
+
+    @if (isLoading) {
+      <div class="card loading-card">
+        <div class="loading-spinner"></div>
+        <p class="loading-text">Loading profile…</p>
+      </div>
+    } @else if (profile) {
+      <!-- Profile Card -->
+      <div class="card profile-card">
+        <form [formGroup]="form" (ngSubmit)="onSubmit()" class="profile-form">
+
+          <!-- Profile Picture Section -->
+          <div class="profile-picture-section">
+            <h3 class="section-title">Profile Picture</h3>
+            <div class="picture-upload-area">
+              <div class="avatar-container">
+                <div class="avatar-wrapper">
+                  @if (getAvatarUrl()) {
+                    <img [src]="getAvatarUrl()" alt="Profile picture" class="avatar-image" />
+                  } @else {
+                    <div class="avatar-placeholder">
+                      {{ getInitials() }}
+                    </div>
+                  }
+                </div>
+                <label class="avatar-edit-btn">
+                  <ng-icon name="lucideImage" size="18" />
+                  <input type="file" accept="image/*" (change)="onFileSelected($event)" class="hidden" />
+                </label>
+              </div>
+
+              <div class="upload-info">
+                @if (selectedFile) {
+                  <div class="upload-preview-card">
+                    <div class="preview-image-container">
+                      <img [src]="previewUrl()!" alt="Preview" class="preview-image" />
+                    </div>
+                    <div class="preview-info">
+                      <p class="preview-title">New profile picture:</p>
+                      <p class="preview-filename">{{ selectedFile.name }}</p>
+                      <p class="preview-size">{{ (selectedFile.size / 1024 / 1024).toFixed(2) }} MB</p>
+                    </div>
+                    @if (isUploading()) {
+                      <div class="upload-progress">
+                        <div class="progress-bar"></div>
+                        <p class="progress-text">Uploading, please wait...</p>
+                      </div>
+                    }
+                    <div class="preview-actions">
+                      <button
+                        type="button"
+                        (click)="uploadProfilePicture()"
+                        [disabled]="isUploading()"
+                        class="btn-upload-confirm"
+                      >
+                        {{ isUploading() ? 'Uploading...' : 'Confirm & Upload' }}
+                      </button>
+                      <button
+                        type="button"
+                        (click)="selectedFile = null; previewUrl.set(null);"
+                        [disabled]="isUploading()"
+                        class="btn-upload-cancel"
+                      >
+                        Cancel
+                      </button>
+                    </div>
+                  </div>
+                } @else {
+                  <p class="upload-hint">
+                    Upload a profile picture to personalize your account
+                  </p>
+                  <p class="upload-specs">JPG, PNG or GIF. Max 5MB.</p>
+                }
+              </div>
+            </div>
+          </div>
+
+          <div class="form-divider"></div>
+
+          <!-- Personal Information Section -->
+          <div class="personal-info-section">
+            <h3 class="section-title">Personal Information</h3>
+            <p class="section-hint">Fields marked with <span class="required-mark">*</span> are required.</p>
+
+            <div class="form-fields">
+              <!-- Email (Read-only) -->
+              <div class="form-row">
+                <label for="email">Email</label>
+                <div class="input-wrap">
+                  <ng-icon name="lucideMail" size="18" class="input-icon" />
+                  <input id="email" type="text" [value]="profile.email" readonly class="input readonly" />
+                </div>
+                <p class="hint">Email cannot be changed here. Contact support to update your email.</p>
+              </div>
+
+              <!-- First Name -->
+              <div class="form-row">
+                <label for="firstName">First Name <span class="required-mark">*</span></label>
+                <div class="input-wrap">
+                  <ng-icon name="lucideUser" size="18" class="input-icon" />
+                  <input id="firstName" type="text" formControlName="firstName" class="input" placeholder="John"
+                    (input)="onFormChange()" />
+                </div>
+                @if (form.get('firstName')?.invalid && form.get('firstName')?.touched) {
+                  <p class="error">First name is required.</p>
+                }
+              </div>
+
+              <!-- Last Name -->
+              <div class="form-row">
+                <label for="lastName">Last Name <span class="required-mark">*</span></label>
+                <div class="input-wrap">
+                  <ng-icon name="lucideUser" size="18" class="input-icon" />
+                  <input id="lastName" type="text" formControlName="lastName" class="input" placeholder="Doe"
+                    (input)="onFormChange()" />
+                </div>
+                @if (form.get('lastName')?.invalid && form.get('lastName')?.touched) {
+                  <p class="error">Last name is required.</p>
+                }
+              </div>
+
+              <!-- Bio -->
+              <div class="form-row">
+                <label for="bio">Bio</label>
+                <div class="input-wrap">
+                  <textarea id="bio" formControlName="bio" rows="3" class="input textarea" placeholder="Tell us a bit about yourself and your pets..."
+                    (input)="onFormChange()"></textarea>
+                </div>
+                <p class="hint">Optional: Share information about yourself and your pets.</p>
+              </div>
+
+              <!-- Form Actions -->
+              <div class="form-actions">
+                <button type="button" (click)="resetForm()" [disabled]="!hasAnyChanges() || isSaving || isUploading()" class="btn-secondary">
+                  Cancel
+                </button>
+                <button type="submit" class="btn-primary" [disabled]="form.invalid || isSaving || isUploading() || !hasAnyChanges()">
+                  {{ isSaving ? 'Saving…' : 'Save Changes' }}
+                </button>
+              </div>
+            </div>
+          </div>
+        </form>
+      </div>
+    }
+  </div>
+</div>

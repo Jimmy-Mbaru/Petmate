@@ -1,0 +1,184 @@
+<div class="min-h-screen py-8 px-4 sm:px-6 lg:px-8 bg-(--color-surface)">
+  <div class="max-w-7xl mx-auto">
+    <!-- Header -->
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8" data-aos="fade-down">
+      <div>
+        <h1 class="text-3xl font-bold text-gray-900 m-0">Pending Boarding Profiles</h1>
+        <p class="text-gray-500 m-0 mt-1">Review and approve host applications to the platform</p>
+      </div>
+      
+      <div class="flex items-center gap-3">
+        <div class="px-4 py-2 bg-white rounded-xl border border-gray-100 shadow-sm">
+          <span class="text-sm text-gray-500">Total Pending:</span>
+          <span class="ml-2 font-bold text-(--color-primary)">{{ total() }}</span>
+        </div>
+        <button
+          type="button"
+          (click)="loadPendingProfiles()"
+          [disabled]="loading()"
+          class="inline-flex items-center justify-center gap-2 px-6 py-3 bg-linear-to-r from-(--color-primary) to-(--color-primary-hover) text-white font-semibold rounded-xl hover:shadow-lg transition-all disabled:opacity-50 border-0 cursor-pointer"
+        >
+          <svg class="w-5 h-5" [class.animate-spin]="loading()" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+          </svg>
+          Refresh
+        </button>
+      </div>
+    </div>
+
+    <!-- Profiles List -->
+    @if (loading()) {
+      <div class="flex justify-center items-center py-20">
+        <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-(--color-primary)"></div>
+      </div>
+    } @else if (profiles().length === 0) {
+      <div class="card bg-white rounded-3xl p-12 border border-gray-100 text-center" data-aos="zoom-in">
+        <div class="w-20 h-20 mx-auto mb-6 rounded-full bg-gray-50 flex items-center justify-center">
+          <svg class="w-10 h-10 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+        </div>
+        <h3 class="text-xl font-bold text-gray-900 m-0 mb-2">No pending profiles</h3>
+        <p class="text-gray-500">All boarding profiles have been reviewed and processed.</p>
+      </div>
+    } @else {
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        @for (profile of profiles(); track profile.id; let i = $index) {
+          <div class="card bg-white rounded-2xl border border-gray-100 overflow-hidden hover:shadow-xl transition-all duration-300 flex flex-col h-full" data-aos="fade-up" [attr.data-aos-delay]="i * 50">
+            <!-- Card Header: Host Info -->
+            <div class="p-6 pb-0">
+              <div class="flex items-center gap-4 mb-4">
+                @if ($any(profile).host?.avatarUrl) {
+                  <img [src]="$any(profile).host?.avatarUrl" class="w-14 h-14 rounded-2xl object-cover ring-2 ring-gray-50" />
+                } @else {
+                  <div class="w-14 h-14 rounded-2xl bg-linear-to-br from-(--color-primary) to-(--color-primary-hover) flex items-center justify-center text-white font-bold text-xl shadow-lg">
+                    {{ getHostInitials(profile) }}
+                  </div>
+                }
+                <div class="flex-1 min-w-0">
+                  <h3 class="text-lg font-bold text-gray-900 m-0 truncate">{{ $any(profile).host?.name || 'Unknown Host' }}</h3>
+                  <p class="text-sm text-gray-500 m-0 truncate">{{ $any(profile).host?.email || profile.hostId }}</p>
+                </div>
+              </div>
+              
+              <div class="flex items-center gap-2 mb-4">
+                <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 112.828 0z" />
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                </svg>
+                <span class="text-sm font-medium text-gray-600">{{ profile.location }}</span>
+              </div>
+            </div>
+
+            <!-- Card Body: Details -->
+            <div class="p-6 pt-2 flex-1">
+              <div class="grid grid-cols-2 gap-4 p-4 bg-gray-50 rounded-2xl mb-4">
+                <div class="text-center border-r border-gray-200">
+                  <p class="text-xs text-gray-500 uppercase tracking-wider mb-1">Price/Day</p>
+                  <p class="text-lg font-bold text-gray-900">KES {{ profile.pricePerDay | number }}</p>
+                </div>
+                <div class="text-center">
+                  <p class="text-xs text-gray-500 uppercase tracking-wider mb-1">Capacity</p>
+                  <p class="text-lg font-bold text-gray-900">{{ profile.capacity }} Pets</p>
+                </div>
+              </div>
+
+              @if (profile.description) {
+                <div class="mb-4">
+                  <p class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">About Service</p>
+                  <p class="text-sm text-gray-600 line-clamp-3 italic">"{{ profile.description }}"</p>
+                </div>
+              }
+
+              <!-- Documents Section -->
+              @if (profile.documentUrls && profile.documentUrls.length > 0) {
+                <div class="mb-6">
+                  <p class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">Verification Documents ({{ profile.documentUrls.length }})</p>
+                  <div class="space-y-2">
+                    @for (doc of profile.documentUrls; track doc; let idx = $index) {
+                      <a [href]="doc" target="_blank" class="flex items-center gap-3 p-2 bg-blue-50/50 rounded-xl hover:bg-blue-50 transition-colors no-underline group border border-blue-100/50">
+                        <div class="w-8 h-8 rounded-lg bg-blue-100 flex items-center justify-center text-blue-600">
+                          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                          </svg>
+                        </div>
+                        <span class="text-xs font-bold text-blue-700">View Document {{ idx + 1 }}</span>
+                        <svg class="w-3.5 h-3.5 ml-auto text-blue-400 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                        </svg>
+                      </a>
+                    }
+                  </div>
+                </div>
+              }
+            </div>
+
+            <!-- Actions -->
+            <div class="p-6 pt-0 mt-auto">
+              <div class="flex gap-3 pt-4 border-t border-gray-50">
+                <button
+                  type="button"
+                  (click)="approveProfile(profile.id.toString())"
+                  class="flex-1 px-4 py-3 bg-(--color-primary) text-white font-bold rounded-xl hover:bg-(--color-primary-hover) hover:shadow-lg hover:shadow-red-500/20 transition-all text-sm border-0 cursor-pointer flex items-center justify-center gap-2"
+                >
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                  </svg>
+                  Approve
+                </button>
+                <button
+                  type="button"
+                  (click)="rejectProfile(profile.id.toString())"
+                  class="flex-1 px-4 py-3 bg-red-50 text-red-600 font-bold rounded-xl hover:bg-red-100 transition-all text-sm border-0 cursor-pointer flex items-center justify-center gap-2"
+                >
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                  Reject
+                </button>
+              </div>
+            </div>
+          </div>
+        }
+      </div>
+    }
+
+    <!-- Pagination -->
+    @if (totalPages() > 1) {
+      <div class="flex justify-center mt-12 gap-2">
+        <button
+          (click)="goToPage(currentPage() - 1)"
+          [disabled]="currentPage() === 1"
+          class="w-10 h-10 rounded-xl border border-gray-200 bg-white text-gray-600 hover:border-(--color-primary) hover:text-(--color-primary) transition-all disabled:opacity-30 cursor-pointer flex items-center justify-center"
+        >
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+          </svg>
+        </button>
+
+        @for (page of [].constructor(totalPages()); track $index; let i = $index) {
+          <button
+            (click)="goToPage(i + 1)"
+            [class.bg-(--color-primary)]="currentPage() === i + 1"
+            [class.text-white]="currentPage() === i + 1"
+            [class.border-transparent]="currentPage() === i + 1"
+            class="w-10 h-10 rounded-xl border border-gray-200 bg-white font-bold hover:border-(--color-primary) hover:text-(--color-primary) transition-all cursor-pointer"
+            [class.hover:text-white]="currentPage() === i + 1"
+          >
+            {{ i + 1 }}
+          </button>
+        }
+
+        <button
+          (click)="goToPage(currentPage() + 1)"
+          [disabled]="currentPage() === totalPages()"
+          class="w-10 h-10 rounded-xl border border-gray-200 bg-white text-gray-600 hover:border-(--color-primary) hover:text-(--color-primary) transition-all disabled:opacity-30 cursor-pointer flex items-center justify-center"
+        >
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+          </svg>
+        </button>
+      </div>
+    }
+  </div>
+</div>

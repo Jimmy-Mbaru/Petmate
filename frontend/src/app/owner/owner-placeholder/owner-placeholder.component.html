@@ -1,0 +1,5 @@
+<div class="placeholder">
+  <h1 class="placeholder-title">{{ (route.data | async)?.['title'] ?? 'Page' }}</h1>
+  <p class="placeholder-text">{{ (route.data | async)?.['message'] ?? 'This section is coming soon.' }}</p>
+  <a routerLink="/app/dashboard" class="placeholder-link">Back to Dashboard</a>
+</div>

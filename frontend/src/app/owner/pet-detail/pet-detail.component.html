@@ -1,0 +1,166 @@
+<div class="pet-detail-page">
+  @if (isLoading) {
+    <div class="loading-state">
+      <div class="loading-spinner"></div>
+      <p>Loading pet details...</p>
+    </div>
+  } @else if (pet) {
+    <div class="detail-header">
+      <div class="header-left">
+        <a routerLink="/app/pets" class="btn-back">
+          <ng-icon name="lucideArrowLeft" size="20" />
+          <span>Back to pets</span>
+        </a>
+      </div>
+      <div class="header-actions">
+        <a [routerLink]="['/app/pets', pet.id, 'edit']" class="btn-edit">
+          <ng-icon name="lucidePencil" size="18" />
+          <span>Edit pet</span>
+        </a>
+        <button type="button" class="btn-delete" (click)="deletePet()">
+          <ng-icon name="lucideTrash2" size="18" />
+          <span>Delete</span>
+        </button>
+      </div>
+    </div>
+
+    <div class="detail-content">
+      <!-- Photo Gallery -->
+      <div class="photo-section">
+        <div class="main-photo-container">
+          @if (primaryPhoto) {
+            <img [src]="primaryPhoto" [alt]="pet.name" class="main-photo" />
+            @if (photos.length > 1) {
+              <button class="nav-btn prev" (click)="previousPhoto()">
+                <ng-icon name="lucideArrowLeft" size="24" />
+              </button>
+              <button class="nav-btn next" (click)="nextPhoto()">
+                <ng-icon name="lucideArrowRight" size="24" />
+              </button>
+            }
+          } @else {
+            <div class="no-photo">
+              <ng-icon name="lucideImage" size="64" />
+              <span>No photos available</span>
+            </div>
+          }
+          
+          @if (pet.isAvailable) {
+            <span class="available-badge">
+              <ng-icon name="lucideCheckCircle2" size="16" />
+              Available for matching
+            </span>
+          }
+        </div>
+
+        @if (photos.length > 1) {
+          <div class="photo-thumbnails">
+            @for (photo of photos; track photo; let i = $index) {
+              <button 
+                class="thumbnail" 
+                [class.active]="i === selectedPhotoIndex"
+                (click)="selectPhoto(i)"
+              >
+                <img [src]="photo" [alt]="pet.name + ' photo ' + (i + 1)" loading="lazy" />
+              </button>
+            }
+          </div>
+        }
+
+        <div class="photo-meta">
+          <span class="photo-count">
+            <ng-icon name="lucideImage" size="16" />
+            {{ photos.length }} photo{{ photos.length !== 1 ? 's' : '' }}
+          </span>
+        </div>
+      </div>
+
+      <!-- Pet Info -->
+      <div class="info-section">
+        <div class="pet-header">
+          <div class="pet-title">
+            <h1 class="pet-name">{{ pet.name }}</h1>
+            <span class="pet-gender" [class.male]="pet.gender === 'male'" [class.female]="pet.gender === 'female'">
+              <ng-icon [name]="getGenderIcon()" size="20" />
+              <span>{{ pet.gender }}</span>
+            </span>
+          </div>
+          <p class="pet-breed">{{ pet.breed }}</p>
+          <p class="pet-species">{{ pet.species }}</p>
+        </div>
+
+        <div class="pet-stats-grid">
+          <div class="stat-card">
+            <div class="stat-icon">
+              <ng-icon name="lucideCake" size="20" />
+            </div>
+            <div class="stat-content">
+              <span class="stat-label">Age</span>
+              <span class="stat-value">{{ getAgeDisplay(pet.age) }}</span>
+            </div>
+          </div>
+
+          <div class="stat-card">
+            <div class="stat-icon">
+              <ng-icon name="lucideCalendar" size="20" />
+            </div>
+            <div class="stat-content">
+              <span class="stat-label">Added</span>
+              <span class="stat-value">{{ joinDate }}</span>
+            </div>
+          </div>
+
+          <div class="stat-card">
+            <div class="stat-icon">
+              <ng-icon name="lucideActivity" size="20" />
+            </div>
+            <div class="stat-content">
+              <span class="stat-label">Status</span>
+              <span class="stat-value" [class.available]="pet.isAvailable">{{ pet.isAvailable ? 'Available' : 'Not available' }}</span>
+            </div>
+          </div>
+
+          <div class="stat-card">
+            <div class="stat-icon">
+              <ng-icon name="lucideImage" size="20" />
+            </div>
+            <div class="stat-content">
+              <span class="stat-label">Photos</span>
+              <span class="stat-value">{{ photos.length }}</span>
+            </div>
+          </div>
+        </div>
+
+        @if (pet.healthNotes) {
+          <div class="health-section">
+            <div class="section-header">
+              <ng-icon name="lucideFileText" size="20" />
+              <h3>Health Notes</h3>
+            </div>
+            <div class="health-content">
+              <p>{{ pet.healthNotes }}</p>
+            </div>
+          </div>
+        }
+
+        <div class="quick-actions">
+          <h3 class="actions-title">Quick Actions</h3>
+          <div class="action-buttons">
+            <a [routerLink]="['/app/pets', pet.id, 'edit']" class="action-btn primary">
+              <ng-icon name="lucideEdit3" size="18" />
+              <span>Edit Details</span>
+            </a>
+            <a [routerLink]="['/app/matches']" class="action-btn">
+              <ng-icon name="lucideHeart" size="18" />
+              <span>Find Matches</span>
+            </a>
+            <a [routerLink]="['/app/bookings']" class="action-btn">
+              <ng-icon name="lucideCalendar" size="18" />
+              <span>Book Service</span>
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  }
+</div>

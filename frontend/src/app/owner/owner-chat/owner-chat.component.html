@@ -1,0 +1,145 @@
+<div class="chat-page" #chatPage>
+  <header class="page-header">
+    <div>
+      <h1 class="page-title">Messages</h1>
+      <p class="page-subtitle">View conversations and send messages</p>
+    </div>
+  </header>
+
+  <div class="chat-container card">
+    @if (conversations.length === 0 && !isLoading) {
+      <div class="empty-state">
+        <ng-icon name="lucideMessageCircle" size="48" class="empty-icon" />
+        <p class="empty-title">No conversations yet</p>
+        <p class="empty-text">Start a conversation from a pet or boarding profile</p>
+      </div>
+    }
+    @else {
+      <div class="conversations-list">
+        <div class="conversations-list-header">
+          <h2 class="conversations-list-title">Chats</h2>
+        </div>
+        @for (conv of conversations; track conv.userId) {
+
+          <div
+            class="conversation-item"
+            [class.active]="selectedConversation?.userId === conv.userId"
+            [class.unread]="conv.unreadCount > 0"
+            (click)="selectConversation(conv)"
+          >
+            <div class="conversation-avatar">
+              @if (conv.userAvatar) {
+                <img [src]="conv.userAvatar" [alt]="conv.userName" class="avatar-image" />
+              } @else {
+                <ng-icon name="lucideUser" size="24" />
+              }
+            </div>
+            <div class="conversation-info">
+              <div class="conversation-header">
+                <span class="conversation-name">{{ conv.userName }}</span>
+                <span class="conversation-time">{{ formatTime(conv.lastMessageAt) }}</span>
+              </div>
+              <div class="conversation-footer">
+                <span class="conversation-last-message">
+                  {{ conv.lastMessage || 'No messages yet' }}
+                </span>
+                @if (conv.unreadCount > 0) {
+                  <span class="unread-badge">{{ conv.unreadCount }}</span>
+                }
+              </div>
+            </div>
+          </div>
+        }
+      </div>
+
+      @if (selectedConversation) {
+        <div class="messages-panel">
+          <div class="messages-header">
+            <div
+              class="messages-header-info"
+              [routerLink]="['/app/users', selectedConversation.userId]"
+              title="View Profile"
+            >
+              <div class="conversation-avatar presence-avatar">
+                @if (selectedConversation.userAvatar) {
+                  <img [src]="selectedConversation.userAvatar" [alt]="selectedConversation.userName" class="avatar-image" />
+                } @else {
+                  <ng-icon name="lucideUser" size="24" />
+                }
+                @if (selectedUserPresence?.online) {
+                  <span class="presence-dot online" title="Online"></span>
+                }
+              </div>
+              <div>
+                <h3 class="messages-title">{{ selectedConversation.userName }}</h3>
+                <p class="messages-subtitle" [class.presence-online]="selectedUserPresence?.online">
+                  {{ getPresenceLabel() }}
+                </p>
+              </div>
+            </div>
+            <div class="header-actions">
+              <button class="btn-icon" type="button" (click)="openReportModal()" [disabled]="!selectedConversation">
+                <ng-icon name="lucideShieldAlert" size="20" />
+              </button>
+              <button class="btn-icon" type="button" (click)="closeMessages()">
+                <ng-icon name="lucideX" size="20" />
+              </button>
+            </div>
+          </div>
+
+          <div class="messages-container" #messagesContainer>
+            @for (msg of messages; track msg.id) {
+              <div
+                class="message"
+                [class.own]="msg.senderId === currentUserId"
+              >
+                <div class="message-content">
+                  {{ msg.content }}
+                </div>
+                <span class="message-time">
+                  {{ formatMessageTime(msg.sentAt) }}
+                  @if (msg.senderId === currentUserId && msg.read) {
+                    <span class="read-indicator">✓ Read</span>
+                  }
+                </span>
+              </div>
+            }
+            @if (otherUserTyping) {
+              <div class="message typing-bubble">
+                <div class="typing-dots">
+                  <span class="typing-dot"></span>
+                  <span class="typing-dot"></span>
+                  <span class="typing-dot"></span>
+                </div>
+              </div>
+            }
+          </div>
+
+          <div class="message-input-container">
+            <input
+              type="text"
+              class="message-input"
+              placeholder="Type a message..."
+              [(ngModel)]="newMessage"
+              (ngModelChange)="onInputChange()"
+              (keydown.enter)="sendMessage()"
+              [disabled]="isSending"
+            />
+            <button class="btn-send" (click)="sendMessage()" [disabled]="!newMessage.trim() || isSending">
+              <ng-icon name="lucideSend" size="20" />
+            </button>
+          </div>
+        </div>
+      }
+    }
+  </div>
+
+  @if (showReportModal && getReportModalData()) {
+    <app-report-user-modal
+      [data]="getReportModalData()!"
+      (close)="closeReportModal()"
+    />
+  }
+
+  <a routerLink="/app/dashboard" class="back-link">Back to Dashboard</a>
+</div>

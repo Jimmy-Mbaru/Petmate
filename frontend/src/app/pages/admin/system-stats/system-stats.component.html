@@ -1,0 +1,279 @@
+<div class="min-h-screen py-8 px-4 sm:px-6 lg:px-8">
+  <div class="max-w-7xl mx-auto">
+    <!-- Header -->
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8" data-aos="fade-down">
+      <div>
+        <h1 class="text-3xl font-bold text-gray-900 m-0">System Statistics</h1>
+        <p class="text-gray-500 m-0 mt-1">Monitor system health and performance</p>
+      </div>
+      
+      <button
+        type="button"
+        (click)="loadSystemStats()"
+        [disabled]="loading()"
+        class="inline-flex items-center justify-center gap-2 px-6 py-3 bg-linear-to-r from-(--color-primary) to-(--color-primary-hover) text-white font-semibold rounded-xl hover:shadow-lg transition-all disabled:opacity-50"
+        data-aos="fade-left"
+      >
+        <svg class="w-5 h-5" [class.animate-spin]="loading()" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+        </svg>
+        Refresh
+      </button>
+    </div>
+
+    <!-- System Health Overview -->
+    <div class="card bg-linear-to-br from-(--color-primary) to-(--color-primary-hover) rounded-3xl p-8 border-0 shadow-lg text-white mb-8" data-aos="fade-up">
+      <div class="flex items-center gap-4 mb-6">
+        <div class="w-16 h-16 rounded-2xl bg-white/20 flex items-center justify-center">
+          <svg class="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+          </svg>
+        </div>
+        <div>
+          <h2 class="text-2xl font-bold m-0">System Health</h2>
+          <p class="text-white/80 m-0 mt-1">All systems operational</p>
+        </div>
+        <div class="ml-auto flex items-center gap-2 px-4 py-2 bg-green-500/30 rounded-full">
+          <span class="w-2 h-2 bg-green-400 rounded-full animate-pulse"></span>
+          <span class="font-semibold">Online</span>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-6">
+        <div class="bg-white rounded-2xl p-4 border-l-4 border-l-green-500 border-t border-r border-b border-t-gray-100 border-r-gray-100 border-b-gray-100 shadow">
+          <p class="text-sm text-gray-500 m-0">Uptime</p>
+          <p class="text-3xl font-bold text-gray-900 m-0 mt-1">{{ systemStats().uptime }}</p>
+        </div>
+        <div class="bg-white rounded-2xl p-4 border-l-4 border-l-blue-500 border-t border-r border-b border-t-gray-100 border-r-gray-100 border-b-gray-100 shadow">
+          <p class="text-sm text-gray-500 m-0">API Response</p>
+          <p class="text-3xl font-bold text-gray-900 m-0 mt-1">{{ systemStats().apiResponseTime }}</p>
+        </div>
+        <div class="bg-white rounded-2xl p-4 border-l-4 border-l-purple-500 border-t border-r border-b border-t-gray-100 border-r-gray-100 border-b-gray-100 shadow">
+          <p class="text-sm text-gray-500 m-0">DB Connections</p>
+          <p class="text-3xl font-bold text-gray-900 m-0 mt-1">{{ systemStats().databaseConnections }}</p>
+        </div>
+        <div class="bg-white rounded-2xl p-4 border-l-4 border-l-amber-500 border-t border-r border-b border-t-gray-100 border-r-gray-100 border-b-gray-100 shadow">
+          <p class="text-sm text-gray-500 m-0">Error Rate</p>
+          <p class="text-3xl font-bold text-gray-900 m-0 mt-1">{{ systemStats().errorRate }}</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Stats Grid -->
+    <div class="grid grid-cols-1 sm:grid-cols-3 gap-6 mb-8">
+      <div class="card bg-white rounded-3xl p-6 border-l-4 border-l-blue-500 border-t border-r border-b border-t-gray-100 border-r-gray-100 border-b-gray-100 shadow-lg" data-aos="fade-up" data-aos-delay="100">
+        <div class="flex items-center gap-4">
+          <div class="w-14 h-14 rounded-2xl bg-blue-100 flex items-center justify-center">
+            <svg class="w-8 h-8 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
+            </svg>
+          </div>
+          <div>
+            <p class="text-sm text-gray-500 m-0">Active Users</p>
+            <p class="text-2xl font-bold text-gray-900 m-0 mt-1">{{ systemStats().activeUsers }}</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="card bg-white rounded-3xl p-6 border-l-4 border-l-purple-500 border-t border-r border-b border-t-gray-100 border-r-gray-100 border-b-gray-100 shadow-lg" data-aos="fade-up" data-aos-delay="200">
+        <div class="flex items-center gap-4">
+          <div class="w-14 h-14 rounded-2xl bg-purple-100 flex items-center justify-center">
+            <svg class="w-8 h-8 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+            </svg>
+          </div>
+          <div>
+            <p class="text-sm text-gray-500 m-0">Total Requests</p>
+            <p class="text-2xl font-bold text-gray-900 m-0 mt-1">{{ systemStats().totalRequests | number }}</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="card bg-white rounded-3xl p-6 border-l-4 border-l-green-500 border-t border-r border-b border-t-gray-100 border-r-gray-100 border-b-gray-100 shadow-lg" data-aos="fade-up" data-aos-delay="300">
+        <div class="flex items-center gap-4">
+          <div class="w-14 h-14 rounded-2xl bg-green-100 flex items-center justify-center">
+            <svg class="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 12h14M5 12a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v4a2 2 0 01-2 2M5 12a2 2 0 00-2 2v4a2 2 0 002 2h14a2 2 0 002-2v-4a2 2 0 00-2-2m-2-4h.01M17 16h.01" />
+            </svg>
+          </div>
+          <div>
+            <p class="text-sm text-gray-500 m-0">Server Status</p>
+            <p class="text-lg font-bold text-green-600 m-0 mt-1">Healthy</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Platform Health -->
+    <div class="card bg-white rounded-3xl p-8 border border-gray-100 shadow-lg mb-8" data-aos="fade-up" data-aos-delay="350">
+      <h3 class="text-xl font-bold text-gray-900 m-0 mb-6">Platform Health</h3>
+      <div class="space-y-4">
+        <div class="flex items-center justify-between p-4 bg-green-50 rounded-2xl">
+          <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-full bg-green-100 flex items-center justify-center">
+              <svg class="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+              </svg>
+            </div>
+            <span class="font-medium text-gray-900">API Status</span>
+          </div>
+          <span class="px-3 py-1 bg-green-100 text-green-700 rounded-full text-sm font-medium">Operational</span>
+        </div>
+        <div class="flex items-center justify-between p-4 bg-blue-50 rounded-2xl">
+          <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center">
+              <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 12h14M5 12a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v4a2 2 0 01-2 2M5 12a2 2 0 00-2 2v4a2 2 0 002 2h14a2 2 0 002-2v-4a2 2 0 00-2-2m-2-4h.01M17 16h.01" />
+              </svg>
+            </div>
+            <span class="font-medium text-gray-900">Database</span>
+          </div>
+          <span class="px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-sm font-medium">Connected</span>
+        </div>
+        <div class="flex items-center justify-between p-4 bg-purple-50 rounded-2xl">
+          <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-full bg-purple-100 flex items-center justify-center">
+              <svg class="w-5 h-5 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+              </svg>
+            </div>
+            <span class="font-medium text-gray-900">Security</span>
+          </div>
+          <span class="px-3 py-1 bg-purple-100 text-purple-700 rounded-full text-sm font-medium">Secure</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Analytics Grid -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+      <!-- Top Products -->
+      <div class="card bg-white rounded-3xl p-6 border border-gray-100 shadow-lg" data-aos="fade-up" data-aos-delay="400">
+        <div class="flex items-center justify-between mb-6">
+          <h3 class="text-xl font-bold text-gray-900 m-0">Top Products</h3>
+          <span class="text-xs font-bold text-(--color-primary) uppercase tracking-wider">By Sales</span>
+        </div>
+        <div class="overflow-x-auto">
+          <table class="w-full text-left">
+            <thead>
+              <tr class="text-xs font-bold text-gray-400 uppercase tracking-wider">
+                <th class="pb-3 px-2">Product</th>
+                <th class="pb-3 px-2 text-right">Sold</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-gray-50">
+              @for (item of getTopProducts(); track item.productId) {
+                <tr class="text-sm">
+                  <td class="py-3 px-2 font-semibold text-gray-900">{{ item.name }}</td>
+                  <td class="py-3 px-2 text-right font-bold text-(--color-primary)">{{ item.totalQuantity }}</td>
+                </tr>
+              }
+              @if (getTopProducts().length === 0) {
+                <tr><td colspan="2" class="py-10 text-center text-gray-400">No data available</td></tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Top Hosts -->
+      <div class="card bg-white rounded-3xl p-6 border border-gray-100 shadow-lg" data-aos="fade-up" data-aos-delay="500">
+        <div class="flex items-center justify-between mb-6">
+          <h3 class="text-xl font-bold text-gray-900 m-0">Top Performing Hosts</h3>
+          <span class="text-xs font-bold text-blue-600 uppercase tracking-wider">By Bookings</span>
+        </div>
+        <div class="overflow-x-auto">
+          <table class="w-full text-left">
+            <thead>
+              <tr class="text-xs font-bold text-gray-400 uppercase tracking-wider">
+                <th class="pb-3 px-2">Host</th>
+                <th class="pb-3 px-2 text-right">Bookings</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-gray-50">
+              @for (item of getTopHosts(); track item.hostId) {
+                <tr class="text-sm">
+                  <td class="py-3 px-2 font-semibold text-gray-900">{{ item.hostName }}</td>
+                  <td class="py-3 px-2 text-right font-bold text-blue-600">{{ item.bookingCount }}</td>
+                </tr>
+              }
+              @if (getTopHosts().length === 0) {
+                <tr><td colspan="2" class="py-10 text-center text-gray-400">No data available</td></tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- Inventory & Activity Grid -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+      <!-- Low Stock Alert -->
+      <div class="card bg-white rounded-3xl p-6 border border-gray-100 shadow-lg" data-aos="fade-up" data-aos-delay="600">
+        <div class="flex items-center justify-between mb-6">
+          <h3 class="text-xl font-bold text-gray-900 m-0">Low Stock Inventory</h3>
+          <span class="px-2.5 py-1 bg-red-100 text-red-600 text-xs font-bold rounded-full uppercase">Action Required</span>
+        </div>
+        <div class="space-y-4">
+          @for (item of lowStockProducts(); track item.id) {
+            <div class="flex items-center justify-between p-3 bg-gray-50 rounded-2xl border border-gray-100">
+              <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-xl bg-white border border-gray-100 flex items-center justify-center text-gray-400">
+                  <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+                  </svg>
+                </div>
+                <div>
+                  <p class="font-bold text-gray-900 m-0 text-sm">{{ item.name }}</p>
+                  <p class="text-xs text-gray-500 m-0">{{ item.category }}</p>
+                </div>
+              </div>
+              <div class="text-right">
+                <p class="text-sm font-bold text-red-600 m-0">{{ item.stock }} left</p>
+                <p class="text-[10px] text-gray-400 uppercase font-bold m-0">Restock Soon</p>
+              </div>
+            </div>
+          }
+          @if (lowStockProducts().length === 0) {
+            <div class="py-10 text-center">
+              <div class="w-12 h-12 rounded-full bg-green-100 flex items-center justify-center mx-auto mb-3 text-green-600">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                </svg>
+              </div>
+              <p class="text-sm text-gray-500 m-0">All products well-stocked!</p>
+            </div>
+          }
+        </div>
+      </div>
+
+      <!-- Recent System Activity -->
+      <div class="card bg-white rounded-3xl p-6 border border-gray-100 shadow-lg" data-aos="fade-up" data-aos-delay="700">
+        <h3 class="text-xl font-bold text-gray-900 m-0 mb-6">Recent System Activity</h3>
+        <div class="space-y-6">
+          @for (event of recentActivity(); track $index) {
+            <div class="flex gap-4">
+              <div class="relative flex flex-col items-center">
+                <div class="w-3 h-3 rounded-full border-2 border-white ring-4 ring-white shadow-sm" [ngClass]="{
+                  'bg-blue-500': event.color === 'blue',
+                  'bg-green-500': event.color === 'green',
+                  'bg-purple-500': event.color === 'purple',
+                  'bg-red-500': event.color === 'red'
+                }"></div>
+                @if (!$last) {
+                  <div class="w-0.5 h-full bg-gray-100 mt-1"></div>
+                }
+              </div>
+              <div class="flex-1 pb-6">
+                <div class="flex items-center justify-between mb-1">
+                  <span class="text-[10px] font-bold uppercase tracking-wider text-gray-400">{{ event.type }}</span>
+                  <span class="text-[10px] text-gray-400">{{ event.time }}</span>
+                </div>
+                <p class="text-sm text-gray-700 m-0">{{ event.description }}</p>
+              </div>
+            </div>
+          }
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

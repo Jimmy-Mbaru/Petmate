@@ -1,0 +1,12 @@
+<div
+  class="rounded-full overflow-hidden flex items-center justify-center font-semibold transition-all duration-300"
+  [class]="sizeClass()"
+  [style.background]="hasImage() ? 'transparent' : 'linear-gradient(135deg, var(--color-primary), var(--color-primary-hover))'"
+  [style.color]="hasImage() ? 'inherit' : '#ffffff'"
+>
+  @if (hasImage()) {
+    <img [src]="src" [alt]="alt" class="w-full h-full object-cover" />
+  } @else {
+    <span>{{ initials() }}</span>
+  }
+</div>

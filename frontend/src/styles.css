@@ -1,0 +1,204 @@
+@import "tailwindcss";
+@import "aos/dist/aos.css";
+
+/* Main navbar - fixed at top of page */
+app-navbar nav,
+.navbar-fixed {
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  z-index: 1000 !important;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+
+::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, #d72323, #bc1f1f);
+  border-radius: 5px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(180deg, #bc1f1f, #d72323);
+}
+
+/* Smooth scroll behavior */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Custom animations */
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+.animate-float {
+  animation: float 3s ease-in-out infinite;
+}
+
+/* Auth pages: header animations and stylish underline */
+@keyframes authFadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes authLineExpand {
+  from {
+    transform: scaleX(0);
+    opacity: 0;
+  }
+  to {
+    transform: scaleX(1);
+    opacity: 1;
+  }
+}
+
+.auth-header-animate {
+  animation: authFadeInUp 0.6s ease-out forwards;
+}
+
+.auth-form-animate {
+  animation: authFadeInUp 0.6s ease-out 0.15s forwards;
+  opacity: 0;
+}
+
+.auth-header-underline {
+  display: block;
+  width: 100%;
+  max-width: 140px;
+  height: 3px;
+  margin: 0.75rem auto 0;
+  background: linear-gradient(90deg, #d72323, #bc1f1f);
+  border-radius: 2px;
+  transform-origin: center;
+  transform: scaleX(0);
+  opacity: 0;
+  animation: authLineExpand 0.7s ease-out 0.35s forwards,
+             authUnderlineShimmer 2.5s ease-in-out 1.1s infinite;
+}
+
+@keyframes authUnderlineShimmer {
+  0%, 100% {
+    opacity: 1;
+    filter: brightness(1);
+  }
+  50% {
+    opacity: 0.85;
+    filter: brightness(1.15);
+  }
+}
+
+/* Shared box-shadow for auth form inputs and buttons */
+.auth-form-shadow {
+  box-shadow: rgba(50, 50, 93, 0.25) 0px 50px 100px -20px, rgba(0, 0, 0, 0.3) 0px 30px 60px -30px, rgba(10, 37, 64, 0.35) 0px -2px 6px 0px inset;
+}
+
+/* Auth form column: scrollable when needed but no visible scrollbar for clean fit */
+.auth-form-column {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+.auth-form-column::-webkit-scrollbar {
+  display: none;
+}
+
+/* Auth form inputs: box-shadow, touch and error feedback */
+.auth-input {
+  box-shadow: rgba(50, 50, 93, 0.25) 0px 50px 100px -20px, rgba(0, 0, 0, 0.3) 0px 30px 60px -30px, rgba(10, 37, 64, 0.35) 0px -2px 6px 0px inset;
+  transition: box-shadow 0.2s ease, transform 0.15s ease, border-color 0.2s ease;
+  /* Touch: remove tap delay, custom tap highlight */
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: rgba(215, 35, 35, 0.15);
+  /* Minimum touch target (44px) for accessibility */
+  min-height: 44px;
+}
+
+.auth-input:hover {
+  box-shadow: rgba(50, 50, 93, 0.28) 0px 50px 100px -20px, rgba(0, 0, 0, 0.35) 0px 30px 60px -30px, rgba(10, 37, 64, 0.4) 0px -2px 6px 0px inset;
+}
+
+.auth-input:focus {
+  box-shadow: rgba(50, 50, 93, 0.25) 0px 50px 100px -20px, rgba(0, 0, 0, 0.3) 0px 30px 60px -30px, rgba(10, 37, 64, 0.35) 0px -2px 6px 0px inset, 0 0 0 2px rgba(215, 35, 35, 0.4);
+}
+
+/* Touch / active: clear pressed state (finger or mouse down) */
+.auth-input:active {
+  transform: scale(0.99);
+  box-shadow: rgba(50, 50, 93, 0.2) 0px 25px 50px -20px, rgba(0, 0, 0, 0.28) 0px 18px 36px -28px, rgba(10, 37, 64, 0.45) 0px -2px 8px 0px inset;
+}
+
+/* Error state: red border + subtle error shadow */
+.auth-input.border-red-400,
+.auth-input.border-red-500 {
+  box-shadow: rgba(50, 50, 93, 0.25) 0px 50px 100px -20px, rgba(0, 0, 0, 0.3) 0px 30px 60px -30px, rgba(10, 37, 64, 0.35) 0px -2px 6px 0px inset, 0 0 0 1px rgba(239, 68, 68, 0.6), 0 0 12px rgba(239, 68, 68, 0.15);
+}
+
+.auth-input.border-red-400:focus,
+.auth-input.border-red-500:focus {
+  box-shadow: rgba(50, 50, 93, 0.25) 0px 50px 100px -20px, rgba(0, 0, 0, 0.3) 0px 30px 60px -30px, rgba(10, 37, 64, 0.35) 0px -2px 6px 0px inset, 0 0 0 2px rgba(239, 68, 68, 0.5), 0 0 14px rgba(239, 68, 68, 0.2);
+}
+
+/* Success state (e.g. confirm password match): green accent shadow */
+.auth-input.border-green-400 {
+  box-shadow: rgba(50, 50, 93, 0.25) 0px 50px 100px -20px, rgba(0, 0, 0, 0.3) 0px 30px 60px -30px, rgba(10, 37, 64, 0.35) 0px -2px 6px 0px inset, 0 0 0 1px rgba(74, 222, 128, 0.5), 0 0 10px rgba(74, 222, 128, 0.1);
+}
+
+/* Touch-friendly feedback for auth inputs and buttons (use with existing styles) */
+.auth-input-touch {
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: rgba(215, 35, 35, 0.22);
+  min-height: 44px;
+  transition: box-shadow 0.2s ease, transform 0.12s ease, border-color 0.2s ease, background-color 0.15s ease;
+}
+.auth-input-touch:active,
+.auth-input-touch.touch-active {
+  transform: scale(0.99) !important;
+  background-color: rgba(245, 237, 237, 1);
+}
+/* Touch feedback for buttons (slightly stronger active state) */
+.auth-btn-touch {
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: rgba(215, 35, 35, 0.25);
+  min-height: 44px;
+  transition: transform 0.12s ease, box-shadow 0.2s ease, opacity 0.15s ease;
+}
+.auth-btn-touch:active,
+.auth-btn-touch.touch-active {
+  transform: scale(0.97) !important;
+  opacity: 0.95;
+}
+/* Tap target for icon buttons (e.g. password toggle) - ensure 44px hit area */
+.auth-icon-touch {
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: rgba(215, 35, 35, 0.2);
+  min-width: 44px;
+  min-height: 44px;
+  transition: transform 0.12s ease;
+}
+.auth-icon-touch:active,
+.auth-icon-touch.touch-active {
+  transform: scale(0.88) !important;
+}
+/* Checkboxes: tap highlight without forcing large size (label can expand hit area) */
+.auth-checkbox-touch {
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: rgba(215, 35, 35, 0.2);
+}

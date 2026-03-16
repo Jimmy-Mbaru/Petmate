@@ -1,0 +1,307 @@
+<div class="bookings-page">
+  <header class="page-header">
+    <div>
+      <h1 class="title">My Bookings</h1>
+      <p class="subtitle">View and manage your boarding bookings.</p>
+    </div>
+    <a routerLink="/app/boarding" class="btn-primary">
+      <ng-icon name="lucideCalendar" size="20" />
+      <span>Book boarding</span>
+    </a>
+  </header>
+
+  @if (isLoading) {
+    <div class="card loading-card">
+      <div class="loading-spinner"></div>
+      <p class="loading-text">Loading bookings…</p>
+    </div>
+  } @else if (bookings.length === 0) {
+    <div class="empty-state card">
+      <div class="empty-icon">
+        <ng-icon name="lucideCalendar" size="40" />
+      </div>
+      <h2 class="empty-title">No bookings yet</h2>
+      <p class="empty-text">You don't have any boarding bookings yet. Find the perfect place for your pet!</p>
+      <div class="quick-actions">
+        <a routerLink="/app/boarding" class="quick-action btn-primary">
+          <ng-icon name="lucideMapPin" size="18" />
+          <span>Find boarding</span>
+        </a>
+        <a routerLink="/app/pets" class="quick-action btn-secondary">
+          <ng-icon name="lucideCat" size="18" />
+          <span>My pets</span>
+        </a>
+        <a routerLink="/app/dashboard" class="quick-action btn-secondary">
+          <ng-icon name="lucideLayoutDashboard" size="18" />
+          <span>Dashboard</span>
+        </a>
+      </div>
+    </div>
+  } @else {
+    <div class="quick-actions-strip card">
+      <span class="quick-actions-label">Quick actions</span>
+      <div class="quick-actions">
+        <a routerLink="/app/boarding" class="quick-action btn-secondary">
+          <ng-icon name="lucideMapPin" size="16" />
+          <span>Find boarding</span>
+        </a>
+        <a routerLink="/app/pets" class="quick-action btn-secondary">
+          <ng-icon name="lucideCat" size="16" />
+          <span>My pets</span>
+        </a>
+        <a routerLink="/app/dashboard" class="quick-action btn-secondary">
+          <ng-icon name="lucideLayoutDashboard" size="16" />
+          <span>Dashboard</span>
+        </a>
+      </div>
+    </div>
+
+    <div class="bookings-summary">
+      <p class="summary-text">You have <strong>{{ bookings.length }}</strong> booking{{ bookings.length !== 1 ? 's' : '' }}</p>
+      <div class="summary-breakdown">
+        <span class="status-pill pending">
+          <ng-icon name="lucideClock" size="12" />
+          {{ bookings.filter(b => b.status === 'PENDING').length }} Pending
+        </span>
+        <span class="status-pill accepted">
+          <ng-icon name="lucideCheckCircle" size="12" />
+          {{ bookings.filter(b => b.status === 'ACCEPTED').length }} Accepted
+        </span>
+        <span class="status-pill completed">
+          <ng-icon name="lucideCheckCircle" size="12" />
+          {{ bookings.filter(b => b.status === 'COMPLETED').length }} Completed
+        </span>
+      </div>
+    </div>
+
+    <ul class="booking-list">
+      @for (b of bookings; track b.id) {
+        <li class="booking-card card">
+          <div class="booking-card-inner">
+            <!-- Status Section -->
+            <div class="booking-status">
+              <div class="status-icon-wrapper" [ngClass]="statusClass(b.status)">
+                <ng-icon [name]="statusIcon(b.status)" size="28" />
+              </div>
+              <span class="status-label" [ngClass]="statusClass(b.status)">
+                {{ getStatusLabel(b.status) }}
+              </span>
+            </div>
+
+            <!-- Info Section -->
+            <div class="booking-info">
+              <div class="booking-header">
+                <h2 class="booking-title">{{ b.boardingProfile?.location ?? 'Boarding stay' }}</h2>
+              </div>
+              @if (b.boardingProfile?.location) {
+                <p class="booking-location">
+                  <ng-icon name="lucideMapPin" size="14" />
+                  {{ b.boardingProfile?.location }}
+                </p>
+              }
+              <p class="booking-dates">
+                <ng-icon name="lucideCalendar" size="14" />
+                {{ formatDate(b.startDate) }} – {{ formatDate(b.endDate) }}
+              </p>
+            </div>
+
+            <!-- Footer Section -->
+            <div class="booking-footer">
+              <div class="booking-price-wrapper">
+                <span class="booking-price-label">Total</span>
+                <span class="booking-price">KES {{ b.totalPrice.toFixed(2) }}</span>
+              </div>
+              <button type="button" class="btn-view-details" (click)="openDetailsModal(b)">
+                <span>View details</span>
+                <ng-icon name="lucideArrowRight" size="16" />
+              </button>
+            </div>
+          </div>
+        </li>
+      }
+    </ul>
+  }
+
+  <!-- Booking Details Modal -->
+  @if (showDetailsModal && selectedBooking) {
+    <div
+      class="details-modal-backdrop"
+      (click)="onModalBackdropClick($event)"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="modal-title"
+    >
+      <div class="details-modal-card" (click)="$event.stopPropagation()">
+        <!-- Modal Header -->
+        <div class="modal-header">
+          <div class="modal-title-wrapper">
+            <div class="modal-icon" [ngClass]="statusClass(selectedBooking.status)">
+              <ng-icon [name]="statusIcon(selectedBooking.status)" size="24" />
+            </div>
+            <div>
+              <h2 class="modal-title" id="modal-title">Booking Details</h2>
+              <p class="modal-subtitle">{{ selectedBooking.boardingProfile?.location ?? 'Boarding stay' }}</p>
+            </div>
+          </div>
+          <button type="button" class="modal-close" (click)="closeDetailsModal()" aria-label="Close">
+            <ng-icon name="lucideX" size="20" />
+          </button>
+        </div>
+
+        <!-- Modal Body -->
+        <div class="modal-body">
+          @if (selectedBooking) {
+            <!-- Status Badge -->
+            <div class="status-badge-large" [ngClass]="statusClass(selectedBooking.status)">
+              <ng-icon [name]="statusIcon(selectedBooking.status)" size="20" />
+              <span>{{ getStatusLabel(selectedBooking.status) }}</span>
+            </div>
+
+            <!-- Booking Info Grid -->
+            <div class="info-grid">
+              <div class="info-item">
+                <div class="info-icon">
+                  <ng-icon name="lucideCalendar" size="18" />
+                </div>
+                <div class="info-content">
+                  <span class="info-label">Check-in</span>
+                  <span class="info-value">{{ formatDate(selectedBooking.startDate) }}</span>
+                </div>
+              </div>
+
+              <div class="info-item">
+                <div class="info-icon">
+                  <ng-icon name="lucideCalendar" size="18" />
+                </div>
+                <div class="info-content">
+                  <span class="info-label">Check-out</span>
+                  <span class="info-value">{{ formatDate(selectedBooking.endDate) }}</span>
+                </div>
+              </div>
+
+              <div class="info-item">
+                <div class="info-icon">
+                  <ng-icon name="lucideMapPin" size="18" />
+                </div>
+                <div class="info-content">
+                  <span class="info-label">Location</span>
+                  <span class="info-value">{{ selectedBooking.boardingProfile?.location ?? 'N/A' }}</span>
+                </div>
+              </div>
+
+              <div class="info-item">
+                <div class="info-icon">
+                  <ng-icon name="lucideDollarSign" size="18" />
+                </div>
+                <div class="info-content">
+                  <span class="info-label">Total Paid</span>
+                  <span class="info-value price">KES {{ selectedBooking.totalPrice.toFixed(2) }}</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Price Breakdown -->
+            <div class="price-breakdown">
+              <h3 class="breakdown-title">Price Breakdown</h3>
+              <div class="breakdown-row">
+                <span class="breakdown-label">Duration</span>
+                <span class="breakdown-value">{{ getPriceBreakdown(selectedBooking).nights }} night{{ getPriceBreakdown(selectedBooking).nights !== 1 ? 's' : '' }}</span>
+              </div>
+              <div class="breakdown-row">
+                <span class="breakdown-label">Price per night</span>
+                <span class="breakdown-value">KES {{ getPriceBreakdown(selectedBooking).pricePerNight.toFixed(2) }}</span>
+              </div>
+              <div class="breakdown-row breakdown-total">
+                <span class="breakdown-label">Total</span>
+                <span class="breakdown-value">KES {{ selectedBooking.totalPrice.toFixed(2) }}</span>
+              </div>
+            </div>
+
+            <!-- Booking Meta -->
+            <div class="booking-meta-info">
+              <div class="meta-row">
+                <span class="meta-label">Booking ID</span>
+                <span class="meta-value">#{{ selectedBooking.id }}</span>
+              </div>
+              <div class="meta-row">
+                <span class="meta-label">Booked On</span>
+                <span class="meta-value">{{ formatDateTime(selectedBooking.createdAt) }}</span>
+              </div>
+              <div class="meta-row">
+                <span class="meta-label">Status</span>
+                <span class="meta-value">{{ getStatusLabel(selectedBooking.status) }}</span>
+              </div>
+            </div>
+
+            <!-- Review Section (Conditional) -->
+            @if (showReviewSection) {
+              <div class="review-section">
+                <h3 class="review-title">
+                  <ng-icon name="lucideStar" size="20" />
+                  Leave a Review
+                </h3>
+                <div class="rating-selector">
+                  @for (star of [1,2,3,4,5]; track star) {
+                    <button 
+                      type="button" 
+                      class="star-btn" 
+                      [class.active]="reviewRating >= star"
+                      (click)="reviewRating = star"
+                    >
+                      <ng-icon name="lucideStar" size="24" />
+                    </button>
+                  }
+                </div>
+                <textarea 
+                  [(ngModel)]="reviewComment" 
+                  placeholder="Share your experience..." 
+                  class="review-textarea"
+                ></textarea>
+                <div class="review-actions">
+                  <button 
+                    type="button" 
+                    class="btn-review-cancel" 
+                    (click)="showReviewSection = false"
+                    [disabled]="isSubmittingReview"
+                  >
+                    Cancel
+                  </button>
+                  <button 
+                    type="button" 
+                    class="btn-review-submit" 
+                    (click)="submitReview()"
+                    [disabled]="isSubmittingReview"
+                  >
+                    {{ isSubmittingReview ? 'Submitting...' : 'Submit Review' }}
+                  </button>
+                </div>
+              </div>
+            }
+          } @else {
+            <p class="empty-text">No booking selected</p>
+          }
+        </div>
+
+        <!-- Modal Footer -->
+        <div class="modal-footer">
+          <button type="button" class="btn-modal-secondary" (click)="closeDetailsModal()">
+            Close
+          </button>
+          
+          @if (selectedBooking.status === 'PENDING') {
+            <button type="button" class="btn-modal-primary" disabled title="Contact host to modify booking">
+              Modify Booking
+            </button>
+          }
+
+          @if (selectedBooking.status === 'COMPLETED' && !showReviewSection) {
+            <button type="button" class="btn-leave-review" (click)="showReviewSection = true">
+              <ng-icon name="lucideStar" size="18" />
+              <span>Leave Review</span>
+            </button>
+          }
+        </div>
+      </div>
+    </div>
+  }
+</div>

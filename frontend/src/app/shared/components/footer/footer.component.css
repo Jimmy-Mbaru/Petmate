@@ -1,0 +1,43 @@
+/* Footer offset for owner and host layouts with collapsible sidebar */
+app-footer {
+  display: block;
+  margin-left: 0;
+  width: 100%;
+  transition: margin-left 0.3s ease, width 0.3s ease;
+}
+
+/* Owner layout - Expanded state */
+html[data-owner-sidebar="expanded"] .owner-layout app-footer,
+html[data-owner-sidebar="expanded"] app-footer {
+  margin-left: 260px;
+  width: calc(100% - 260px);
+}
+
+/* Owner layout - Collapsed state */
+html[data-owner-sidebar="collapsed"] .owner-layout app-footer,
+html[data-owner-sidebar="collapsed"] app-footer {
+  margin-left: 72px;
+  width: calc(100% - 72px);
+}
+
+/* Host layout - Expanded state */
+html[data-host-sidebar="expanded"] .host-layout app-footer {
+  margin-left: 260px;
+  width: calc(100% - 260px);
+}
+
+/* Host layout - Collapsed state */
+html[data-host-sidebar="collapsed"] .host-layout app-footer {
+  margin-left: 72px;
+  width: calc(100% - 72px);
+}
+
+/* Mobile breakpoint */
+@media (max-width: 768px) {
+  app-footer,
+  .owner-layout app-footer,
+  .host-layout app-footer {
+    margin-left: 72px;
+    width: calc(100% - 72px);
+  }
+}

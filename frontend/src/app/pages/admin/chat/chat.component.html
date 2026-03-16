@@ -1,0 +1,191 @@
+<div class="min-h-screen py-8 px-4 sm:px-6 lg:px-8">
+  <div class="max-w-7xl mx-auto">
+    <!-- Header -->
+    <div class="mb-8" data-aos="fade-down">
+      <h1 class="text-3xl font-bold text-gray-900 m-0">Admin Chat</h1>
+      <p class="text-gray-500 m-0 mt-1">Communicate with users directly</p>
+    </div>
+
+    <!-- Chat Container -->
+    <div class="card bg-white rounded-3xl shadow-2xl overflow-hidden border border-gray-100" data-aos="fade-up">
+      <div class="flex h-[700px]">
+        <!-- Sidebar - User List -->
+        <div class="w-80 border-r border-gray-100 flex flex-col">
+          <!-- Search -->
+          <div class="p-4 border-b border-gray-100">
+            <div class="relative">
+              <input
+                type="text"
+                [(ngModel)]="searchQuery"
+                placeholder="Search users..."
+                class="w-full px-4 py-3 pl-12 border-2 border-gray-100 rounded-xl focus:outline-none focus:ring-2 focus:ring-[--color-primary] focus:border-transparent transition-all"
+              />
+              <svg class="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+              </svg>
+            </div>
+          </div>
+
+          <!-- User list: search results (any user) or recent conversations (max 5) -->
+          <div class="flex-1 overflow-y-auto">
+            @for (user of getSidebarUsers(); track user.id) {
+              <div
+                (click)="selectUser(user)"
+                class="flex items-center gap-3 p-4 hover:bg-gray-50 cursor-pointer transition-all border-b border-gray-50"
+                [class.bg-blue-50]="selectedConversation()?.userId === user.id"
+              >
+                <div class="relative shrink-0">
+                  @if (user.avatarUrl && !avatarLoadFailed().has(user.id)) {
+                    <img [src]="user.avatarUrl" [alt]="user.name" class="w-12 h-12 rounded-full object-cover" (error)="markAvatarFailed(user.id)" />
+                  } @else {
+                    <div class="admin-chat-initials w-12 h-12 rounded-full flex items-center justify-center font-bold">
+                      {{ getInitials(user) }}
+                    </div>
+                  }
+                  @if (isOnline(user.id)) {
+                    <div class="absolute bottom-0 right-0 w-3 h-3 bg-green-500 rounded-full border-2 border-white"></div>
+                  }
+                </div>
+                <div class="flex-1 min-w-0">
+                  <p class="font-semibold text-gray-900 truncate m-0">{{ (user.firstName && user.lastName) ? (user.firstName + ' ' + user.lastName) : (user.name || user.email) }}</p>
+                </div>
+                @if (getUnreadCountForUser(user.id) > 0) {
+                  <span class="shrink-0 min-w-6 h-6 px-2 rounded-full bg-[--color-primary] text-white text-xs font-semibold flex items-center justify-center">
+                    {{ getUnreadCountForUser(user.id) > 99 ? '99+' : getUnreadCountForUser(user.id) }}
+                  </span>
+                }
+              </div>
+            } @empty {
+              <div class="p-8 text-center text-gray-500">
+                <svg class="w-12 h-12 mx-auto mb-3 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                </svg>
+                @if (isShowingSearchResults()) {
+                  <p class="text-sm">No users match your search</p>
+                  <p class="text-xs mt-1">Try a different name or email</p>
+                } @else {
+                  <p class="text-sm">No conversations yet</p>
+                  <p class="text-xs mt-1">Search for a user above to start a conversation</p>
+                }
+              </div>
+            }
+          </div>
+        </div>
+
+        <!-- Chat Area -->
+        <div class="flex-1 flex flex-col">
+          @if (selectedConversation()) {
+            <!-- Chat Header -->
+            <div class="p-4 border-b border-gray-100 flex items-center gap-3 bg-gray-50">
+              <div class="relative shrink-0">
+                @if (getSelectedUser()?.avatarUrl && !avatarLoadFailed().has(selectedConversation()!.userId)) {
+                  <img [src]="getSelectedUser()!.avatarUrl!" [alt]="getSelectedUserName()" class="w-10 h-10 rounded-full object-cover" (error)="markAvatarFailed(selectedConversation()!.userId)" />
+                } @else {
+                  <div class="admin-chat-initials w-10 h-10 rounded-full flex items-center justify-center font-bold">
+                    {{ getSelectedUser() ? getInitials(getSelectedUser()!) : (getSelectedUserName()[0] || 'U') }}
+                  </div>
+                }
+                @if (isOnline(selectedConversation()!.userId)) {
+                  <div class="absolute bottom-0 right-0 w-3 h-3 bg-green-500 rounded-full border-2 border-white"></div>
+                }
+              </div>
+              <div>
+                <p class="font-bold text-gray-900 m-0">{{ getSelectedUserName() }}</p>
+                <p class="text-xs m-0" [class.text-green-600]="isOnline(selectedConversation()!.userId)" [class.text-gray-500]="!isOnline(selectedConversation()!.userId)">
+                  {{ getPresenceLabel() }}
+                </p>
+              </div>
+            </div>
+
+            <!-- Messages Container -->
+            <div #messagesContainer class="admin-chat-messages flex-1 overflow-y-auto p-4 space-y-4">
+              @if (loading()) {
+                <div class="flex items-center justify-center h-full">
+                  <svg class="w-8 h-8 animate-spin text-[--color-primary]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                  </svg>
+                </div>
+              } @else if (messages().length === 0) {
+                <div class="flex items-center justify-center h-full">
+                  <div class="text-center text-gray-500">
+                    <svg class="w-16 h-16 mx-auto mb-4 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+                    </svg>
+                    <p>No messages yet. Start the conversation!</p>
+                  </div>
+                </div>
+              } @else {
+                @for (msg of messages(); track msg.id) {
+                  <div
+                    class="flex"
+                    [class.justify-end]="msg.isSelf"
+                    [class.justify-start]="!msg.isSelf"
+                  >
+                    <div
+                      class="admin-chat-bubble max-w-[70%] px-4 py-3 rounded-2xl"
+                      [class.admin-chat-bubble--own]="msg.isSelf"
+                      [class.admin-chat-bubble--other]="!msg.isSelf"
+                    >
+                      <p class="m-0 wrap-break-word">{{ msg.content }}</p>
+                      <p class="admin-chat-bubble-time text-xs m-0 mt-1 text-right">
+                        {{ formatMessageTime(msg.sentAt) }}
+                        @if (msg.isSelf && msg.read) {
+                          <span class="ml-1">✓ Read</span>
+                        }
+                      </p>
+                    </div>
+                  </div>
+                }
+              }
+              @if (otherUserTyping()) {
+                <div class="flex justify-start">
+                  <div class="admin-chat-typing-bubble px-4 py-3 rounded-2xl bg-white border border-gray-200 shadow-sm">
+                    <span class="admin-chat-typing-dot"></span>
+                    <span class="admin-chat-typing-dot"></span>
+                    <span class="admin-chat-typing-dot"></span>
+                  </div>
+                </div>
+              }
+            </div>
+
+            <!-- Message Input -->
+            <div class="p-4 border-t border-gray-100 bg-white">
+              <div class="flex items-center gap-3">
+                <input
+                  #messageInputElem
+                  type="text"
+                  [(ngModel)]="messageInput"
+                  (ngModelChange)="onInputChange()"
+                  (keyup.enter)="sendMessage()"
+                  placeholder="Type a message..."
+                  class="flex-1 px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[--color-primary] focus:border-transparent transition-all"
+                />
+                <button
+                  type="button"
+                  (click)="sendMessage()"
+                  [disabled]="messageInput().length === 0"
+                  class="px-6 py-3 bg-red-600 text-white font-semibold rounded-xl hover:bg-red-700 hover:shadow-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
+                  </svg>
+                </button>
+              </div>
+            </div>
+          } @else {
+            <!-- Empty State -->
+            <div class="flex-1 flex items-center justify-center bg-gray-50">
+              <div class="text-center text-gray-500">
+                <svg class="w-20 h-20 mx-auto mb-4 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+                </svg>
+                <h3 class="text-xl font-bold m-0 mb-2">Select a user to start chatting</h3>
+                <p class="text-gray-400">Choose a user from the sidebar to view your conversation</p>
+              </div>
+            </div>
+          }
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

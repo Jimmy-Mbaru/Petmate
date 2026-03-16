@@ -1,0 +1,311 @@
+<div class="boarding-page">
+  <header class="page-header">
+    <div>
+      <h1 class="page-title">Find boarding</h1>
+      <p class="page-subtitle">Discover trusted pet sitters for your furry friend</p>
+    </div>
+  </header>
+
+  <div class="search-filters card">
+    <div class="filter-row">
+      <div class="filter-group">
+        <label class="filter-label">
+          <ng-icon name="lucideSearch" size="18" />
+          Location / Search
+        </label>
+        <input
+          type="text"
+          class="filter-input"
+          [(ngModel)]="locationSearchText"
+          placeholder="Search by location or description..."
+          (ngModelChange)="searchQuery.q = $event || undefined"
+        />
+        @if (userLocation.hasLocation()) {
+          <p class="location-hint">
+            <ng-icon name="lucideLocateFixed" size="14" />
+            Your location: {{ userLocation.location()!.address || (userLocation.location()!.lat | number:'1.2-2') + ', ' + (userLocation.location()!.lng | number:'1.2-2') }}
+          </p>
+        }
+        @if (userLocation.errorMessage()) {
+          <p class="location-error">
+            {{ userLocation.errorMessage() }}
+          </p>
+        }
+      </div>
+
+      <div class="filter-group">
+        <label class="filter-label">
+          <ng-icon name="lucideDollarSign" size="18" />
+          Min Price (KES)
+        </label>
+        <input
+          type="number"
+          class="filter-input"
+          placeholder="0"
+          min="0"
+          (input)="onMinPriceChange($event)"
+        />
+      </div>
+
+      <div class="filter-group">
+        <label class="filter-label">
+          <ng-icon name="lucideDollarSign" size="18" />
+          Max Price (KES)
+        </label>
+        <input
+          type="number"
+          class="filter-input"
+          placeholder="1000"
+          min="0"
+          (input)="onMaxPriceChange($event)"
+        />
+      </div>
+
+      <div class="filter-group">
+        <label class="filter-label">
+          <ng-icon name="lucideStar" size="18" />
+          Min Rating
+        </label>
+        <input
+          type="number"
+          class="filter-input"
+          placeholder="1-5"
+          min="1"
+          max="5"
+          (input)="onMinRatingChange($event)"
+        />
+      </div>
+    </div>
+
+    <div class="filter-actions">
+      <button
+        type="button"
+        class="btn-secondary"
+        (click)="useMyLocation()"
+        [disabled]="userLocation.isLoading()"
+      >
+        <ng-icon name="lucideLocateFixed" size="20" />
+        <span>{{ userLocation.isLoading() ? 'Getting location...' : 'Use my location' }}</span>
+      </button>
+      <button class="btn-primary" (click)="onSearch()">
+        <ng-icon name="lucideSearch" size="20" />
+        <span>Search</span>
+      </button>
+      <button class="btn-secondary" (click)="toggleMap()">
+        <ng-icon name="lucideMapPin" size="20" />
+        <span>{{ showMap ? 'Hide' : 'Show' }} Map</span>
+      </button>
+    </div>
+  </div>
+
+  @if (showMap) {
+    <div class="map-section card">
+      <app-map
+        [lat]="mapLat"
+        [lng]="mapLng"
+        [markers]="mapMarkers"
+        [zoom]="12"
+        height="400px"
+      />
+    </div>
+  }
+
+  @if (isLoading && profiles.length === 0) {
+    <div class="loading-state">
+      <p>Loading boarding profiles...</p>
+    </div>
+  } @else if (profiles.length === 0) {
+    <div class="empty-state card">
+      <div class="empty-state-inner">
+        <div class="empty-icon-wrap">
+          <ng-icon name="lucideMapPin" size="56" class="empty-icon" />
+        </div>
+        <h2 class="empty-title">No boarding profiles found</h2>
+        <p class="empty-text">Try adjusting your search filters, or search without location to see all approved boarding options.</p>
+        <div class="empty-hints">
+          <p class="empty-hints-heading">Quick tips</p>
+          <ul class="empty-hints-list">
+            <li>Clear the location field to see all profiles</li>
+            <li>Reduce the minimum rating filter</li>
+            <li>Increase the maximum price range</li>
+            <li>Click “Use my location” to find nearby options</li>
+          </ul>
+        </div>
+        <div class="empty-actions">
+          <button type="button" class="btn-primary empty-btn" (click)="toggleMap()">
+            <ng-icon name="lucideMapPin" size="20" />
+            <span>Show Map</span>
+          </button>
+          <button type="button" class="btn-secondary empty-btn" (click)="searchQuery = {}; locationSearchText = ''; onSearch()">
+            <ng-icon name="lucideSearch" size="20" />
+            <span>Clear All Filters</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  } @else {
+    <div class="profiles-grid">
+      @for (profile of profiles; track profile.id) {
+        <div class="profile-card card">
+          <div class="profile-card-image-wrap">
+            @if (profile.photoUrls && profile.photoUrls.length > 0) {
+              <img [src]="profile.photoUrls[0]" [alt]="profile.location" class="profile-image" />
+            } @else {
+              <div class="profile-image-placeholder">
+                <ng-icon name="lucideMapPin" size="48" />
+              </div>
+            }
+            <div class="profile-price-badge">KES {{ profile.pricePerDay }}<span class="price-unit">/day</span></div>
+          </div>
+
+          <div class="profile-content">
+            <div class="profile-header">
+              <h3 class="profile-location">
+                <ng-icon name="lucideMapPin" size="18" class="location-icon" />
+                {{ profile.location }}
+              </h3>
+              @if (profile.averageRating) {
+                <div class="profile-rating">
+                  <ng-icon name="lucideStar" size="16" class="star-icon" />
+                  <span>{{ profile.averageRating.toFixed(1) }}</span>
+                  <span class="review-count">({{ profile.reviewCount }})</span>
+                </div>
+              }
+            </div>
+
+            @if (profile.description) {
+              <p class="profile-description">{{ profile.description }}</p>
+            }
+
+            <div class="profile-details">
+              <div class="detail-item">
+                <ng-icon name="lucideCalendar" size="16" />
+                <span>Capacity: {{ profile.capacity }}</span>
+              </div>
+            </div>
+
+            <div class="profile-actions">
+              <a [routerLink]="['/app', 'users', profile.hostId]" class="profile-btn profile-btn-secondary">
+                View host profile
+              </a>
+              <button type="button" class="profile-btn profile-btn-primary" (click)="openBookingModal(profile)">
+                Book Now
+              </button>
+            </div>
+          </div>
+        </div>
+      }
+    </div>
+
+    @if (profiles.length < total) {
+      <div class="load-more-container">
+        <button class="btn-secondary" (click)="loadMore()" [disabled]="isLoading">
+          {{ isLoading ? 'Loading...' : 'Load More' }}
+        </button>
+      </div>
+    }
+  }
+
+  <div class="page-actions">
+    <a routerLink="/app/dashboard" class="back-link">Back to Dashboard</a>
+    <a routerLink="/app/store" class="back-link link-store">Go to Store</a>
+  </div>
+
+  <!-- Booking dates modal -->
+  @if (bookingModalOpen && bookingProfile) {
+    <div
+      class="booking-modal-backdrop fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4"
+      (click)="onBookingBackdropClick($event)"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="booking-modal-title"
+    >
+      <div
+        class="booking-modal-card card"
+        (click)="$event.stopPropagation()"
+      >
+        <div class="booking-modal-header">
+          <h2 id="booking-modal-title" class="booking-modal-title">
+            <ng-icon name="lucideCalendar" size="24" />
+            Choose dates
+          </h2>
+          <button
+            type="button"
+            class="booking-modal-close"
+            (click)="closeBookingModal()"
+            aria-label="Close"
+          >
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+        </div>
+        <p class="booking-modal-subtitle">{{ bookingProfile.location }} — KES {{ bookingProfile.pricePerDay }}/day</p>
+        
+        <div class="booking-modal-form">
+          <!-- Blackout Warning Alert -->
+          @if (hasBlackoutInSelection()) {
+            <div class="bg-red-50 border border-red-200 rounded-xl p-4 mb-4 flex items-start gap-3">
+              <ng-icon name="lucideAlertCircle" size="20" class="text-red-600 shrink-0 mt-0.5" />
+              <div>
+                <p class="font-semibold text-red-800 text-sm">Unavailable Dates Selected</p>
+                <p class="text-red-600 text-xs">One or more selected dates are blacked out by the host. Please choose different dates.</p>
+              </div>
+            </div>
+          }
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <label class="booking-modal-label">
+              Start date
+              <input
+                type="date"
+                class="booking-modal-input"
+                [(ngModel)]="bookingStartDate"
+                [min]="minBookingDate()"
+                [max]="bookingEndDate || maxBookingDate()"
+              />
+            </label>
+            <label class="booking-modal-label">
+              End date
+              <input
+                type="date"
+                class="booking-modal-input"
+                [(ngModel)]="bookingEndDate"
+                [min]="bookingStartDate || minBookingDate()"
+                [max]="maxBookingDate()"
+              />
+            </label>
+          </div>
+        </div>
+
+        <!-- Blackout Dates List -->
+        @if (currentBlackoutDates.length > 0) {
+          <div class="mt-4 px-6 pb-2">
+            <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2">Host unavailable on:</p>
+            <div class="flex flex-wrap gap-1.5">
+              @for (date of currentBlackoutDates; track date) {
+                <span class="px-2 py-0.5 bg-gray-50 text-gray-500 text-[10px] font-medium rounded border border-gray-100">
+                  {{ date }}
+                </span>
+              }
+            </div>
+          </div>
+        }
+
+        <div class="booking-modal-actions">
+          <button type="button" class="profile-btn profile-btn-secondary" (click)="closeBookingModal()">
+            Cancel
+          </button>
+          <button
+            type="button"
+            class="profile-btn profile-btn-primary"
+            (click)="confirmBooking()"
+            [disabled]="isBookingDisabled()"
+          >
+            {{ bookingInProgress ? 'Booking...' : 'Confirm booking' }}
+          </button>
+        </div>
+      </div>
+    </div>
+  }
+</div>

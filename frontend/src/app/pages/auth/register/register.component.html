@@ -1,0 +1,506 @@
+<div class="h-dvh min-h-0 flex flex-col lg:flex-row bg-[#f5eded] overflow-hidden">
+  <!-- Left Side - Form -->
+  <div class="auth-form-column w-full lg:w-1/2 flex flex-1 min-h-0 items-center justify-center p-3 sm:p-4 md:p-6 lg:p-8 order-2 lg:order-1 overflow-y-auto">
+    <div class="w-full max-w-md">
+      <!-- Mobile logo -->
+      <div class="lg:hidden flex items-center gap-3 mb-4 justify-center">
+        <svg class="w-8 h-8 text-[#d72323]" fill="currentColor" viewBox="0 0 24 24">
+          <path d="M12 10a2 2 0 1 0 0 4 2 2 0 0 0 0-4zm-4 3a2 2 0 1 0 0 4 2 2 0 0 0 0-4zm8 0a2 2 0 1 0 0 4 2 2 0 0 0 0-4zm-4 2a4 4 0 0 1-4-4 4 4 0 0 1 4-4 4 4 0 0 1 4 4 4 4 0 0 1-4 4z"/>
+          <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z"/>
+        </svg>
+        <span class="font-bold text-xl uppercase tracking-wide text-[#000000]">PetMate</span>
+      </div>
+
+      <!-- Header -->
+      <div class="text-center mb-3 sm:mb-6 auth-header-animate">
+        <h2 class="font-['Playfair_Display',Georgia,serif] text-2xl md:text-3xl font-bold text-[#000000] mb-1">Create Account</h2>
+        <p class="text-[#363636] text-xs md:text-sm">Join thousands of happy pet parents today</p>
+        <span class="auth-header-underline" aria-hidden="true"></span>
+      </div>
+
+      <!-- Form wrapper with stagger animation -->
+      <div class="auth-form-animate">
+      <!-- Success Message -->
+      @if (showSuccessMessage) {
+        <div class="mb-3 p-3 rounded-lg bg-green-50 border border-green-200 flex items-center gap-2 text-xs">
+          <svg class="w-4 h-4 text-green-600" fill="currentColor" viewBox="0 0 20 20">
+            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+          </svg>
+          <span class="text-green-800">Account created! Redirecting...</span>
+        </div>
+      }
+
+      <!-- Error Message -->
+      @if (errorMessage) {
+        <div class="mb-3 p-3 rounded-lg bg-red-50 border border-red-200 flex items-center gap-2 text-xs">
+          <svg class="w-4 h-4 text-red-600" fill="currentColor" viewBox="0 0 20 20">
+            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/>
+          </svg>
+          <span class="text-red-800">{{ errorMessage }}</span>
+        </div>
+      }
+
+      <!-- Form -->
+      <form (ngSubmit)="onSubmit()" class="space-y-2 sm:space-y-3">
+        <p class="text-xs text-[#363636] mb-2">Fields marked with <span class="text-red-500" aria-hidden="true">*</span> are required.</p>
+        <!-- Name Fields -->
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label for="firstName" class="block text-xs font-semibold text-[#000000] mb-1">First Name <span class="text-red-500" aria-hidden="true">*</span></label>
+            <input
+              id="firstName"
+              type="text"
+              [(ngModel)]="firstName"
+              name="firstName"
+              placeholder="John"
+              class="auth-input-touch auth-form-shadow w-full px-3 py-2.5 rounded-lg border border-[#000000]/10 bg-white text-[#000000] placeholder:text-[#363636]/40 focus:outline-none focus:border-[#d72323] focus:ring-2 focus:ring-[#d72323]/20 active:border-[#d72323] transition-all duration-200 text-sm"
+              [class.border-red-400]="firstNameRequired"
+              (blur)="firstNameTouched = true"
+              (touchstart)="$any($event.currentTarget)?.classList.add('touch-active')"
+              (touchend)="$any($event.currentTarget)?.classList.remove('touch-active')"
+              (touchcancel)="$any($event.currentTarget)?.classList.remove('touch-active')"
+            />
+            @if (firstNameRequired) {
+              <p class="text-red-500 text-xs mt-1 flex items-center gap-1" role="alert">
+                <svg class="w-3.5 h-3.5 shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                  <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
+                </svg>
+                Please enter your first name
+              </p>
+            }
+          </div>
+          <div>
+            <label for="lastName" class="block text-xs font-semibold text-[#000000] mb-1">Last Name <span class="text-red-500" aria-hidden="true">*</span></label>
+            <input
+              id="lastName"
+              type="text"
+              [(ngModel)]="lastName"
+              name="lastName"
+              placeholder="Doe"
+              class="auth-input-touch auth-form-shadow w-full px-3 py-2.5 rounded-lg border border-[#000000]/10 bg-white text-[#000000] placeholder:text-[#363636]/40 focus:outline-none focus:border-[#d72323] focus:ring-2 focus:ring-[#d72323]/20 active:border-[#d72323] transition-all duration-200 text-sm"
+              [class.border-red-400]="lastNameRequired"
+              (blur)="lastNameTouched = true"
+              (touchstart)="$any($event.currentTarget)?.classList.add('touch-active')"
+              (touchend)="$any($event.currentTarget)?.classList.remove('touch-active')"
+              (touchcancel)="$any($event.currentTarget)?.classList.remove('touch-active')"
+            />
+            @if (lastNameRequired) {
+              <p class="text-red-500 text-xs mt-1 flex items-center gap-1" role="alert">
+                <svg class="w-3.5 h-3.5 shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                  <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
+                </svg>
+                Please enter your last name
+              </p>
+            }
+          </div>
+        </div>
+
+        <!-- Email Field -->
+        <div>
+          <label for="email" class="block text-xs font-semibold text-[#000000] mb-1">Email Address</label>
+          <input
+            id="email"
+            type="email"
+            [(ngModel)]="email"
+            name="email"
+            placeholder="you@example.com"
+            class="auth-input-touch auth-form-shadow w-full px-3 py-2.5 rounded-lg border border-[#000000]/10 bg-white text-[#000000] placeholder:text-[#363636]/40 focus:outline-none focus:border-[#d72323] focus:ring-2 focus:ring-[#d72323]/20 active:border-[#d72323] transition-all duration-200 text-sm"
+            [class.border-red-400]="emailRequired"
+            (blur)="emailTouched = true"
+            (touchstart)="$any($event.currentTarget)?.classList.add('touch-active')"
+            (touchend)="$any($event.currentTarget)?.classList.remove('touch-active')"
+            (touchcancel)="$any($event.currentTarget)?.classList.remove('touch-active')"
+          />
+          @if (emailRequired) {
+            <p class="text-red-500 text-xs mt-1 flex items-center gap-1" role="alert">
+              <svg class="w-3.5 h-3.5 shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
+              </svg>
+              Please enter your email address
+            </p>
+          }
+        </div>
+
+        <!-- Role Selection -->
+        <div>
+          <label class="block text-xs font-semibold text-[#000000] mb-2">I want to</label>
+          <div class="grid grid-cols-2 gap-2">
+            <label class="flex items-center gap-2 p-3 rounded-lg border-2 cursor-pointer transition-all duration-200"
+              [class.border-[#d72323] bg-[#d72323]/5]="selectedRole === 'OWNER'"
+              [class.border-[#000000]/10 bg-white]="selectedRole !== 'OWNER'"
+              (click)="selectedRole = 'OWNER'"
+            >
+              <input type="radio" name="role" [value]="'OWNER'" [(ngModel)]="selectedRole" class="sr-only" />
+              <div class="flex items-center justify-center w-5 h-5 rounded-full border-2 bg-white"
+                [class.border-[#d72323]]="selectedRole === 'OWNER'"
+                [class.border-[#000000]/30]="selectedRole !== 'OWNER'">
+                @if (selectedRole === 'OWNER') {
+                  <svg class="w-3 h-3 text-[#d72323]" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                  </svg>
+                }
+              </div>
+              <div>
+                <p class="text-xs font-semibold text-[#000000]">Pet Owner</p>
+                <p class="text-[9px] text-[#363636]">Find care for my pet</p>
+              </div>
+            </label>
+            <label class="flex items-center gap-2 p-3 rounded-lg border-2 cursor-pointer transition-all duration-200"
+              [class.border-[#d72323] bg-[#d72323]/5]="selectedRole === 'HOST'"
+              [class.border-[#000000]/10 bg-white]="selectedRole !== 'HOST'"
+              (click)="selectedRole = 'HOST'"
+            >
+              <input type="radio" name="role" [value]="'HOST'" [(ngModel)]="selectedRole" class="sr-only" />
+              <div class="flex items-center justify-center w-5 h-5 rounded-full border-2 bg-white"
+                [class.border-[#d72323]]="selectedRole === 'HOST'"
+                [class.border-[#000000]/30]="selectedRole !== 'HOST'">
+                @if (selectedRole === 'HOST') {
+                  <svg class="w-3 h-3 text-[#d72323]" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                  </svg>
+                }
+              </div>
+              <div>
+                <p class="text-xs font-semibold text-[#000000]">Host</p>
+                <p class="text-[9px] text-[#363636]">Offer pet boarding</p>
+              </div>
+            </label>
+          </div>
+        </div>
+
+        <!-- Password Field -->
+        <div>
+          <label for="password" class="block text-xs font-semibold text-[#000000] mb-1">Password <span class="text-red-500" aria-hidden="true">*</span></label>
+          <div class="relative">
+            <input
+              id="password"
+              [type]="showPassword ? 'text' : 'password'"
+              [(ngModel)]="password"
+              name="password"
+              (input)="checkPasswordStrength()"
+              placeholder="Create password"
+              class="auth-input-touch auth-form-shadow w-full px-3 py-2.5 pr-10 rounded-lg border border-[#000000]/10 bg-white text-[#000000] placeholder:text-[#363636]/40 focus:outline-none focus:border-[#d72323] focus:ring-2 focus:ring-[#d72323]/20 active:border-[#d72323] transition-all duration-200 text-sm"
+              [class.border-red-400]="passwordRequired"
+              (blur)="passwordTouched = true"
+              (touchstart)="$any($event.currentTarget)?.classList.add('touch-active')"
+              (touchend)="$any($event.currentTarget)?.classList.remove('touch-active')"
+              (touchcancel)="$any($event.currentTarget)?.classList.remove('touch-active')"
+            />
+            <button
+              type="button"
+              (click)="togglePassword()"
+              (touchstart)="togglePassword(); $any($event.currentTarget)?.classList.add('touch-active')"
+              (touchend)="$any($event.currentTarget)?.classList.remove('touch-active')"
+              (touchcancel)="$any($event.currentTarget)?.classList.remove('touch-active')"
+              class="auth-icon-touch absolute inset-y-0 right-0 pr-2 flex items-center justify-end text-[#363636]/40 hover:text-[#000000] transition-all duration-200"
+            >
+              @if (showPassword) {
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858-5.908a9.083 9.083 0 014.652-1.917c4.477 0 8.268 2.944 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21m-3.063-3.063a10.025 10.025 0 01-4.652 1.917M6.002 6.002a10.05 10.05 0 014.652-1.917c4.477 0 8.268 2.944 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21m-3.063-3.063a10.025 10.025 0 01-4.652 1.917"/>
+                </svg>
+              } @else {
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                </svg>
+              }
+            </button>
+          </div>
+          @if (passwordRequired) {
+            <p class="text-red-500 text-xs mt-1 flex items-center gap-1" role="alert">
+              <svg class="w-3.5 h-3.5 shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
+              </svg>
+              Please enter a password
+            </p>
+          }
+          @if (password) {
+            <div class="mt-1">
+              <div class="flex gap-1 mb-0.5">
+                <div class="h-0.5 flex-1 rounded-full" [class]="passwordStrength === 'weak' ? 'bg-red-400' : 'bg-green-400'"></div>
+                <div class="h-0.5 flex-1 rounded-full" [class]="passwordStrength === 'weak' ? 'bg-[#000000]/10' : (passwordStrength === 'medium' ? 'bg-green-400' : 'bg-green-400')"></div>
+                <div class="h-0.5 flex-1 rounded-full" [class]="passwordStrength === 'strong' ? 'bg-green-400' : 'bg-[#000000]/10'"></div>
+              </div>
+              <p class="text-[10px]" [class]="passwordStrength === 'weak' ? 'text-red-500' : (passwordStrength === 'medium' ? 'text-yellow-600' : 'text-green-600')">
+                @if (passwordStrength === 'weak') { Weak }
+                @else if (passwordStrength === 'medium') { Medium }
+                @else { Strong }
+              </p>
+            </div>
+          }
+        </div>
+
+        <!-- Confirm Password Field -->
+        <div>
+          <label for="confirmPassword" class="block text-xs font-semibold text-[#000000] mb-1">Confirm Password <span class="text-red-500" aria-hidden="true">*</span></label>
+          <div class="relative">
+            <input
+              id="confirmPassword"
+              [type]="showConfirmPassword ? 'text' : 'password'"
+              [(ngModel)]="confirmPassword"
+              name="confirmPassword"
+              placeholder="Confirm password"
+              class="auth-input-touch auth-form-shadow w-full px-3 py-2.5 pr-10 rounded-lg border border-[#000000]/10 bg-white text-[#000000] placeholder:text-[#363636]/40 focus:outline-none focus:border-[#d72323] focus:ring-2 focus:ring-[#d72323]/20 active:border-[#d72323] transition-all duration-200 text-sm"
+              [class.border-green-400]="confirmPassword && password === confirmPassword"
+              [class.border-red-400]="passwordsMismatch || confirmPasswordRequired"
+              (blur)="confirmPasswordTouched = true"
+              (touchstart)="$any($event.currentTarget)?.classList.add('touch-active')"
+              (touchend)="$any($event.currentTarget)?.classList.remove('touch-active')"
+              (touchcancel)="$any($event.currentTarget)?.classList.remove('touch-active')"
+            />
+            <button
+              type="button"
+              (click)="toggleConfirmPassword()"
+              (touchstart)="toggleConfirmPassword(); $any($event.currentTarget)?.classList.add('touch-active')"
+              (touchend)="$any($event.currentTarget)?.classList.remove('touch-active')"
+              (touchcancel)="$any($event.currentTarget)?.classList.remove('touch-active')"
+              class="auth-icon-touch absolute inset-y-0 right-0 pr-2 flex items-center justify-end text-[#363636]/40 hover:text-[#000000] transition-all duration-200"
+            >
+              @if (showConfirmPassword) {
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858-5.908a9.083 9.083 0 014.652-1.917c4.477 0 8.268 2.944 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21m-3.063-3.063a10.025 10.025 0 01-4.652 1.917M6.002 6.002a10.05 10.05 0 014.652-1.917c4.477 0 8.268 2.944 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21m-3.063-3.063a10.025 10.025 0 01-4.652 1.917"/>
+                </svg>
+              } @else {
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                </svg>
+              }
+            </button>
+          </div>
+          @if (confirmPasswordRequired) {
+            <p class="text-red-500 text-xs mt-1 flex items-center gap-1" role="alert">
+              <svg class="w-3.5 h-3.5 shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
+              </svg>
+              Please confirm your password
+            </p>
+          }
+          @if (confirmPassword && password === confirmPassword) {
+            <p class="text-[10px] text-green-600 mt-0.5 flex items-center gap-1" role="status">
+              <svg class="w-2.5 h-2.5" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+              </svg>
+              Matched
+            </p>
+          }
+          @if (passwordsMismatch) {
+            <p class="text-red-500 text-sm mt-1.5 flex items-center gap-1.5" role="alert">
+              <svg class="w-4 h-4 shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
+              </svg>
+              Password and confirm password do not match.
+            </p>
+          }
+        </div>
+
+        <!-- Terms Checkbox -->
+        <div>
+          <label class="flex items-start gap-2 cursor-pointer touch-manipulation">
+            <input
+              type="checkbox"
+              [(ngModel)]="agreeToTerms"
+              name="agreeToTerms"
+              class="auth-checkbox-touch w-4 h-4 mt-0.5 rounded border-[#000000]/20 text-[#d72323] focus:ring-[#d72323] focus:ring-offset-0 transition-transform duration-200"
+              (touchstart)="$any($event.currentTarget)?.classList.add('touch-active')"
+              (touchend)="$any($event.currentTarget)?.classList.remove('touch-active')"
+              (touchcancel)="$any($event.currentTarget)?.classList.remove('touch-active')"
+            />
+            <span class="text-[10px] text-[#363636] leading-tight">
+              I agree to the
+              <a href="#" class="text-[#d72323] hover:text-[#bc1f1f] active:text-[#991a1a] font-semibold transition-colors">Terms</a>
+              and
+              <a href="#" class="text-[#d72323] hover:text-[#bc1f1f] active:text-[#991a1a] font-semibold transition-colors">Privacy Policy</a>
+            </span>
+          </label>
+        </div>
+
+        <!-- Submit Button -->
+        <button
+          type="submit"
+          [disabled]="isLoading"
+          class="auth-btn-touch auth-form-shadow w-full py-2.5 rounded-lg bg-linear-to-r from-[#d72323] to-[#bc1f1f] text-white font-semibold text-sm hover:shadow-lg hover:shadow-[#d72323]/30 hover:-translate-y-0.5 active:shadow-md transition-all duration-200 disabled:opacity-70 disabled:cursor-not-allowed disabled:hover:translate-y-0 disabled:hover:scale-100 flex items-center justify-center gap-1.5"
+          (touchstart)="$any($event.currentTarget)?.classList.add('touch-active')"
+          (touchend)="$any($event.currentTarget)?.classList.remove('touch-active')"
+          (touchcancel)="$any($event.currentTarget)?.classList.remove('touch-active')"
+        >
+          @if (isLoading) {
+            <svg class="animate-spin h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+              <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+            </svg>
+            <span>Creating...</span>
+          } @else {
+            <span>Create Account</span>
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/>
+            </svg>
+          }
+        </button>
+      </form>
+
+      <!-- Divider -->
+      <div class="relative my-3">
+        <div class="absolute inset-0 flex items-center">
+          <div class="w-full border-t border-[#000000]/10"></div>
+        </div>
+        <div class="relative flex justify-center text-xs">
+          <span class="px-3 bg-[#f5eded] text-[#363636]">Or register with</span>
+        </div>
+      </div>
+
+      <!-- Social Login -->
+      <div class="grid grid-cols-3 gap-2">
+        <button
+          type="button"
+          (click)="onSocialLogin('google')"
+          (touchstart)="onSocialLogin('google'); $any($event.currentTarget)?.classList.add('touch-active')"
+          (touchend)="$any($event.currentTarget)?.classList.remove('touch-active')"
+          (touchcancel)="$any($event.currentTarget)?.classList.remove('touch-active')"
+          class="auth-btn-touch flex items-center justify-center py-2 px-3 rounded-lg border border-[#000000]/10 bg-white hover:bg-[#000000]/5 active:bg-[#000000]/10 active:scale-95 transition-all duration-200"
+        >
+          <svg class="w-4 h-4" viewBox="0 0 24 24">
+            <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+            <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+            <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
+            <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
+          </svg>
+        </button>
+        <button
+          type="button"
+          (click)="onSocialLogin('facebook')"
+          (touchstart)="onSocialLogin('facebook'); $any($event.currentTarget)?.classList.add('touch-active')"
+          (touchend)="$any($event.currentTarget)?.classList.remove('touch-active')"
+          (touchcancel)="$any($event.currentTarget)?.classList.remove('touch-active')"
+          class="auth-btn-touch flex items-center justify-center py-2 px-3 rounded-lg border border-[#000000]/10 bg-white hover:bg-[#000000]/5 active:bg-[#000000]/10 active:scale-95 transition-all duration-200"
+        >
+          <svg class="w-4 h-4" fill="#1877F2" viewBox="0 0 24 24">
+            <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
+          </svg>
+        </button>
+        <button
+          type="button"
+          (click)="onSocialLogin('apple')"
+          (touchstart)="onSocialLogin('apple'); $any($event.currentTarget)?.classList.add('touch-active')"
+          (touchend)="$any($event.currentTarget)?.classList.remove('touch-active')"
+          (touchcancel)="$any($event.currentTarget)?.classList.remove('touch-active')"
+          class="auth-btn-touch flex items-center justify-center py-2 px-3 rounded-lg border border-[#000000]/10 bg-white hover:bg-[#000000]/5 active:bg-[#000000]/10 active:scale-95 transition-all duration-200"
+        >
+          <svg class="w-4 h-4" fill="#000000" viewBox="0 0 24 24">
+            <path d="M17.05 20.28c-.98.95-2.05.8-3.08.35-1.09-.46-2.09-.48-3.24 0-1.44.62-2.2.44-3.06-.35C2.79 15.25 3.51 7.59 9.05 7.31c1.35.07 2.29.74 3.08.8 1.18-.24 2.31-.93 3.57-.84 1.51.12 2.65.72 3.4 1.8-3.12 1.87-2.38 5.98.48 7.13-.57 1.5-1.31 2.99-2.54 4.09l.01-.01zM12.03 7.25c-.15-2.23 1.66-4.07 3.74-4.25.29 2.58-2.34 4.5-3.74 4.25z"/>
+          </svg>
+        </button>
+      </div>
+
+      </div>
+      <!-- /auth-form-animate -->
+
+      <!-- Login Link -->
+      <p class="text-center mt-4 text-[#363636] text-xs">
+        Already have an account?
+        <a routerLink="/auth/login" class="font-semibold text-[#d72323] hover:text-[#bc1f1f] transition-colors">
+          Sign In
+        </a>
+      </p>
+
+      <!-- Back to Home -->
+      <div class="text-center mt-3">
+        <a routerLink="/" class="inline-flex items-center gap-1 text-xs text-[#363636] hover:text-[#000000] transition-colors">
+          <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
+          </svg>
+          Back to Home
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Right Side - Visual -->
+  <div class="hidden lg:flex lg:w-1/2 lg:min-h-0 relative bg-linear-to-br from-[#000000] via-[#1a1a1a] to-[#000000] overflow-hidden order-1 lg:order-2">
+    <!-- Animated background -->
+    <div class="absolute inset-0">
+      <div class="absolute top-1/4 left-1/4 w-96 h-96 bg-[#d72323]/30 rounded-full blur-3xl animate-pulse"></div>
+      <div class="absolute bottom-1/4 right-1/4 w-80 h-80 bg-[#363636]/30 rounded-full blur-3xl animate-pulse" style="animation-delay: 1s;"></div>
+    </div>
+
+    <!-- Pattern overlay -->
+    <div class="absolute inset-0 opacity-10" style="background-image: radial-gradient(circle at 2px 2px, white 1px, transparent 0); background-size: 40px 40px;"></div>
+
+    <!-- Content -->
+    <div class="relative z-10 flex flex-col justify-center px-8 md:px-12 lg:px-16 text-white">
+      <div class="mb-4">
+        <div class="flex items-center gap-3 mb-6">
+          <svg class="w-12 h-12 text-[#d72323]" fill="currentColor" viewBox="0 0 24 24">
+            <path d="M12 10a2 2 0 1 0 0 4 2 2 0 0 0 0-4zm-4 3a2 2 0 1 0 0 4 2 2 0 0 0 0-4zm8 0a2 2 0 1 0 0 4 2 2 0 0 0 0-4zm-4 2a4 4 0 0 1-4-4 4 4 0 0 1 4-4 4 4 0 0 1 4 4 4 4 0 0 1-4 4z"/>
+            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z"/>
+          </svg>
+          <span class="font-bold text-3xl uppercase tracking-wide">PetMate</span>
+        </div>
+      </div>
+
+      <h1 class="font-['Playfair_Display',Georgia,serif] text-3xl md:text-4xl lg:text-5xl font-bold leading-tight mb-4">
+        Start Your <span class="text-[#d72323]">Pet Parent</span> Journey
+      </h1>
+
+      <p class="text-sm md:text-base lg:text-lg text-white/80 leading-relaxed mb-6">
+        Create an account to unlock personalized pet matching, save your favorites, and connect with trusted shelters.
+      </p>
+
+      <!-- Benefits -->
+      <div class="space-y-4 mb-6">
+        <div class="flex items-start gap-4">
+          <div class="w-12 h-12 rounded-xl bg-[#d72323]/20 flex items-center justify-center shrink-0">
+            <svg class="w-6 h-6 text-[#d72323]" fill="currentColor" viewBox="0 0 20 20">
+              <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+            </svg>
+          </div>
+          <div>
+            <h3 class="font-semibold text-white mb-0.5">Personalized Matching</h3>
+            <p class="text-white/60 text-xs">Get pet recommendations based on your lifestyle and preferences.</p>
+          </div>
+        </div>
+        <div class="flex items-start gap-4">
+          <div class="w-12 h-12 rounded-xl bg-[#d72323]/20 flex items-center justify-center shrink-0">
+            <svg class="w-6 h-6 text-[#d72323]" fill="currentColor" viewBox="0 0 20 20">
+              <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+            </svg>
+          </div>
+          <div>
+            <h3 class="font-semibold text-white mb-0.5">Save Favorites</h3>
+            <p class="text-white/60 text-xs">Keep track of pets you're interested in and compare them easily.</p>
+          </div>
+        </div>
+        <div class="flex items-start gap-4">
+          <div class="w-12 h-12 rounded-xl bg-[#d72323]/20 flex items-center justify-center shrink-0">
+            <svg class="w-6 h-6 text-[#d72323]" fill="currentColor" viewBox="0 0 20 20">
+              <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+            </svg>
+          </div>
+          <div>
+            <h3 class="font-semibold text-white mb-0.5">Application Tracking</h3>
+            <p class="text-white/60 text-xs">Monitor your adoption applications and get real-time updates.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Stats -->
+      <div class="grid grid-cols-3 gap-4 pt-6 border-t border-white/10">
+        <div>
+          <p class="text-2xl md:text-3xl font-bold text-[#d72323] font-['Playfair_Display',Georgia,serif]">10K+</p>
+          <p class="text-white/60 text-xs mt-1">Happy Adoptions</p>
+        </div>
+        <div>
+          <p class="text-2xl md:text-3xl font-bold text-[#d72323] font-['Playfair_Display',Georgia,serif]">50+</p>
+          <p class="text-white/60 text-xs mt-1">Partner Shelters</p>
+        </div>
+        <div>
+          <p class="text-2xl md:text-3xl font-bold text-[#d72323] font-['Playfair_Display',Georgia,serif]">24/7</p>
+          <p class="text-white/60 text-xs mt-1">Support</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Decorative wave -->
+    <div class="absolute -left-32 bottom-0 w-64 h-64 bg-[#d72323]/20 rounded-full blur-3xl"></div>
+  </div>
+</div>

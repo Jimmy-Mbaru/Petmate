@@ -1,0 +1,112 @@
+<div class="min-h-screen bg-[#f5eded] flex items-center justify-center p-4">
+  <div class="w-full max-w-md">
+    <!-- Logo -->
+    <div class="flex items-center gap-3 mb-6 justify-center">
+      <svg class="w-10 h-10 text-[#d72323]" fill="currentColor" viewBox="0 0 24 24">
+        <path d="M12 10a2 2 0 1 0 0 4 2 2 0 0 0 0-4zm-4 3a2 2 0 1 0 0 4 2 2 0 0 0 0-4zm8 0a2 2 0 1 0 0 4 2 2 0 0 0 0-4zm-4 2a4 4 0 0 1-4-4 4 4 0 0 1 4-4 4 4 0 0 1 4 4 4 4 0 0 1-4 4z"/>
+        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z"/>
+      </svg>
+      <span class="font-bold text-2xl uppercase tracking-wide text-[#000000]">PetMate</span>
+    </div>
+
+    <!-- Card -->
+    <div class="bg-white rounded-2xl shadow-lg p-6 md:p-8 text-center">
+      <!-- Email Sent State -->
+      @if (isEmailSent) {
+        <div class="py-8">
+          <div class="inline-flex items-center justify-center w-16 h-16 rounded-full bg-blue-100 mb-4">
+            <svg class="w-8 h-8 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
+              <path d="M2.003 5.884L8 9.882l5.997-3.998a2 2 0 00-1.664-3.646l-4.333 2.889L3.667 2.238a2 2 0 00-1.664 3.646zM8 13.882l-5.997-4A2 2 0 00.336 11.53l7.664 5.11 7.664-5.11a2 2 0 00-1.667-1.648L8 13.882z"/>
+            </svg>
+          </div>
+          <h2 class="font-['Playfair_Display',Georgia,serif] text-xl md:text-2xl font-bold text-[#000000] mb-2">Check Your Email</h2>
+          <p class="text-[#363636] text-sm mb-2">We've sent a verification link to</p>
+          <p class="font-semibold text-[#d72323] text-sm mb-4">{{ emailSentTo }}</p>
+          <p class="text-xs text-[#363636] mb-6">Click the link in the email to verify your account. Check your spam folder if you don't see it.</p>
+          
+          <div class="flex flex-col sm:flex-row gap-2 justify-center">
+            <a
+              routerLink="/auth/login"
+              class="px-6 py-2.5 rounded-lg bg-linear-to-r from-[#d72323] to-[#bc1f1f] text-white font-semibold text-sm hover:shadow-lg hover:shadow-[#d72323]/30 transition-all duration-200"
+            >
+              Back to Login
+            </a>
+          </div>
+        </div>
+      }
+
+      <!-- Loading State -->
+      @if (isVerifying) {
+        <div class="py-8">
+          <div class="inline-flex items-center justify-center w-16 h-16 rounded-full bg-[#d72323]/10 mb-4">
+            <svg class="animate-spin w-8 h-8 text-[#d72323]" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+              <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+            </svg>
+          </div>
+          <h2 class="font-['Playfair_Display',Georgia,serif] text-xl md:text-2xl font-bold text-[#000000] mb-2">Verifying Your Email</h2>
+          <p class="text-[#363636] text-sm">Please wait a moment...</p>
+        </div>
+      }
+
+      <!-- Success State -->
+      @if (isSuccess) {
+        <div class="py-8">
+          <div class="inline-flex items-center justify-center w-16 h-16 rounded-full bg-green-100 mb-4">
+            <svg class="w-8 h-8 text-green-600" fill="currentColor" viewBox="0 0 20 20">
+              <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+            </svg>
+          </div>
+          <h2 class="font-['Playfair_Display',Georgia,serif] text-xl md:text-2xl font-bold text-[#000000] mb-2">Email Verified!</h2>
+          <p class="text-[#363636] text-sm mb-4">Your email has been successfully verified. Welcome to PetMate!</p>
+          <p class="text-xs text-[#363636]">Redirecting to dashboard...</p>
+          <a
+            routerLink="/app/dashboard"
+            class="inline-flex items-center gap-2 mt-4 px-6 py-2.5 rounded-lg bg-linear-to-r from-[#d72323] to-[#bc1f1f] text-white font-semibold text-sm hover:shadow-lg hover:shadow-[#d72323]/30 transition-all duration-200"
+          >
+            Go to Dashboard
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/>
+            </svg>
+          </a>
+        </div>
+      }
+
+      <!-- Error State -->
+      @if (isError) {
+        <div class="py-8">
+          <div class="inline-flex items-center justify-center w-16 h-16 rounded-full bg-red-100 mb-4">
+            <svg class="w-8 h-8 text-red-600" fill="currentColor" viewBox="0 0 20 20">
+              <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/>
+            </svg>
+          </div>
+          <h2 class="font-['Playfair_Display',Georgia,serif] text-xl md:text-2xl font-bold text-[#000000] mb-2">Verification Failed</h2>
+          <p class="text-red-600 text-sm mb-4">{{ errorMessage }}</p>
+          <div class="flex flex-col sm:flex-row gap-2 justify-center">
+            <button
+              type="button"
+              (click)="resendVerification()"
+              class="px-6 py-2.5 rounded-lg border border-[#d72323] text-[#d72323] font-semibold text-sm hover:bg-[#d72323]/5 transition-all duration-200"
+            >
+              Resend Verification
+            </button>
+            <a
+              routerLink="/auth/login"
+              class="px-6 py-2.5 rounded-lg bg-linear-to-r from-[#d72323] to-[#bc1f1f] text-white font-semibold text-sm hover:shadow-lg hover:shadow-[#d72323]/30 transition-all duration-200"
+            >
+              Back to Login
+            </a>
+          </div>
+        </div>
+      }
+    </div>
+
+    <!-- Footer Links -->
+    <div class="mt-6 text-center">
+      <p class="text-xs text-[#363636]">
+        Already have an account?
+        <a routerLink="/auth/login" class="text-[#d72323] hover:text-[#bc1f1f] font-semibold transition-colors">Sign In</a>
+      </p>
+    </div>
+  </div>
+</div>

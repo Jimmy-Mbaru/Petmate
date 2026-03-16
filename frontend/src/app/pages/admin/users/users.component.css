@@ -1,0 +1,66 @@
+:host {
+  display: block;
+}
+
+/* User cards in a flex grid */
+.users-cards-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.25rem;
+}
+
+.user-card-slot {
+  flex: 1 1 440px;
+  min-width: 0;
+  display: flex;
+}
+
+.user-card-slot app-user-card {
+  display: block;
+  width: 100%;
+}
+
+button {
+  cursor: pointer;
+}
+
+input, select {
+  font-family: var(--font-body);
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, #d72323, #bc1f1f);
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(180deg, #bc1f1f, #d72323);
+}
+
+/* Filter tag animations */
+@keyframes tagIn {
+  from {
+    opacity: 0;
+    transform: scale(0.8);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* Smooth transitions for all interactive elements */
+* {
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+}

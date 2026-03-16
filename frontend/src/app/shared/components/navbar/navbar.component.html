@@ -1,0 +1,34 @@
+<nav
+  class="flex items-center justify-between px-6 py-4 font-(family-name:--font-body) bg-black/80 backdrop-blur-md text-white z-50 transition-all duration-300"
+>
+  <a routerLink="/" class="inline-flex items-center gap-2 font-bold text-lg uppercase tracking-wide no-underline text-inherit">
+    <span class="flex w-6 h-6 text-(--color-orange)" aria-hidden="true">
+      <svg class="w-full h-full" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M12 10a2 2 0 1 0 0 4 2 2 0 0 0 0-4zm-4 3a2 2 0 1 0 0 4 2 2 0 0 0 0-4zm8 0a2 2 0 1 0 0 4 2 2 0 0 0 0-4zm-4 2a4 4 0 0 1-4-4 4 4 0 0 1 4-4 4 4 0 0 1 4 4 4 4 0 0 1-4 4z"/><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z"/></svg>
+    </span>
+    PetMate
+  </a>
+  <ul class="hidden md:flex list-none m-0 p-0 gap-8">
+    <li><a routerLink="/boarding" routerLinkActive="opacity-100" class="no-underline text-inherit opacity-90 font-medium hover:opacity-100">Find a Match</a></li>
+    <li><a href="#how-it-works" (click)="setActiveSection('how-it-works')" [class.opacity-100]="activeSection === 'how-it-works'" [class.opacity-60]="activeSection !== 'how-it-works'" class="no-underline text-inherit font-medium hover:opacity-100 transition-opacity">How It Works</a></li>
+    <li><a href="#success-stories" (click)="setActiveSection('success-stories')" [class.opacity-100]="activeSection === 'success-stories'" [class.opacity-60]="activeSection !== 'success-stories'" class="no-underline text-inherit font-medium hover:opacity-100 transition-opacity">Success Stories</a></li>
+    <li><a href="#faq" (click)="setActiveSection('faq')" [class.opacity-100]="activeSection === 'faq'" [class.opacity-60]="activeSection !== 'faq'" class="no-underline text-inherit font-medium hover:opacity-100 transition-opacity">FAQ</a></li>
+    <li><a href="#about" (click)="setActiveSection('about')" [class.opacity-100]="activeSection === 'about'" [class.opacity-60]="activeSection !== 'about'" class="no-underline text-inherit font-medium hover:opacity-100 transition-opacity">About</a></li>
+  </ul>
+  <div class="flex items-center gap-3">
+    @if (authService.currentUser$ | async) {
+      <a routerLink="/app/dashboard" class="px-4 py-2 text-white font-medium text-sm no-underline rounded-(--radius-btn) border border-white/40 hover:bg-white/10 transition-colors">
+        Dashboard
+      </a>
+      <button type="button" (click)="logout()" class="px-5 py-2 bg-(--color-orange) text-white font-semibold text-sm rounded-(--radius-btn) transition-all hover:bg-(--color-orange-hover) border-0 cursor-pointer">
+        Log out
+      </button>
+    } @else {
+      <a routerLink="/auth/login" class="px-4 py-2 text-white font-medium text-sm no-underline rounded-(--radius-btn) border border-white/40 hover:bg-white/10 transition-colors">
+        Log In
+      </a>
+      <a routerLink="/auth/register" class="px-5 py-2 bg-(--color-orange) text-white font-semibold text-sm no-underline rounded-(--radius-btn) transition-all hover:bg-(--color-orange-hover)">
+        Sign Up
+      </a>
+    }
+  </div>
+</nav>

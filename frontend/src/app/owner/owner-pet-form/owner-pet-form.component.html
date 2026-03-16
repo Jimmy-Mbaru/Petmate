@@ -1,0 +1,253 @@
+<div class="pet-form-page">
+  <header class="page-header">
+    <div>
+      <h1 class="title">{{ isEdit ? 'Edit pet' : 'Add pet' }}</h1>
+      <p class="subtitle">{{ isEdit ? 'Update your pet profile' : 'Create a new pet profile' }}</p>
+    </div>
+    <a routerLink="/app/pets" class="btn-secondary">
+      <ng-icon name="lucideX" size="20" />
+      <span>Cancel</span>
+    </a>
+  </header>
+
+  <form [formGroup]="form" (ngSubmit)="onSubmit()" class="pet-form card">
+    <p class="form-required-hint text-sm text-gray-500 mb-4">Fields marked with <span class="text-red-500" aria-hidden="true">*</span> are required.</p>
+    
+    <div class="form-grid">
+      <!-- Pet Name -->
+      <div class="form-group">
+        <label for="name" class="form-label">Pet name <span class="text-red-500" aria-hidden="true">*</span></label>
+        <input
+          id="name"
+          type="text"
+          formControlName="name"
+          class="form-input"
+          [class.invalid]="form.get('name')?.invalid && form.get('name')?.touched"
+          placeholder="e.g. Fluffy"
+        />
+        @if (form.get('name')?.invalid && form.get('name')?.touched) {
+          <span class="form-error">
+            @if (form.get('name')?.errors?.['required']) { Pet name is required }
+            @else if (form.get('name')?.errors?.['minlength']) { Name must be at least 2 characters }
+            @else if (form.get('name')?.errors?.['maxlength']) { Name must be less than 50 characters }
+          </span>
+        }
+      </div>
+
+      <!-- Species -->
+      <div class="form-group">
+        <label for="species" class="form-label">Species <span class="text-red-500" aria-hidden="true">*</span></label>
+        <input
+          id="species"
+          type="text"
+          formControlName="species"
+          class="form-input"
+          [class.invalid]="form.get('species')?.invalid && form.get('species')?.touched"
+          placeholder="e.g. Dog, Cat"
+        />
+        @if (form.get('species')?.invalid && form.get('species')?.touched) {
+          <span class="form-error">Species is required</span>
+        }
+      </div>
+
+      <!-- Breed -->
+      <div class="form-group">
+        <label for="breed" class="form-label">Breed <span class="text-red-500" aria-hidden="true">*</span></label>
+        <input
+          id="breed"
+          type="text"
+          formControlName="breed"
+          class="form-input"
+          [class.invalid]="form.get('breed')?.invalid && form.get('breed')?.touched"
+          placeholder="e.g. Golden Retriever, Persian"
+        />
+        @if (form.get('breed')?.invalid && form.get('breed')?.touched) {
+          <span class="form-error">Breed is required</span>
+        }
+      </div>
+
+      <!-- Age -->
+      <div class="form-group">
+        <label for="age" class="form-label">Age (months) <span class="text-red-500" aria-hidden="true">*</span></label>
+        <input
+          id="age"
+          type="number"
+          formControlName="age"
+          class="form-input"
+          [class.invalid]="form.get('age')?.invalid && form.get('age')?.touched"
+          min="0"
+          max="300"
+          placeholder="e.g. 24"
+        />
+        @if (form.get('age')?.invalid && form.get('age')?.touched) {
+          <span class="form-error">
+            @if (form.get('age')?.errors?.['required']) { Age is required }
+            @else if (form.get('age')?.errors?.['min']) { Age cannot be negative }
+            @else if (form.get('age')?.errors?.['max']) { Age cannot exceed 300 months (25 years) }
+          </span>
+        }
+      </div>
+
+      <!-- Gender -->
+      <div class="form-group">
+        <label for="gender" class="form-label">Gender <span class="text-red-500" aria-hidden="true">*</span></label>
+        <select 
+          id="gender" 
+          formControlName="gender" 
+          class="form-input"
+          [class.invalid]="form.get('gender')?.invalid && form.get('gender')?.touched"
+        >
+          <option value="">Select gender</option>
+          <option value="male">Male</option>
+          <option value="female">Female</option>
+        </select>
+        @if (form.get('gender')?.invalid && form.get('gender')?.touched) {
+          <span class="form-error">Gender is required</span>
+        }
+      </div>
+
+      <!-- Availability -->
+      <div class="form-group">
+        <label class="form-label">
+          <input type="checkbox" formControlName="isAvailable" class="form-checkbox" />
+          Available for matching
+        </label>
+        <p class="form-hint">Enable this to allow your pet to be matched with compatible pets</p>
+      </div>
+
+      <!-- Health Notes -->
+      <div class="form-group full-width">
+        <label for="healthNotes" class="form-label">Health notes</label>
+        <textarea
+          id="healthNotes"
+          formControlName="healthNotes"
+          class="form-input"
+          rows="4"
+          [class.invalid]="form.get('healthNotes')?.invalid && form.get('healthNotes')?.touched"
+          placeholder="Any health conditions, allergies, or special needs..."
+        ></textarea>
+        @if (form.get('healthNotes')?.invalid && form.get('healthNotes')?.touched) {
+          <span class="form-error">Health notes cannot exceed 500 characters</span>
+        }
+      </div>
+    </div>
+
+    <!-- Photo Upload Section -->
+    <div class="photo-upload-section">
+      <div class="section-header">
+        <h3 class="section-title">
+          <ng-icon name="lucideImage" size="20" />
+          Pet Photos
+        </h3>
+        <span class="photo-count">{{ photoCount }} photo{{ photoCount !== 1 ? 's' : '' }}</span>
+      </div>
+
+      <p class="section-hint">
+        Upload clear photos of your pet. The first photo will be used as the primary display image.
+        Drag and drop to reorder. Maximum 10 photos, 5MB each.
+      </p>
+
+      <!-- Upload Area -->
+      <div class="upload-area" 
+        [class.uploading]="isUploadingPhoto"
+        (dragover)="$event.preventDefault()"
+        (drop)="$event.preventDefault()">
+        
+        <label for="photoUpload" class="upload-label">
+          <div class="upload-content">
+            @if (isUploadingPhoto) {
+              <div class="upload-spinner">
+                <div class="spinner"></div>
+                <p>Uploading...</p>
+              </div>
+            } @else {
+              <ng-icon name="lucideUpload" size="32" class="upload-icon" />
+              <p class="upload-text">
+                <strong>Click to upload</strong> or drag and drop
+              </p>
+              <p class="upload-subtext">JPG, PNG, GIF, or WebP (max 5MB)</p>
+            }
+          </div>
+          <input
+            id="photoUpload"
+            type="file"
+            accept="image/jpeg,image/png,image/gif,image/webp"
+            (change)="onFileSelected($event)"
+            multiple
+            [disabled]="isUploadDisabled()"
+            class="hidden"
+          />
+        </label>
+      </div>
+
+      <!-- Photo Gallery -->
+      @if (uploadedPhotos.length > 0) {
+        <div class="photo-gallery">
+          @for (photo of uploadedPhotos; track photo.url; let i = $index) {
+            <div 
+              class="photo-item" 
+              [class.primary]="photo.isPrimary"
+              [class.dragging]="draggedPhotoIndex === i"
+              draggable="true"
+              (dragstart)="onDragStart(i)"
+              (dragover)="onDragOver($event, i)"
+              (dragend)="onDragEnd()"
+            >
+              <div class="photo-preview">
+                <img [src]="photo.url" [alt]="'Pet photo ' + (i + 1)" loading="lazy" />
+                
+                @if (photo.isPrimary) {
+                  <span class="primary-badge">
+                    <ng-icon name="lucideCheck" size="14" />
+                    Primary
+                  </span>
+                }
+
+                <div class="photo-actions">
+                  @if (!photo.isPrimary) {
+                    <button
+                      type="button"
+                      class="btn-set-primary"
+                      (click)="setAsPrimary(i)"
+                      title="Set as primary"
+                    >
+                      <ng-icon name="lucideCheck" size="16" />
+                    </button>
+                  }
+                  <button
+                    type="button"
+                    class="btn-remove-photo"
+                    (click)="removePhoto(i)"
+                    title="Remove photo"
+                  >
+                    <ng-icon name="lucideTrash2" size="16" />
+                  </button>
+                </div>
+              </div>
+              
+              <div class="photo-info">
+                <span class="photo-order">#{{ i + 1 }}</span>
+                @if (photo.isPrimary) {
+                  <span class="primary-label">Primary</span>
+                }
+              </div>
+            </div>
+          }
+        </div>
+      }
+
+      @if (form.get('photoUrls')?.invalid && form.get('photoUrls')?.touched) {
+        <p class="form-error">Please upload at least one photo</p>
+      }
+    </div>
+
+    <!-- Form Actions -->
+    <div class="form-actions">
+      <button type="submit" class="btn-primary" [disabled]="!canSubmit">
+        <ng-icon name="lucideSave" size="20" />
+        <span>{{ isSubmitting ? 'Saving...' : (isEdit ? 'Update pet' : 'Create pet') }}</span>
+      </button>
+      <a routerLink="/app/pets" class="btn-secondary">Cancel</a>
+    </div>
+  </form>
+</div>

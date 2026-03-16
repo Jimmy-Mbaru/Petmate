@@ -1,0 +1,25 @@
+/* Navbar height so fixed sidebar can start below it (matches navbar py-4 + content) */
+:host {
+  --navbar-height: 64px;
+}
+
+/* Reserve space for fixed navbar on app routes so shell content is visible without scrolling */
+.navbar-spacer {
+  height: var(--navbar-height);
+  flex-shrink: 0;
+}
+
+/* Auth pages (login/register): full viewport, no navbar/footer, no page scroll */
+.auth-full-viewport {
+  height: 100vh;
+  height: 100dvh;
+  min-height: 100vh;
+  min-height: 100dvh;
+  overflow: hidden;
+  display: block;
+}
+
+/* When owner shell (fixed sidebar) is shown, add class for styling hooks */
+.footer-wrap.owner-layout app-footer {
+  display: block;
+}

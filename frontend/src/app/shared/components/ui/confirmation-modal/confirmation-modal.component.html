@@ -1,0 +1,76 @@
+@if (dialogService.isOpen() && dialogService.options(); as opts) {
+  <div
+    class="modal-backdrop fixed inset-0 bg-black/60 backdrop-blur-sm z-100 flex items-center justify-center p-4 animate-fadeIn"
+    (click)="onBackdropClick($event)"
+  >
+    <div
+      class="modal-card bg-white rounded-3xl w-full max-w-md shadow-2xl animate-slideUp overflow-hidden"
+      (click)="$event.stopPropagation()"
+    >
+      <!-- Header -->
+      <div class="p-6 border-b border-gray-100 flex items-center justify-between">
+        <h2 class="text-xl font-bold text-gray-900 m-0">{{ opts.title }}</h2>
+        <button
+          type="button"
+          (click)="onCancel()"
+          class="p-2 rounded-xl text-gray-400 hover:bg-gray-100 hover:text-gray-600 transition-all border-0 cursor-pointer"
+        >
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+      </div>
+
+      <!-- Body -->
+      <div class="p-8">
+        <div class="flex items-start gap-4">
+          <!-- Icon based on type -->
+          <div 
+            class="w-12 h-12 rounded-2xl flex items-center justify-center shrink-0"
+            [ngClass]="{
+              'bg-blue-100 text-blue-600': opts.type === 'info',
+              'bg-orange-100 text-orange-600': opts.type === 'warning',
+              'bg-red-100 text-red-600': opts.type === 'danger'
+            }"
+          >
+            @if (opts.type === 'danger') {
+              <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+              </svg>
+            } @else if (opts.type === 'warning') {
+              <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+            } @else {
+              <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+            }
+          </div>
+          
+          <div class="flex-1">
+            <p class="text-gray-600 leading-relaxed m-0">{{ opts.message }}</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Footer -->
+      <div class="p-6 bg-gray-50 border-t border-gray-100 flex justify-end gap-3">
+        <button
+          type="button"
+          (click)="onCancel()"
+          class="px-6 py-2.5 text-sm font-bold text-gray-500 hover:text-gray-700 transition-colors border-0 bg-transparent cursor-pointer"
+        >
+          {{ opts.cancelText }}
+        </button>
+        <button
+          type="button"
+          (click)="onConfirm()"
+          class="px-8 py-2.5 text-sm font-bold text-white rounded-xl shadow-lg transition-all transform hover:scale-105 border-0 cursor-pointer bg-linear-to-r from-red-500 to-red-600 hover:shadow-red-500/25"
+        >
+          {{ opts.confirmText }}
+        </button>
+      </div>
+    </div>
+  </div>
+}

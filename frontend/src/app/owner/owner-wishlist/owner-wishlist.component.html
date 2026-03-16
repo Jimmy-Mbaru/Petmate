@@ -1,0 +1,106 @@
+<div class="wishlist-page">
+  <header class="page-header">
+    <div>
+      <h1 class="title">
+        <ng-icon name="lucideShoppingBag" size="32" />
+        My Wishlist
+      </h1>
+      <p class="subtitle">Products you're interested in</p>
+    </div>
+    @if (!isLoading && wishlistProducts.length > 0) {
+      <div class="header-stats">
+        <span class="stat-badge">
+          {{ wishlistProducts.length }} {{ wishlistProducts.length === 1 ? 'item' : 'items' }}
+        </span>
+        <span class="stat-badge total">
+          Total: KES {{ totalPrice | number:'1.0-0' }}
+        </span>
+      </div>
+    }
+  </header>
+
+  @if (isLoading) {
+    <div class="loading-state">
+      <div class="spinner"></div>
+      <p class="loading-text">Loading wishlist…</p>
+    </div>
+  } @else if (errorMessage) {
+    <div class="error-state card">
+      <div class="error-icon">
+        <ng-icon name="lucideAlertCircle" size="64" />
+      </div>
+      <p class="error-title">{{ errorMessage }}</p>
+      <p class="error-text">Please try again or go back to the store</p>
+      <a routerLink="/app/store" class="browse-store-btn">
+        <ng-icon name="lucideShoppingBag" size="20" />
+        <span>Browse Store</span>
+      </a>
+    </div>
+  } @else if (wishlistProducts.length === 0) {
+    <div class="empty-state card">
+      <div class="empty-icon">
+        <ng-icon name="lucideShoppingBag" size="64" />
+      </div>
+      <p class="empty-title">You don't have any favorites in your wishlist</p>
+      <p class="empty-text">Pick products from the store to add them here</p>
+      <a routerLink="/app/store" class="browse-store-btn">
+        <ng-icon name="lucideShoppingCart" size="20" />
+        <span>Browse Store to pick one</span>
+      </a>
+    </div>
+  } @else {
+    <div class="products-grid">
+      @for (product of wishlistProducts; track product.id) {
+        <div class="product-card card">
+          <div class="product-image-container">
+            @if (getProductImageUrl(product); as imageUrl) {
+              <img [src]="imageUrl" [alt]="product.name" class="product-image" />
+            } @else {
+              <div class="product-image-placeholder">
+                <ng-icon name="lucideShoppingBag" size="48" />
+              </div>
+            }
+
+            <button
+              type="button"
+              class="remove-btn"
+              (click)="removeFromWishlist(product)"
+              title="Remove from wishlist"
+            >
+              <ng-icon name="lucideTrash2" size="18" />
+            </button>
+          </div>
+
+          <div class="product-content">
+            <div class="product-category">{{ product.category }}</div>
+            <h3 class="product-name" [title]="product.name">{{ product.name }}</h3>
+            
+            @if (product.description) {
+              <p class="product-description">{{ product.description | slice:0:60 }}{{ product.description.length > 60 ? '...' : '' }}</p>
+            }
+
+            <div class="product-footer">
+              <span class="product-price">KES {{ product.price | number:'1.0-0' }}</span>
+              @if (product.stock > 0) {
+                <span class="stock-status in-stock">
+                  <span class="stock-dot"></span>
+                  In Stock
+                </span>
+              } @else {
+                <span class="stock-status out-of-stock">
+                  <span class="stock-dot"></span>
+                  Out of Stock
+                </span>
+              }
+            </div>
+
+            <a routerLink="/app/store" class="view-in-store-btn">
+              <ng-icon name="lucideShoppingCart" size="18" />
+              <span>View in Store</span>
+            </a>
+          </div>
+        </div>
+      }
+    </div>
+  }
+</div>

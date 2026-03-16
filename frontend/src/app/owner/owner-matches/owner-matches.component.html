@@ -1,0 +1,256 @@
+<div class="matches-page">
+  <header class="page-header">
+    <div class="header-content">
+      <div class="header-left">
+        <h1 class="title">
+          <ng-icon name="lucideSparkles" size="28" class="sparkle-icon" />
+          AI-Assisted Matches
+        </h1>
+        <p class="subtitle">Personalized recommendations based on your pets and preferences</p>
+      </div>
+      <button class="btn-preferences" (click)="showPreferences = !showPreferences">
+        <ng-icon name="lucideSlidersHorizontal" size="20" />
+        <span>Preferences</span>
+      </button>
+    </div>
+  </header>
+
+  <!-- Preferences Panel -->
+  @if (showPreferences) {
+    <div class="preferences-panel card">
+      <div class="preferences-header">
+        <div>
+          <h3>Matching Preferences</h3>
+          <p class="preferences-hint">Similar breed, Verified owners, and Active pets filter results. Others are saved for future use.</p>
+        </div>
+        <button class="btn-close" (click)="showPreferences = false">
+          <ng-icon name="lucideX" size="20" />
+        </button>
+      </div>
+      <div class="preferences-grid">
+        @for (pref of preferences; track pref.id) {
+          <div 
+            class="preference-item" 
+            [class.enabled]="pref.enabled"
+            (click)="togglePreference(pref.id)"
+          >
+            <div class="preference-icon">
+              <ng-icon [name]="pref.icon" size="20" />
+            </div>
+            <div class="preference-content">
+              <span class="preference-label">{{ pref.label }}</span>
+            </div>
+            <div class="preference-toggle" [class.active]="pref.enabled">
+              @if (pref.enabled) {
+                <ng-icon name="lucideCheck" size="14" />
+              }
+            </div>
+          </div>
+        }
+      </div>
+      <div class="preferences-actions">
+        <button class="btn-apply" (click)="findMatches()">
+          <ng-icon name="lucideSparkles" size="18" />
+          <span>Apply & Find Matches</span>
+        </button>
+      </div>
+    </div>
+  }
+
+  <!-- Pet selector: which pet to find matches for -->
+  @if (!hasNoPets && myPets.length > 0) {
+    <div class="pet-selector-section">
+      <p class="pet-selector-label">Find matches for</p>
+      <div class="pet-selector-list">
+        @for (pet of myPets; track pet.id) {
+          <button
+            type="button"
+            class="pet-selector-card"
+            [class.selected]="myPetId === pet.id"
+            (click)="selectPet(pet)"
+          >
+            @if (pet.photoUrls && pet.photoUrls.length > 0) {
+              <img [src]="pet.photoUrls[0]" [alt]="pet.name" class="pet-selector-photo" />
+            } @else if (pet.photoUrl) {
+              <img [src]="pet.photoUrl" [alt]="pet.name" class="pet-selector-photo" />
+            } @else {
+              <div class="pet-selector-placeholder">
+                <ng-icon name="lucidePawPrint" size="28" />
+              </div>
+            }
+            <span class="pet-selector-name">{{ pet.name }}</span>
+            <span class="pet-selector-meta">{{ pet.breed }} · {{ getAgeDisplay(pet.age) }}</span>
+          </button>
+        }
+      </div>
+    </div>
+  }
+
+  <!-- Main Content -->
+  @if (isFindingMatches) {
+    <div class="finding-matches">
+      <div class="ai-loader">
+        <div class="loader-ring"></div>
+        <div class="loader-content">
+          <ng-icon name="lucideSparkles" size="48" class="sparkle-animate" />
+          <p>Finding perfect matches...</p>
+          <span>Analyzing compatibility factors</span>
+        </div>
+      </div>
+      
+      <div class="matching-factors">
+        <div class="factor-card">
+          <ng-icon name="lucideMapPin" size="24" />
+          <span>Location proximity</span>
+        </div>
+        <div class="factor-card">
+          <ng-icon name="lucideUsers" size="24" />
+          <span>Temperament match</span>
+        </div>
+        <div class="factor-card">
+          <ng-icon name="lucideShield" size="24" />
+          <span>Vaccination status</span>
+        </div>
+        <div class="factor-card">
+          <ng-icon name="lucideHeart" size="24" />
+          <span>Activity level</span>
+        </div>
+      </div>
+    </div>
+  } @else if (hasNoPets) {
+    <div class="empty-state card">
+      <div class="empty-icon">
+        <ng-icon name="lucidePawPrint" size="64" />
+      </div>
+      <h2 class="empty-title">Add a pet to get started</h2>
+      <p class="empty-desc">Matching is based on your pet's profile. Add your first pet, then we'll find compatible pals for playdates and boarding.</p>
+      <a routerLink="/app/pets/new" class="btn-find-matches">
+        <ng-icon name="lucidePlus" size="20" />
+        <span>Add your pet</span>
+      </a>
+    </div>
+  } @else if (!hasSearched) {
+    <div class="empty-state card">
+      <div class="empty-icon">
+        <ng-icon name="lucideSearch" size="64" />
+      </div>
+      <h2 class="empty-title">Find Your Pet's Perfect Match</h2>
+      <p class="empty-desc">Select a pet above, then we'll analyze compatibility for playdates, boarding, and more.</p>
+      <button class="btn-find-matches" (click)="findMatches()" [disabled]="!myPetId">
+        <ng-icon name="lucideSparkles" size="20" />
+        <span>Find Matches Now</span>
+      </button>
+    </div>
+  } @else {
+    <div class="results-section">
+      <div class="results-header">
+        <div class="results-info">
+          <h2 class="results-title">
+            <ng-icon name="lucideAward" size="22" />
+            {{ matchResults.length }} Matches Found
+          </h2>
+          <p class="results-subtitle">
+            @if (selectedPet) {
+              Matches for {{ selectedPet.name }}
+            } @else {
+              Based on your preferences and pet profiles
+            }
+          </p>
+        </div>
+        <button class="btn-refresh" (click)="findMatches()">
+          <ng-icon name="lucideSparkles" size="18" />
+          <span>Refresh</span>
+        </button>
+      </div>
+
+      <div class="matches-grid">
+        @for (match of matchResults; track match.id; let i = $index) {
+          <div class="match-card card" [style.animation-delay]="(i * 100) + 'ms'">
+            <div class="match-photo">
+              @if (match.photoUrls && match.photoUrls.length > 0) {
+                <img [src]="match.photoUrls[0]" [alt]="match.name" class="match-photo-img" loading="lazy" />
+              } @else if (match.photoUrl) {
+                <img [src]="match.photoUrl" [alt]="match.name" class="match-photo-img" loading="lazy" />
+              } @else {
+                <div class="photo-placeholder">
+                  <ng-icon name="lucidePawPrint" size="48" />
+                </div>
+              }
+              <div class="compatibility-badge" [class]="getCompatibilityColor(match.matchScore)">
+                <span class="compatibility-score">{{ match.matchScore }}%</span>
+                <span class="compatibility-label">{{ getCompatibilityLabel(match.matchScore) }}</span>
+              </div>
+            </div>
+
+            <div class="match-content">
+              <div class="match-header">
+                <div class="match-info">
+                  <h3 class="match-name">{{ match.name }}</h3>
+                  <p class="match-breed">{{ match.breed }} • {{ match.species }}</p>
+                </div>
+              </div>
+
+              <div class="match-meta">
+                <div class="meta-item">
+                  <ng-icon name="lucideCake" size="14" />
+                  <span>{{ getAgeDisplay(match.age) }}</span>
+                </div>
+                <div class="meta-item">
+                  <ng-icon name="lucideUser" size="14" />
+                  <span>{{ match.gender }}</span>
+                </div>
+              </div>
+
+              @if (match.matchExplanation) {
+                <div class="match-explanation">
+                  <ng-icon name="lucideSparkles" size="14" />
+                  <span>{{ match.matchExplanation }}</span>
+                </div>
+              }
+
+              <div class="match-actions">
+                <button class="btn-action primary">
+                  <ng-icon name="lucideHeart" size="18" />
+                  <span>Connect</span>
+                </button>
+                @if (match.ownerId) {
+                  <a [routerLink]="['/app/users', match.ownerId]" class="btn-action secondary">
+                    <ng-icon name="lucideSearch" size="18" />
+                    <span>View Profile</span>
+                  </a>
+                }
+              </div>
+            </div>
+          </div>
+        }
+      </div>
+    </div>
+  }
+
+  <!-- Info Section -->
+  <div class="info-section">
+    <div class="info-grid">
+      <div class="info-card">
+        <div class="info-icon">
+          <ng-icon name="lucideShield" size="24" />
+        </div>
+        <h3>Verified & Safe</h3>
+        <p>All matches are verified owners with vaccinated pets</p>
+      </div>
+      <div class="info-card">
+        <div class="info-icon">
+          <ng-icon name="lucideClock" size="24" />
+        </div>
+        <h3>Real-time Updates</h3>
+        <p>Get notified when new compatible pets join</p>
+      </div>
+      <div class="info-card">
+        <div class="info-icon">
+          <ng-icon name="lucideStar" size="24" />
+        </div>
+        <h3>Smart Matching</h3>
+        <p>AI analyzes temperament, energy, and preferences</p>
+      </div>
+    </div>
+  </div>
+</div>

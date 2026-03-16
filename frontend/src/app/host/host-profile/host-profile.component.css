@@ -1,0 +1,23 @@
+:host {
+  display: block;
+}
+
+.profile-page {
+  padding: 1.5rem;
+}
+
+@media (min-width: 640px) {
+  .profile-page {
+    padding: 2rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .profile-page {
+    padding: 3rem;
+  }
+}
+
+textarea {
+  font-family: var(--font-body);
+}

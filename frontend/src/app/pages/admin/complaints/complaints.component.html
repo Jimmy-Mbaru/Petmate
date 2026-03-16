@@ -1,0 +1,183 @@
+<div class="min-h-screen py-8 px-4 sm:px-6 lg:px-8">
+  <div class="max-w-7xl mx-auto">
+    <!-- Header -->
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8" data-aos="fade-down">
+      <div>
+        <h1 class="text-3xl font-bold text-gray-900 m-0">User Reports & Complaints</h1>
+        <p class="text-gray-500 m-0 mt-1">Review and manage user reports</p>
+      </div>
+      
+      <button
+        type="button"
+        (click)="loadReports()"
+        [disabled]="loading()"
+        class="inline-flex items-center justify-center gap-2 px-6 py-3 bg-gradient-to-r from-(--color-primary) to-(--color-primary-hover) text-white font-semibold rounded-xl hover:shadow-lg transition-all disabled:opacity-50"
+        data-aos="fade-left"
+      >
+        <svg class="w-5 h-5" [class.animate-spin]="loading()" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+        </svg>
+        Refresh
+      </button>
+    </div>
+
+    <!-- Stats -->
+    <div class="grid grid-cols-1 sm:grid-cols-4 gap-4 mb-6" data-aos="fade-up">
+      <button
+        (click)="setFilter('all')"
+        [class.bg-gradient-to-r]="filter() === 'all'"
+        [class.from-(--color-primary)]="filter() === 'all'"
+        [class.to-(--color-primary-hover)]="filter() === 'all'"
+        [class.text-white]="filter() === 'all'"
+        class="card bg-white rounded-xl p-4 border-2 transition-all hover:shadow-lg"
+        [class.border-(--color-primary)]="filter() === 'all'"
+        [class.border-gray-100]="filter() !== 'all'"
+        data-aos="zoom-in"
+      >
+        <p class="text-sm font-medium text-gray-500 uppercase m-0">all</p>
+        <p class="text-2xl font-bold m-0 mt-1" [class.text-(--color-primary)]="filter() === 'all'">
+          {{ total() }}
+        </p>
+      </button>
+      <button
+        (click)="setFilter('pending')"
+        [class.bg-gradient-to-r]="filter() === 'pending'"
+        [class.from-(--color-primary)]="filter() === 'pending'"
+        [class.to-(--color-primary-hover)]="filter() === 'pending'"
+        [class.text-white]="filter() === 'pending'"
+        class="card bg-white rounded-xl p-4 border-2 transition-all hover:shadow-lg"
+        [class.border-(--color-primary)]="filter() === 'pending'"
+        [class.border-gray-100]="filter() !== 'pending'"
+        data-aos="zoom-in"
+        [attr.data-aos-delay]="100"
+      >
+        <p class="text-sm font-medium text-gray-500 uppercase m-0">pending</p>
+        <p class="text-2xl font-bold m-0 mt-1" [class.text-(--color-primary)]="filter() === 'pending'">
+          {{ reports().filter(r => r.status === 'PENDING').length }}
+        </p>
+      </button>
+      <button
+        (click)="setFilter('reviewed')"
+        [class.bg-gradient-to-r]="filter() === 'reviewed'"
+        [class.from-(--color-primary)]="filter() === 'reviewed'"
+        [class.to-(--color-primary-hover)]="filter() === 'reviewed'"
+        [class.text-white]="filter() === 'reviewed'"
+        class="card bg-white rounded-xl p-4 border-2 transition-all hover:shadow-lg"
+        [class.border-(--color-primary)]="filter() === 'reviewed'"
+        [class.border-gray-100]="filter() !== 'reviewed'"
+        data-aos="zoom-in"
+        [attr.data-aos-delay]="200"
+      >
+        <p class="text-sm font-medium text-gray-500 uppercase m-0">reviewed</p>
+        <p class="text-2xl font-bold m-0 mt-1" [class.text-(--color-primary)]="filter() === 'reviewed'">
+          {{ reports().filter(r => r.status === 'REVIEWED').length }}
+        </p>
+      </button>
+      <button
+        (click)="setFilter('dismissed')"
+        [class.bg-gradient-to-r]="filter() === 'dismissed'"
+        [class.from-(--color-primary)]="filter() === 'dismissed'"
+        [class.to-(--color-primary-hover)]="filter() === 'dismissed'"
+        [class.text-white]="filter() === 'dismissed'"
+        class="card bg-white rounded-xl p-4 border-2 transition-all hover:shadow-lg"
+        [class.border-(--color-primary)]="filter() === 'dismissed'"
+        [class.border-gray-100]="filter() !== 'dismissed'"
+        data-aos="zoom-in"
+        [attr.data-aos-delay]="300"
+      >
+        <p class="text-sm font-medium text-gray-500 uppercase m-0">dismissed</p>
+        <p class="text-2xl font-bold m-0 mt-1" [class.text-(--color-primary)]="filter() === 'dismissed'">
+          {{ reports().filter(r => r.status === 'DISMISSED').length }}
+        </p>
+      </button>
+    </div>
+
+    <!-- Reports List -->
+    @if (loading()) {
+      <div class="space-y-4">
+        @for (item of [1,2,3,4,5]; track item) {
+          <div class="card bg-white rounded-2xl p-6 border border-gray-100" data-aos="fade-in">
+            <div class="flex items-center gap-4">
+              <div class="w-14 h-14 rounded-full bg-gray-200 animate-pulse"></div>
+              <div class="flex-1 space-y-2">
+                <div class="h-5 bg-gray-200 rounded w-1/3 animate-pulse"></div>
+                <div class="h-4 bg-gray-200 rounded w-1/4 animate-pulse"></div>
+              </div>
+            </div>
+          </div>
+        }
+      </div>
+    } @else if (getFilteredReports().length === 0) {
+      <div class="card bg-white rounded-2xl p-12 border border-gray-100 text-center" data-aos="zoom-in">
+        <div class="w-20 h-20 mx-auto mb-6 rounded-full bg-gray-100 flex items-center justify-center">
+          <svg class="w-10 h-10 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+        </div>
+        <h3 class="text-xl font-bold text-gray-900 m-0 mb-2">No reports found</h3>
+        <p class="text-gray-500">There are no reports matching your current filter.</p>
+      </div>
+    } @else {
+      <div class="space-y-4">
+        @for (report of getFilteredReports(); track report.id; let i = $index) {
+          <div class="card bg-white rounded-2xl p-6 border border-gray-100 hover:shadow-xl transition-all" data-aos="fade-up" [attr.data-aos-delay]="i * 50">
+            <div class="flex items-start justify-between gap-4">
+              <div class="flex-1">
+                <div class="flex items-center gap-3 mb-3">
+                  <span class="px-3 py-1 text-xs font-bold rounded-full uppercase tracking-wide" [class]="getStatusClass(report.status)">
+                    {{ report.status }}
+                  </span>
+                  <span class="text-sm text-gray-500">{{ report.createdAt | date:'MMM d, y h:mm a' }}</span>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                  <div class="p-4 bg-red-50 rounded-xl">
+                    <p class="text-xs font-bold text-red-600 uppercase mb-1">Reporter</p>
+                    <p class="font-semibold text-gray-900">{{ report.reporter?.name || 'Anonymous' }}</p>
+                    <p class="text-sm text-gray-600">{{ report.reporter?.email || 'Hidden' }}</p>
+                  </div>
+                  <div class="p-4 bg-blue-50 rounded-xl">
+                    <p class="text-xs font-bold text-blue-600 uppercase mb-1">Reported User</p>
+                    <p class="font-semibold text-gray-900">{{ report.reportedUser?.name || 'Unknown' }}</p>
+                    <p class="text-sm text-gray-600">{{ report.reportedUser?.email || 'Unknown' }}</p>
+                  </div>
+                </div>
+
+                <div class="mb-3">
+                  <p class="text-sm font-bold text-gray-700 mb-1">Reason</p>
+                  <p class="text-gray-900">{{ report.reason }}</p>
+                </div>
+
+                @if (report.description) {
+                  <div>
+                    <p class="text-sm font-bold text-gray-700 mb-1">Description</p>
+                    <p class="text-gray-600">{{ report.description }}</p>
+                  </div>
+                }
+              </div>
+
+              @if (report.status === 'PENDING') {
+                <div class="flex flex-col gap-2 flex-shrink-0">
+                  <button
+                    type="button"
+                    (click)="resolveReport(report.id, 'REVIEWED')"
+                    class="px-4 py-2 bg-gradient-to-r from-green-500 to-green-600 text-white font-semibold rounded-xl hover:shadow-lg transition-all"
+                  >
+                    Accept
+                  </button>
+                  <button
+                    type="button"
+                    (click)="resolveReport(report.id, 'DISMISSED')"
+                    class="px-4 py-2 border-2 border-gray-200 text-gray-600 font-semibold rounded-xl hover:bg-gray-50 transition-all"
+                  >
+                    Dismiss
+                  </button>
+                </div>
+              }
+            </div>
+          </div>
+        }
+      </div>
+    }
+  </div>
+</div>

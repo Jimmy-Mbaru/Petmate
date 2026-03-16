@@ -1,0 +1,140 @@
+<div class="favorites-page">
+  <header class="page-header">
+    <div>
+      <h1 class="title">Favorites</h1>
+      <p class="subtitle">Your favorite pets and boarding profiles.</p>
+    </div>
+  </header>
+
+  @if (isLoading) {
+    <div class="card loading-card">
+      <div class="loading-spinner"></div>
+      <p class="loading-text">Loading favorites…</p>
+    </div>
+  } @else if (favoritePets.length === 0 && favoriteBoarding.length === 0) {
+    <div class="empty-state card">
+      <div class="empty-icon">
+        <ng-icon name="lucideHeart" size="64" />
+      </div>
+      <p class="empty-title">No favorites yet</p>
+      <p class="empty-text">You don’t have any favorite pets or boarding profiles. Browse matches, find boarding, or shop the store — your favorites will show up here.</p>
+      <div class="quick-actions">
+        <a routerLink="/app/matches" class="quick-action btn-primary">
+          <ng-icon name="lucideCat" size="20" />
+          <span>Browse pets</span>
+        </a>
+        <a routerLink="/app/boarding" class="quick-action btn-secondary">
+          <ng-icon name="lucideMapPin" size="20" />
+          <span>Find boarding</span>
+        </a>
+        <a routerLink="/app/store" class="quick-action btn-secondary">
+          <ng-icon name="lucideShoppingBag" size="20" />
+          <span>Store</span>
+        </a>
+      </div>
+    </div>
+  } @else {
+    <div class="quick-actions-strip card">
+      <span class="quick-actions-label">Quick actions</span>
+      <div class="quick-actions">
+        <a routerLink="/app/matches" class="quick-action btn-secondary">
+          <ng-icon name="lucideCat" size="18" />
+          <span>Browse pets</span>
+        </a>
+        <a routerLink="/app/boarding" class="quick-action btn-secondary">
+          <ng-icon name="lucideMapPin" size="18" />
+          <span>Find boarding</span>
+        </a>
+        <a routerLink="/app/store" class="quick-action btn-secondary">
+          <ng-icon name="lucideShoppingBag" size="18" />
+          <span>Store</span>
+        </a>
+      </div>
+    </div>
+    <section class="section card">
+      <h2 class="section-title">
+        <ng-icon name="lucideCat" size="20" class="section-icon" />
+        Favorite pets
+      </h2>
+      @if (favoritePets.length === 0) {
+        <p class="empty-inline">No favorite pets yet. Save pets you like from search.</p>
+      } @else {
+        <div class="favorites-grid">
+          @for (pet of favoritePets; track pet.id) {
+            <div class="pet-card card">
+              <div class="pet-image-container">
+                @if (pet.photoUrls && pet.photoUrls.length > 0) {
+                  <img [src]="pet.photoUrls[0]" [alt]="pet.name" class="pet-image" />
+                } @else if (pet.photoUrl) {
+                  <img [src]="pet.photoUrl" [alt]="pet.name" class="pet-image" />
+                } @else {
+                  <div class="pet-image-placeholder">
+                    <ng-icon name="lucideCat" size="48" />
+                  </div>
+                }
+              </div>
+              <div class="pet-content">
+                <h3 class="pet-name">{{ pet.name }}</h3>
+                <p class="pet-meta">{{ pet.species }} · {{ pet.breed }}</p>
+                <p class="pet-age">{{ pet.age }} years · {{ pet.gender }}</p>
+                @if (pet.owner) {
+                  <p class="pet-owner">Owner: {{ pet.owner.name }}</p>
+                }
+                <button type="button" class="btn-remove" (click)="removePet(pet)">
+                  <ng-icon name="lucideTrash2" size="16" />
+                  <span>Remove</span>
+                </button>
+              </div>
+            </div>
+          }
+        </div>
+      }
+    </section>
+
+    <section class="section card">
+      <h2 class="section-title">
+        <ng-icon name="lucideMapPin" size="20" class="section-icon" />
+        Favorite boarding
+      </h2>
+      @if (favoriteBoarding.length === 0) {
+        <p class="empty-inline">No saved boarding profiles. Save hosts when you search boarding.</p>
+      } @else {
+        <div class="favorites-grid">
+          @for (profile of favoriteBoarding; track profile.id) {
+            <div class="boarding-card card">
+              <div class="boarding-image-container">
+                @if (profile.photoUrls && profile.photoUrls.length > 0) {
+                  <img [src]="profile.photoUrls[0]" [alt]="profile.location" class="boarding-image" />
+                } @else {
+                  <div class="boarding-image-placeholder">
+                    <ng-icon name="lucideMapPin" size="48" />
+                  </div>
+                }
+              </div>
+              <div class="boarding-content">
+                <h3 class="boarding-location">{{ profile.location }}</h3>
+                <p class="boarding-meta">KES {{ profile.pricePerDay }}/day · {{ profile.capacity }} capacity</p>
+                @if (profile.description) {
+                  <p class="boarding-description">{{ profile.description.substring(0, 80) }}{{ profile.description.length > 80 ? '...' : '' }}</p>
+                }
+                @if (profile.host) {
+                  <p class="boarding-host">Host: {{ profile.host.name }}</p>
+                }
+                <div class="boarding-actions">
+                  <a [routerLink]="['/app/boarding']" class="btn-view">
+                    <ng-icon name="lucideEye" size="16" />
+                    <span>View</span>
+                  </a>
+                  <button type="button" class="btn-remove" (click)="removeBoarding(profile)">
+                    <ng-icon name="lucideTrash2" size="16" />
+                    <span>Remove</span>
+                  </button>
+                </div>
+              </div>
+            </div>
+          }
+        </div>
+      }
+    </section>
+  }
+</div>

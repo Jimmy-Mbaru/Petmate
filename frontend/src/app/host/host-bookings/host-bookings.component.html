@@ -1,0 +1,121 @@
+<div class="min-h-screen py-8 px-4 sm:px-6 lg:px-8">
+  <div class="max-w-7xl mx-auto">
+    <!-- Header -->
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8" data-aos="fade-down">
+      <div>
+        <h1 class="text-3xl font-bold text-gray-900 m-0">Bookings Management</h1>
+        <p class="text-gray-500 m-0 mt-1">Manage all your boarding bookings</p>
+      </div>
+      
+      <button
+        type="button"
+        (click)="loadBookings()"
+        [disabled]="loading()"
+        class="inline-flex items-center justify-center gap-2 px-6 py-3 bg-linear-to-r from-(--color-primary) to-(--color-primary-hover) text-white font-semibold rounded-xl hover:shadow-lg transition-all disabled:opacity-50"
+        data-aos="fade-left"
+      >
+        <svg class="w-5 h-5" [class.animate-spin]="loading()" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+        </svg>
+        Refresh
+      </button>
+    </div>
+
+    <!-- Stats -->
+    <div class="grid grid-cols-1 sm:grid-cols-4 gap-4 mb-6" data-aos="fade-up">
+      @for (filterOption of filterOptions; track filterOption) {
+        <button
+          (click)="filter.set(filterOption)"
+          [class.bg-linear-to-r]="filter() === filterOption"
+          [class.from-(--color-primary)]="filter() === filterOption"
+          [class.to-(--color-primary-hover)]="filter() === filterOption"
+          [class.text-white]="filter() === filterOption"
+          class="card bg-white rounded-xl p-4 border-2 transition-all hover:shadow-lg"
+          [class.border-(--color-primary)]="filter() === filterOption"
+          [class.border-gray-100]="filter() !== filterOption"
+          data-aos="zoom-in"
+        >
+          <p class="text-sm font-medium text-gray-500 uppercase m-0">{{ filterOption }}</p>
+          <p class="text-2xl font-bold m-0 mt-1" [class.text-(--color-primary)]="filter() === filterOption">
+            {{ filterOption === 'all' ? total() : bookings().filter(b => b.status === filterOption.toUpperCase()).length }}
+          </p>
+        </button>
+      }
+    </div>
+
+    <!-- Bookings List -->
+    @if (loading()) {
+      <div class="bookings-list space-y-4">
+        @for (item of [1,2,3,4,5]; track item) {
+          <div class="card booking-card bg-white rounded-2xl p-6 border border-gray-100" data-aos="fade-in">
+            <div class="flex items-center gap-4">
+              <div class="w-14 h-14 rounded-full bg-gray-200 animate-pulse"></div>
+              <div class="flex-1 space-y-2">
+                <div class="h-5 bg-gray-200 rounded w-1/3 animate-pulse"></div>
+                <div class="h-4 bg-gray-200 rounded w-1/4 animate-pulse"></div>
+              </div>
+            </div>
+          </div>
+        }
+      </div>
+    } @else if (getFilteredBookings().length === 0) {
+      <div class="card bg-white rounded-2xl p-12 border border-gray-100 text-center" data-aos="zoom-in">
+        <div class="w-20 h-20 mx-auto mb-6 rounded-full bg-gray-100 flex items-center justify-center">
+          <svg class="w-10 h-10 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+          </svg>
+        </div>
+        <h3 class="text-xl font-bold text-gray-900 m-0 mb-2">No bookings found</h3>
+        <p class="text-gray-500">There are no bookings matching your current filter.</p>
+      </div>
+    } @else {
+      <div class="bookings-list space-y-4">
+        @for (booking of getFilteredBookings(); track booking.id; let i = $index) {
+          <div class="card booking-card bg-white rounded-2xl p-6 border border-gray-100 hover:shadow-xl transition-all" data-aos="fade-up" [attr.data-aos-delay]="i * 50">
+            <div class="flex items-center justify-between flex-wrap gap-4">
+              <div class="flex items-center gap-4 flex-1">
+                <div class="w-14 h-14 rounded-full bg-linear-to-br from-(--color-primary) to-(--color-primary-hover) flex items-center justify-center text-white font-bold text-lg">
+                  {{ (booking.owner?.name || 'G').charAt(0).toUpperCase() }}
+                </div>
+                <div class="flex-1">
+                  <h3 class="text-lg font-bold text-gray-900 m-0">{{ booking.owner?.name || 'Guest' }}</h3>
+                  <p class="text-sm text-gray-500 m-0 mt-0.5">
+                    {{ formatDate(booking.startDate) }} - {{ formatDate(booking.endDate) }}
+                  </p>
+                  <p class="text-sm text-gray-500 m-0 mt-1">
+                    Total: <span class="font-semibold text-gray-900">KES {{ booking.totalPrice | number }}</span>
+                  </p>
+                </div>
+              </div>
+
+              <div class="flex items-center gap-3">
+                <span class="px-4 py-2 text-xs font-bold rounded-full uppercase tracking-wide border" [class]="getStatusClass(booking.status)">
+                  {{ getStatusLabel(booking.status) }}
+                </span>
+
+                @if (booking.status === 'PENDING') {
+                  <div class="flex gap-2">
+                    <button
+                      type="button"
+                      (click)="updateBookingStatus(booking.id, 'DECLINED')"
+                      class="px-4 py-2 border-2 border-red-200 text-red-600 font-semibold rounded-xl hover:bg-red-50 transition-all"
+                    >
+                      Decline
+                    </button>
+                    <button
+                      type="button"
+                      (click)="updateBookingStatus(booking.id, 'ACCEPTED')"
+                      class="px-4 py-2 bg-linear-to-r from-green-500 to-green-600 text-white font-semibold rounded-xl hover:shadow-lg transition-all"
+                    >
+                      Accept
+                    </button>
+                  </div>
+                }
+              </div>
+            </div>
+          </div>
+        }
+      </div>
+    }
+  </div>
+</div>

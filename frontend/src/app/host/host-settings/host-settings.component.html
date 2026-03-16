@@ -1,0 +1,73 @@
+<div class="min-h-screen py-8 px-4 sm:px-6 lg:px-8">
+  <div class="max-w-4xl mx-auto">
+    <!-- Header -->
+    <div class="mb-8" data-aos="fade-down">
+      <h1 class="text-3xl font-bold text-gray-900 m-0">Settings</h1>
+      <p class="text-gray-500 m-0 mt-1">Manage your account settings and preferences</p>
+    </div>
+
+    <!-- Settings Sections -->
+    <div class="space-y-6">
+      <!-- Notifications -->
+      <div class="card bg-white rounded-3xl p-8 border border-gray-100 shadow-lg" data-aos="fade-up">
+        <h2 class="text-xl font-bold text-gray-900 m-0 mb-6">Notifications</h2>
+        <div class="space-y-4">
+          <div class="flex items-center justify-between p-4 bg-gray-50 rounded-xl">
+            <div>
+              <p class="font-semibold text-gray-900 m-0">Email Notifications</p>
+              <p class="text-sm text-gray-500 m-0 mt-1">Receive booking notifications via email</p>
+            </div>
+            <label class="relative inline-flex items-center cursor-pointer">
+              <input type="checkbox" class="sr-only peer" checked />
+              <div class="w-14 h-7 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-red-100 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[4px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-6 after:w-6 after:transition-all peer-checked:bg-(--color-primary)"></div>
+            </label>
+          </div>
+
+          <div class="flex items-center justify-between p-4 bg-gray-50 rounded-xl">
+            <div>
+              <p class="font-semibold text-gray-900 m-0">SMS Notifications</p>
+              <p class="text-sm text-gray-500 m-0 mt-1">Receive booking notifications via SMS</p>
+            </div>
+            <label class="relative inline-flex items-center cursor-pointer">
+              <input type="checkbox" class="sr-only peer" />
+              <div class="w-14 h-7 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-red-100 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[4px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-6 after:w-6 after:transition-all peer-checked:bg-(--color-primary)"></div>
+            </label>
+          </div>
+        </div>
+      </div>
+
+      <!-- Privacy -->
+      <div class="card bg-white rounded-3xl p-8 border border-gray-100 shadow-lg" data-aos="fade-up" data-aos-delay="100">
+        <h2 class="text-xl font-bold text-gray-900 m-0 mb-6">Privacy</h2>
+        <div class="space-y-4">
+          <div class="flex items-center justify-between p-4 bg-gray-50 rounded-xl">
+            <div>
+              <p class="font-semibold text-gray-900 m-0">Profile Visibility</p>
+              <p class="text-sm text-gray-500 m-0 mt-1">Make your profile visible to guests</p>
+            </div>
+            <label class="relative inline-flex items-center cursor-pointer">
+              <input type="checkbox" class="sr-only peer" checked />
+              <div class="w-14 h-7 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-red-100 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[4px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-6 after:w-6 after:transition-all peer-checked:bg-(--color-primary)"></div>
+            </label>
+          </div>
+        </div>
+      </div>
+
+      <!-- Account -->
+      <div class="card bg-white rounded-3xl p-8 border border-gray-100 shadow-lg" data-aos="fade-up" data-aos-delay="200">
+        <h2 class="text-xl font-bold text-gray-900 m-0 mb-6">Account</h2>
+        <div class="space-y-4">
+          <button class="w-full text-left p-4 bg-gray-50 rounded-xl font-semibold text-gray-900 hover:bg-gray-100 transition-colors">
+            Change Password
+          </button>
+          <button class="w-full text-left p-4 bg-gray-50 rounded-xl font-semibold text-gray-900 hover:bg-gray-100 transition-colors">
+            Update Email
+          </button>
+          <button class="w-full text-left p-4 bg-red-50 rounded-xl font-semibold text-red-600 hover:bg-red-100 transition-colors">
+            Delete Account
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

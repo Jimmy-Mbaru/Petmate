@@ -1,0 +1,77 @@
+.settings-page {
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+.page-header {
+  margin-bottom: 1.5rem;
+}
+
+.title {
+  font-family: var(--font-display);
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: var(--color-text);
+  margin: 0 0 0.25rem 0;
+}
+
+.subtitle {
+  font-size: 0.9375rem;
+  color: var(--color-text-muted);
+  margin: 0;
+}
+
+.settings-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 1.25rem;
+}
+
+.settings-card {
+  padding: 1.5rem;
+  border-radius: var(--radius-card-sm);
+  box-shadow: var(--shadow-soft);
+  background: var(--color-white);
+  border: 1px solid transparent;
+  transition: box-shadow 0.25s ease, border-color 0.25s ease, transform 0.25s ease;
+  text-decoration: none;
+  color: inherit;
+  display: block;
+}
+
+.settings-card:not(.disabled):hover {
+  box-shadow: var(--shadow-card);
+  border-color: var(--color-orange-soft);
+  transform: translateY(-2px);
+}
+
+.settings-card.disabled {
+  opacity: 0.85;
+  cursor: default;
+}
+
+.card-icon.theme-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: var(--radius-btn);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--color-orange-soft);
+  color: var(--color-primary);
+  margin-bottom: 1rem;
+}
+
+.card-title {
+  font-family: var(--font-display);
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: var(--color-text);
+  margin: 0 0 0.35rem 0;
+}
+
+.card-desc {
+  font-size: 0.875rem;
+  color: var(--color-text-muted);
+  margin: 0;
+}

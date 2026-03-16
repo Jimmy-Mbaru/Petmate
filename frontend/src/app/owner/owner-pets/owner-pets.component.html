@@ -1,0 +1,113 @@
+<div class="pets-page">
+  <header class="page-header">
+    <div>
+      <h1 class="title">My pets</h1>
+      <p class="subtitle">Add, edit, and manage your pet profiles.</p>
+    </div>
+    <a routerLink="/app/pets/new" class="btn-primary">
+      <ng-icon name="lucidePlus" size="20" />
+      <span>Add pet</span>
+    </a>
+  </header>
+
+  @if (isLoading) {
+    <div class="loading-state">
+      <div class="loading-spinner"></div>
+      <p>Loading your pets...</p>
+    </div>
+  } @else if (pets.length === 0) {
+    <div class="empty-state card">
+      <div class="empty-icon">
+        <ng-icon name="lucideCat" size="64" />
+      </div>
+      <p class="empty-title">No pets yet</p>
+      <p class="empty-text">Add your first pet profile to manage vaccinations, preferences, and more.</p>
+      <a routerLink="/app/pets/new" class="btn-primary">
+        <ng-icon name="lucidePlus" size="20" />
+        <span>Add pet</span>
+      </a>
+    </div>
+  } @else {
+    <div class="pets-summary">
+      <p>You have <strong>{{ pets.length }}</strong> pet{{ pets.length !== 1 ? 's' : '' }} registered</p>
+      <p class="summary-hint">
+        <span class="available-count">{{ pets.filter(p => p.isAvailable).length }} available for matching</span>
+      </p>
+    </div>
+
+    <div class="pets-grid">
+      @for (pet of pets; track pet.id) {
+        <div class="pet-card-modern card">
+          <div class="pet-card-image">
+            @if (pet.photoUrls && pet.photoUrls.length > 0) {
+              <img [src]="pet.photoUrls[0]" [alt]="pet.name" class="pet-photo" loading="lazy" />
+            } @else if (pet.photoUrl) {
+              <img [src]="pet.photoUrl" [alt]="pet.name" class="pet-photo" loading="lazy" />
+            } @else {
+              <div class="pet-photo-placeholder">
+                <ng-icon name="lucideCat" size="56" />
+              </div>
+            }
+
+            @if (pet.isAvailable) {
+              <span class="available-badge">
+                <ng-icon name="lucideCheckCircle2" size="14" />
+                Available
+              </span>
+            }
+
+            <div class="pet-card-actions">
+              <a [routerLink]="['/app/pets', pet.id, 'edit']" class="btn-edit" title="Edit pet">
+                <ng-icon name="lucidePencil" size="16" />
+              </a>
+              <button type="button" class="btn-delete" title="Delete pet" (click)="deletePet(pet)">
+                <ng-icon name="lucideTrash2" size="16" />
+              </button>
+            </div>
+          </div>
+
+          <div class="pet-card-content">
+            <div class="pet-card-header">
+              <h3 class="pet-card-name">
+                <a [routerLink]="['/app/pets', pet.id]" class="pet-name-link">{{ pet.name }}</a>
+              </h3>
+              <span class="pet-card-gender" [class.male]="pet.gender === 'male'" [class.female]="pet.gender === 'female'" [title]="pet.gender">
+                <ng-icon name="{{ pet.gender === 'male' ? 'lucideCircleDot' : 'lucideCircle' }}" size="20" />
+              </span>
+            </div>
+
+            <div class="pet-info-row">
+              <div class="pet-info-main">
+                <p class="pet-card-breed">{{ pet.breed }}</p>
+                <p class="pet-card-species">{{ pet.species }}</p>
+              </div>
+              <div class="pet-info-side">
+                <div class="pet-card-meta">
+                  <div class="meta-item">
+                    <ng-icon name="lucideCake" size="16" />
+                    <span>{{ getAgeDisplay(pet.age) }}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            @if (pet.healthNotes) {
+              <p class="pet-card-notes">{{ pet.healthNotes.substring(0, 100) }}{{ pet.healthNotes.length > 100 ? '...' : '' }}</p>
+            }
+
+            <div class="pet-card-footer">
+              <span class="photo-count">
+                <ng-icon name="lucideImage" size="16" />
+                {{ pet.photoUrls?.length || (pet.photoUrl ? 1 : 0) }} photo{{ (pet.photoUrls?.length || (pet.photoUrl ? 1 : 0)) !== 1 ? 's' : '' }}
+              </span>
+              <a [routerLink]="['/app/pets', pet.id]" class="btn-view-profile">
+                View profile
+                <ng-icon name="lucideArrowRight" size="16" />
+              </a>
+            </div>
+          </div>
+        </div>
+      }
+    </div>
+  }
+</div>

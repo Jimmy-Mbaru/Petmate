@@ -1,0 +1,17 @@
+@if (isAuthRoute()) {
+  <div class="auth-full-viewport">
+    <router-outlet></router-outlet>
+  </div>
+} @else {
+  <app-navbar></app-navbar>
+  @if (isAppRoute()) {
+    <div class="navbar-spacer" aria-hidden="true"></div>
+  }
+  <router-outlet></router-outlet>
+  <div class="footer-wrap" [class.owner-layout]="isOwnerLayout()" [class.host-layout]="isHostLayout()">
+    <app-footer></app-footer>
+  </div>
+}
+<app-toast />
+<app-loading />
+<app-confirmation-modal />

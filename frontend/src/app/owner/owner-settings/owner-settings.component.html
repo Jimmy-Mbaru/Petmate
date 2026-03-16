@@ -1,0 +1,82 @@
+<div class="settings-page">
+  <header class="page-header">
+    <div>
+      <h1 class="title">Settings</h1>
+      <p class="subtitle">Account and app preferences.</p>
+    </div>
+  </header>
+
+  <div class="settings-grid">
+    <a routerLink="/app/profile" class="settings-card card">
+      <div class="card-icon theme-icon">
+        <ng-icon name="lucideUser" size="22" />
+      </div>
+      <h2 class="card-title">Profile</h2>
+      <p class="card-desc">Edit your name and avatar.</p>
+    </a>
+    <div class="settings-card card disabled">
+      <div class="card-icon theme-icon">
+        <ng-icon name="lucideBell" size="22" />
+      </div>
+      <h2 class="card-title">Notifications</h2>
+      <p class="card-desc">Email and push preferences. Coming soon.</p>
+    </div>
+    <div class="settings-card card disabled">
+      <div class="card-icon theme-icon">
+        <ng-icon name="lucideShield" size="22" />
+      </div>
+      <h2 class="card-title">Security</h2>
+      <p class="card-desc">Password and security. Coming soon.</p>
+    </div>
+  </div>
+
+  <!-- Blocked Users Section -->
+  <div class="blocked-section mt-12">
+    <div class="flex items-center gap-3 mb-6">
+      <div class="p-2 bg-red-100 rounded-lg text-red-600">
+        <ng-icon name="lucideShieldOff" size="20" />
+      </div>
+      <h2 class="text-xl font-bold text-gray-900 m-0">Blocked Users</h2>
+    </div>
+
+    @if (isLoading()) {
+      <div class="flex justify-center py-8">
+        <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-(--color-primary)"></div>
+      </div>
+    } @else if (blockedUsers().length === 0) {
+      <div class="card bg-white rounded-3xl p-8 border border-gray-100 text-center">
+        <p class="text-gray-500 m-0">You haven't blocked any users yet.</p>
+      </div>
+    } @else {
+      <div class="card bg-white rounded-3xl overflow-hidden border border-gray-100 shadow-sm">
+        <ul class="divide-y divide-gray-50 m-0 p-0 list-none">
+          @for (user of blockedUsers(); track user.blockedId) {
+            <li class="p-4 hover:bg-gray-50 transition-colors flex items-center justify-between gap-4">
+              <div class="flex items-center gap-3">
+                @if (user.blocked.avatarUrl) {
+                  <img [src]="user.blocked.avatarUrl" [alt]="user.blocked.name" class="w-10 h-10 rounded-full object-cover" />
+                } @else {
+                  <div class="w-10 h-10 rounded-full bg-linear-to-br from-gray-200 to-gray-300 flex items-center justify-center text-gray-500 font-bold text-xs">
+                    {{ user.blocked.name.substring(0, 1).toUpperCase() }}
+                  </div>
+                }
+                <div>
+                  <p class="font-bold text-gray-900 m-0">{{ user.blocked.name }}</p>
+                  <p class="text-xs text-gray-500 m-0">{{ user.blocked.email }}</p>
+                </div>
+              </div>
+              <button
+                type="button"
+                (click)="unblockUser(user.blockedId)"
+                class="px-3 py-1.5 bg-red-50 text-red-600 text-xs font-bold rounded-lg hover:bg-red-100 transition-all border-0 cursor-pointer flex items-center gap-1"
+              >
+                <ng-icon name="lucideTrash2" size="14" />
+                Unblock
+              </button>
+            </li>
+          }
+        </ul>
+      </div>
+    }
+  </div>
+</div>

@@ -1,0 +1,190 @@
+.profile-page {
+  max-width: 100%;
+  margin: 0 auto;
+  padding: 1.5rem;
+}
+
+@media (min-width: 640px) {
+  .profile-page {
+    padding: 2rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .profile-page {
+    padding: 3rem;
+  }
+}
+
+.card {
+  background: var(--color-white);
+  border-radius: var(--radius-card-sm);
+  box-shadow: var(--shadow-soft);
+}
+
+.loading-card {
+  padding: 3rem 2rem;
+  text-align: center;
+}
+
+.loading-text {
+  color: var(--color-text-muted);
+  margin: 0;
+  font-size: 1rem;
+}
+
+.profile-card {
+  padding: 2rem;
+}
+
+.profile-form {
+  display: flex;
+  flex-direction: column;
+}
+
+.profile-picture-section {
+  padding-bottom: 1.5rem;
+}
+
+.form-row {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.form-row label {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--color-text);
+}
+
+.input-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.input-icon {
+  position: absolute;
+  left: 0.75rem;
+  color: var(--color-text-muted);
+  pointer-events: none;
+  z-index: 1;
+}
+
+.input {
+  width: 100%;
+  padding: 0.7rem 1rem 0.7rem 2.25rem;
+  font-size: 0.9375rem;
+  border: 2px solid rgba(54, 54, 54, 0.1);
+  border-radius: var(--radius-btn);
+  background: var(--color-white);
+  color: var(--color-text);
+  transition: border-color 0.2s, box-shadow 0.2s;
+  font-family: var(--font-body);
+}
+
+.input-wrap:has(input[type="url"]) .input,
+.input-wrap:has(textarea) .input {
+  padding-left: 1rem;
+}
+
+.input-wrap:has(textarea) {
+  align-items: flex-start;
+}
+
+.textarea {
+  resize: vertical;
+  min-height: 80px;
+  padding-top: 0.7rem;
+}
+
+.input:focus {
+  outline: none;
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px rgba(215, 35, 35, 0.1);
+}
+
+.input.readonly {
+  background: var(--color-surface);
+  color: var(--color-text-muted);
+  cursor: not-allowed;
+}
+
+.hint,
+.error {
+  font-size: 0.8125rem;
+  margin: 0;
+}
+
+.hint {
+  color: var(--color-text-muted);
+}
+
+.error {
+  color: var(--color-primary);
+}
+
+.form-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-top: 0.5rem;
+  padding-top: 1rem;
+  border-top: 1px solid rgba(54, 54, 54, 0.1);
+}
+
+.btn-primary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.7rem 1.5rem;
+  background: var(--color-primary);
+  color: white;
+  border: none;
+  border-radius: var(--radius-btn);
+  font-weight: 600;
+  font-size: 0.9375rem;
+  cursor: pointer;
+  transition: opacity 0.2s, transform 0.12s;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: rgba(215, 35, 35, 0.25);
+}
+
+.btn-primary:hover:not(:disabled) {
+  opacity: 0.95;
+}
+
+.btn-primary:active:not(:disabled) {
+  transform: scale(0.97);
+}
+
+.btn-primary:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.btn-secondary {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.7rem 1.5rem;
+  color: var(--color-primary);
+  background: transparent;
+  border: 2px solid var(--color-primary);
+  border-radius: var(--radius-btn);
+  font-weight: 600;
+  font-size: 0.9375rem;
+  text-decoration: none;
+  transition: background 0.2s, color 0.2s;
+}
+
+.btn-secondary:hover {
+  background: var(--color-orange-soft);
+  color: var(--color-primary-hover);
+}
+
+/* Touch feedback */
+.touch-active {
+  transform: scale(0.99) !important;
+  background-color: rgba(245, 237, 237, 1) !important;
+}

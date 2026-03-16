@@ -1,0 +1,19 @@
+:host {
+  display: block;
+}
+
+button {
+  cursor: pointer;
+}
+
+.bookings-list {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+}
+
+.booking-card {
+  width: 100%;
+  max-width: 800px;
+}

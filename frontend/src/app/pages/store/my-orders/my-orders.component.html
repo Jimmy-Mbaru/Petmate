@@ -1,0 +1,166 @@
+<div class="orders-page">
+  <header class="page-header">
+    <div class="header-content">
+      <h1 class="title">My Orders</h1>
+      <p class="subtitle">Track and manage your pet supply orders.</p>
+    </div>
+    <a routerLink="/store" class="btn-primary">
+      <ng-icon name="lucideShoppingBag" size="20" />
+      <span>Continue Shopping</span>
+    </a>
+  </header>
+
+  @if (isLoading()) {
+    <div class="loading-state card">
+      <div class="spinner"></div>
+      <p>Loading your orders...</p>
+    </div>
+  } @else if (orders().length === 0) {
+    <div class="empty-state card">
+      <div class="empty-icon">
+        <ng-icon name="lucidePackage" size="48" />
+      </div>
+      <h2>No orders yet</h2>
+      <p>You haven't placed any orders in our store yet. Check out our amazing products for your furry friends!</p>
+      <a routerLink="/store" class="btn-shop">
+        <ng-icon name="lucideShoppingBag" size="20" />
+        <span>Browse Products</span>
+        <ng-icon name="lucideArrowRight" size="18" />
+      </a>
+    </div>
+  } @else {
+    <div class="orders-list">
+      @for (order of orders(); track order.id) {
+        <div class="order-card card" (click)="openDetails(order)">
+          <div class="order-header">
+            <div class="order-id-wrap">
+              <span class="order-label">Order</span>
+              <span class="order-id">#{{ order.id.slice(0, 8) }}</span>
+            </div>
+            <div class="order-status" [ngClass]="statusClass(order.status)">
+              <ng-icon [name]="statusIcon(order.status)" size="16" />
+              <span>{{ getStatusLabel(order.status) }}</span>
+            </div>
+          </div>
+
+          <div class="order-body">
+            <div class="order-meta">
+              <div class="meta-item">
+                <span class="meta-label">Placed on</span>
+                <span class="meta-value date">{{ formatDate(order.createdAt) }}</span>
+              </div>
+              <div class="meta-item">
+                <span class="meta-label">Total Amount</span>
+                <span class="meta-value price">KES {{ (order.total || order.totalAmount || 0).toFixed(2) }}</span>
+              </div>
+              <div class="meta-item">
+                <span class="meta-label">Items</span>
+                <span class="meta-value items">{{ order.items?.length || 0 }} products</span>
+              </div>
+            </div>
+
+            <div class="order-products">
+              @for (item of order.items?.slice(0, 3); track item.id) {
+                <div class="product-thumb">
+                  @if (item.product?.imageUrl) {
+                    <img [src]="item.product!.imageUrl" [alt]="item.product!.name || 'Product'">
+                  } @else {
+                    <div class="thumb-placeholder">
+                      <ng-icon name="lucidePackage" size="14" />
+                    </div>
+                  }
+                </div>
+              }
+              @if ((order.items?.length || 0) > 3) {
+                <div class="product-thumb more">
+                  <span>+{{ order.items!.length - 3 }}</span>
+                </div>
+              }
+            </div>
+
+            <div class="order-action">
+              <span class="view-link">
+                View Details
+                <ng-icon name="lucideChevronRight" size="18" />
+              </span>
+            </div>
+          </div>
+        </div>
+      }
+    </div>
+  }
+
+  <!-- Order Details Modal -->
+  @if (showDetailsModal() && selectedOrder()) {
+    <div class="modal-backdrop" (click)="closeDetails()">
+      <div class="modal-card" (click)="$event.stopPropagation()">
+        <header class="modal-header">
+          <div class="modal-title-wrap">
+            <h2 class="modal-title">Order Details</h2>
+            <span class="modal-order-id">#{{ selectedOrder()?.id }}</span>
+          </div>
+          <button class="close-btn" (click)="closeDetails()">
+            <ng-icon name="lucideX" size="24" />
+          </button>
+        </header>
+
+        <div class="modal-body">
+          <div class="order-summary-box" [ngClass]="statusClass(selectedOrder()?.status || '')">
+            <div class="summary-header">
+              <div class="summary-status">
+                <ng-icon [name]="statusIcon(selectedOrder()?.status || '')" size="24" />
+                <div class="status-info">
+                  <span class="status-name">{{ getStatusLabel(selectedOrder()?.status || '') }}</span>
+                  <span class="status-date">Updated on {{ formatDateTime(selectedOrder()?.updatedAt || selectedOrder()?.createdAt || '') }}</span>
+                </div>
+              </div>
+              @if (selectedOrder()?.status === 'PLACED' || selectedOrder()?.status === 'PROCESSING') {
+                <button 
+                  class="btn-cancel" 
+                  (click)="cancelOrder(selectedOrder()!.id)"
+                  [disabled]="isCancelling()"
+                >
+                  {{ isCancelling() ? 'Cancelling...' : 'Cancel Order' }}
+                </button>
+              }
+            </div>
+          </div>
+
+          <div class="order-section">
+            <h3 class="section-title">Order Items</h3>
+            <div class="items-list">
+              @for (item of selectedOrder()?.items; track item.id) {
+                <div class="item-row">
+                  <div class="item-img">
+                    @if (item.product?.imageUrl) {
+                      <img [src]="item.product?.imageUrl" [alt]="item.product?.name">
+                    } @else {
+                      <div class="img-placeholder">
+                        <ng-icon name="lucidePackage" size="20" />
+                      </div>
+                    }
+                  </div>
+                  <div class="item-info">
+                    <span class="item-name">{{ item.product?.name || 'Unknown Product' }}</span>
+                    <span class="item-qty">Quantity: {{ item.quantity }}</span>
+                  </div>
+                  <div class="item-price">
+                    <span class="unit-price">KES {{ item.unitPrice.toFixed(2) }}</span>
+                    <span class="total-price">KES {{ (item.unitPrice * item.quantity).toFixed(2) }}</span>
+                  </div>
+                </div>
+              }
+            </div>
+          </div>
+
+          <div class="order-footer">
+            <div class="total-row">
+              <span class="total-label">Total Paid</span>
+              <span class="total-value">KES {{ (selectedOrder()?.total || selectedOrder()?.totalAmount || 0).toFixed(2) }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  }
+</div>

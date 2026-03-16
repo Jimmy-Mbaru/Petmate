@@ -1,0 +1,149 @@
+<div class="dashboard">
+  <header class="dashboard-header" data-aos="fade-down" data-aos-duration="500">
+    <div class="header-text">
+      <h1 class="title">Dashboard</h1>
+      <p class="welcome-line">
+        <span class="welcome-text">Welcome back,</span>
+        <span class="user-name">{{ userName }}</span>
+        <span class="user-role">{{ userRole }}</span>
+      </p>
+    </div>
+  </header>
+
+  <section id="stats" class="stats-grid" aria-label="Overview stats">
+    <div class="stat-card stat-card-pets" data-aos="fade-up" data-aos-duration="600" data-aos-delay="0">
+      <div class="stat-icon theme-icon">
+        <ng-icon name="lucideCat" size="22" />
+      </div>
+      <div class="stat-content">
+        <span class="stat-value">{{ stats.pets }}</span>
+        <span class="stat-label">My Pets</span>
+        <span class="stat-change positive">
+          <ng-icon name="lucideTrendingUp" size="14" /> Add your first pet
+        </span>
+      </div>
+    </div>
+    <div class="stat-card stat-card-bookings" data-aos="fade-up" data-aos-duration="600" data-aos-delay="80">
+      <div class="stat-icon theme-icon">
+        <ng-icon name="lucideCalendar" size="22" />
+      </div>
+      <div class="stat-content">
+        <span class="stat-value">{{ stats.bookings }}</span>
+        <span class="stat-label">Bookings</span>
+        <span class="stat-change neutral">No bookings yet</span>
+      </div>
+    </div>
+    <div class="stat-card stat-card-favorites" data-aos="fade-up" data-aos-duration="600" data-aos-delay="160">
+      <div class="stat-icon theme-icon">
+        <ng-icon name="lucideHeart" size="22" />
+      </div>
+      <div class="stat-content">
+        <span class="stat-value">{{ stats.favorites }}</span>
+        <span class="stat-label">Favorites</span>
+        <span class="stat-change neutral">Saved hosts & pets</span>
+      </div>
+    </div>
+    <div class="stat-card stat-card-orders" data-aos="fade-up" data-aos-duration="600" data-aos-delay="240">
+      <div class="stat-icon theme-icon">
+        <ng-icon name="lucideShoppingBag" size="22" />
+      </div>
+      <div class="stat-content">
+        <span class="stat-value">{{ stats.orders }}</span>
+        <span class="stat-label">Store Orders</span>
+        <span class="stat-change neutral">Orders placed</span>
+      </div>
+    </div>
+    <div class="stat-card stat-card-messages" data-aos="fade-up" data-aos-duration="600" data-aos-delay="320">
+      <div class="stat-icon theme-icon">
+        <ng-icon name="lucideMessageCircle" size="22" />
+      </div>
+      <div class="stat-content">
+        <span class="stat-value">{{ stats.messages }}</span>
+        <span class="stat-label">Messages</span>
+        <span class="stat-change neutral">Chat with hosts</span>
+      </div>
+    </div>
+  </section>
+
+  <section id="charts" class="charts-section" aria-label="Charts">
+    <div class="widget card chart-widget chart-activity" data-aos="fade-up" data-aos-duration="600" data-aos-delay="100">
+      <div class="chart-widget-head">
+        <div>
+          <h2 class="widget-title">Activity</h2>
+          <p class="chart-desc">Your activity by period</p>
+        </div>
+        <div class="period-filters" role="group" aria-label="Time period">
+          @for (opt of periodOptions; track opt.value) {
+            <button
+              type="button"
+              class="period-btn"
+              [class.active]="activityPeriod === opt.value"
+              (click)="setActivityPeriod(opt.value)"
+            >
+              {{ opt.label }}
+            </button>
+          }
+        </div>
+      </div>
+      <div class="chart-container chart-container-line">
+        <canvas #activityChart></canvas>
+      </div>
+    </div>
+    <div class="widget card chart-widget chart-distribution" data-aos="fade-up" data-aos-duration="600" data-aos-delay="200">
+      <h2 class="widget-title">Overview</h2>
+      <p class="chart-desc">Pets, bookings, favorites & orders</p>
+      <div class="chart-container chart-container-doughnut">
+        <canvas #distributionChart></canvas>
+      </div>
+    </div>
+  </section>
+
+  <section class="widgets-grid" aria-label="Quick actions and bookings">
+    <div id="quick-actions" class="widget card quick-actions" data-aos="fade-up" data-aos-duration="600" data-aos-delay="150">
+      <h2 class="widget-title">Quick actions</h2>
+      <div class="quick-actions-list">
+        <a routerLink="/app/pets/new" class="action-item">
+          <span class="action-icon theme-icon-inline"><ng-icon name="lucideCat" size="20" /></span>
+          <span>Add a pet</span>
+          <ng-icon name="lucideArrowRight" size="16" class="arrow-icon" />
+        </a>
+        <a routerLink="/app/matches" class="action-item">
+          <span class="action-icon theme-icon-inline"><ng-icon name="lucideSparkles" size="20" /></span>
+          <span>Search pets & matches</span>
+          <ng-icon name="lucideArrowRight" size="16" class="arrow-icon" />
+        </a>
+        <a routerLink="/app/boarding" class="action-item">
+          <span class="action-icon theme-icon-inline"><ng-icon name="lucideCalendar" size="20" /></span>
+          <span>Book boarding</span>
+          <ng-icon name="lucideArrowRight" size="16" class="arrow-icon" />
+        </a>
+        <a routerLink="/app/store" class="action-item">
+          <span class="action-icon theme-icon-inline"><ng-icon name="lucideShoppingBag" size="20" /></span>
+          <span>Browse store</span>
+          <ng-icon name="lucideArrowRight" size="16" class="arrow-icon" />
+        </a>
+        <a routerLink="/app/chat" class="action-item">
+          <span class="action-icon theme-icon-inline"><ng-icon name="lucideMessageCircle" size="20" /></span>
+          <span>Chat</span>
+          <ng-icon name="lucideArrowRight" size="16" class="arrow-icon" />
+        </a>
+      </div>
+    </div>
+    <div id="recent" class="widget card recent-activity" data-aos="fade-up" data-aos-duration="600" data-aos-delay="250">
+      <h2 class="widget-title">Recent bookings</h2>
+      <p class="widget-desc">Your latest boarding bookings</p>
+      @if (recentBookings.length === 0) {
+        <p class="empty-state">No bookings yet. When you book boarding, they'll show here.</p>
+      } @else {
+        <ul class="activity-list">
+          @for (b of recentBookings; track b.id) {
+            <li class="activity-item">
+              <span class="activity-title">{{ b.title }}</span>
+              <span class="activity-meta">{{ b.date }} · {{ b.status }}</span>
+            </li>
+          }
+        </ul>
+      }
+    </div>
+  </section>
+</div>

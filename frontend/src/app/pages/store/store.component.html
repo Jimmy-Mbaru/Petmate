@@ -1,0 +1,355 @@
+<div class="store-page">
+  <header class="page-header">
+    <div>
+      <h1 class="page-title">Store</h1>
+      <p class="page-subtitle">Browse quality products for your pets</p>
+    </div>
+    <div class="header-actions">
+      <a routerLink="orders" class="orders-link" title="My Orders">
+        <ng-icon name="lucidePackage" size="24" aria-hidden="true" />
+        <span class="orders-label">Orders</span>
+        <span class="orders-count">{{ ordersCount }}</span>
+      </a>
+      <div class="cart-summary" (click)="toggleCart()" title="View cart">
+        <ng-icon name="lucideShoppingBag" size="24" aria-hidden="true" />
+        <span class="cart-label">Cart</span>
+        <span class="cart-count">{{ cart.length }}</span>
+      </div>
+    </div>
+  </header>
+
+  <div class="search-filters card">
+    <div class="filter-header">
+      <div class="filter-row">
+        <div class="filter-group">
+          <label class="filter-label">
+            <ng-icon name="lucideSearch" size="18" />
+            Search
+          </label>
+          <input
+            type="text"
+            class="filter-input"
+            placeholder="Search products..."
+            (input)="onSearchChange($event)"
+          />
+        </div>
+
+        <div class="filter-group">
+          <label class="filter-label">Category</label>
+          <select class="filter-input" (change)="onCategoryChange($event)">
+            <option value="">All categories</option>
+            @for (cat of categories; track cat) {
+              <option [value]="cat">{{ cat }}</option>
+            }
+          </select>
+        </div>
+
+        <div class="filter-group">
+          <label class="filter-label">Max Price</label>
+          <input
+            type="number"
+            class="filter-input"
+            placeholder="Any"
+            min="0"
+            (input)="onMaxPriceChange($event)"
+          />
+        </div>
+      </div>
+
+      <div class="filter-actions">
+        @if (hasActiveFilters()) {
+          <button class="btn-secondary btn-clear" (click)="clearFilters()">
+            <ng-icon name="lucideX" size="16" />
+            <span>Clear Filters</span>
+          </button>
+        }
+        <button class="btn-primary" (click)="onSearch()">
+          <ng-icon name="lucideSearch" size="20" />
+          <span>Search</span>
+        </button>
+      </div>
+    </div>
+    
+    <!-- Active Filters Display -->
+    @if (hasActiveFilters()) {
+      <div class="active-filters">
+        <span class="active-filters-label">Active filters:</span>
+        @if (searchQuery.q) {
+          <span class="filter-tag">
+            Search: "{{ searchQuery.q }}"
+            <button type="button" (click)="searchQuery.q = undefined; loadProducts()" class="filter-tag-remove">
+              <ng-icon name="lucideX" size="12" />
+            </button>
+          </span>
+        }
+        @if (searchQuery.category) {
+          <span class="filter-tag">
+            Category: {{ searchQuery.category }}
+            <button type="button" (click)="searchQuery.category = undefined; loadProducts()" class="filter-tag-remove">
+              <ng-icon name="lucideX" size="12" />
+            </button>
+          </span>
+        }
+        @if (searchQuery.maxPrice) {
+          <span class="filter-tag">
+            Max Price: KES {{ searchQuery.maxPrice }}
+            <button type="button" (click)="searchQuery.maxPrice = undefined; loadProducts()" class="filter-tag-remove">
+              <ng-icon name="lucideX" size="12" />
+            </button>
+          </span>
+        }
+      </div>
+    }
+  </div>
+
+  <!-- Loading State - Only show on initial load when no products exist -->
+  @if (isLoading && products.length === 0) {
+    <div class="loading-state" #loadingBlock aria-live="polite">
+      <div class="loading-spinner"></div>
+      <p class="loading-text">Loading products…</p>
+      <p class="loading-hint">This may take a moment</p>
+    </div>
+  }
+  
+  <!-- Empty State - Show when not loading and no products -->
+  @if (!isLoading && products.length === 0) {
+    <div class="empty-state card">
+      <p class="empty-title">No products found</p>
+      <p class="empty-text">Try adjusting your search filters</p>
+    </div>
+  }
+  
+  <!-- Products Grid - Show when we have products -->
+  @if (products.length > 0) {
+    <div class="products-grid" #productsGrid>
+      @for (product of products; track product.id) {
+        <div class="product-card card" role="article" [attr.aria-label]="product.name">
+          <!-- Product Image with Optimizations -->
+          <div class="product-image-container">
+            <!-- Image Badge -->
+            <div class="product-badges">
+              @if (product.stock <= 10 && product.stock > 0) {
+                <span class="badge badge-low-stock">
+                  <ng-icon name="lucideAlertTriangle" size="12" />
+                  Low Stock
+                </span>
+              }
+              @if (product.stock === 0) {
+                <span class="badge badge-out-of-stock">
+                  Out of Stock
+                </span>
+              }
+            </div>
+
+            <!-- Image Gallery -->
+            <div class="product-image-scroll" #imageScroll>
+              @if (product.imageUrls && product.imageUrls.length > 0) {
+                @for (imageUrl of product.imageUrls; track imageUrl; let i = $index) {
+                  <img 
+                    [src]="imageUrl" 
+                    [alt]="product.name" 
+                    class="product-image" 
+                    (click)="openLightbox(product.imageUrls!, i)"
+                    loading="lazy"
+                  />
+                }
+              } @else if (product.imageUrl) {
+                <img 
+                  [src]="product.imageUrl" 
+                  [alt]="product.name" 
+                  class="product-image" 
+                  (click)="openLightbox([product.imageUrl], 0)"
+                  loading="lazy"
+                />
+              } @else {
+                <div class="product-image-placeholder">
+                  <ng-icon name="lucideShoppingBag" size="48" />
+                </div>
+              }
+            </div>
+
+            <!-- Image Navigation Dots -->
+            @if (product.imageUrls && product.imageUrls.length > 1) {
+              <div class="image-indicators">
+                @for (imageUrl of product.imageUrls; track imageUrl; let i = $index) {
+                  <span 
+                    class="indicator" 
+                    [class.active]="i === 0"
+                    (click)="scrollToImage(imageScroll, i)"
+                  ></span>
+                }
+              </div>
+            }
+
+            <!-- Quick Actions -->
+            <div class="product-actions">
+              <button 
+                class="action-btn action-btn-wishlist"
+                type="button"
+                title="Add to wishlist"
+                (click)="toggleWishlist(product); $event.stopPropagation()"
+              >
+                <ng-icon name="lucideHeart" size="18" />
+              </button>
+              <button 
+                class="action-btn action-btn-view"
+                type="button"
+                title="Quick view"
+                (click)="openLightbox(product.imageUrls ?? (product.imageUrl ? [product.imageUrl] : []), 0)"
+              >
+                <ng-icon name="lucideEye" size="18" />
+              </button>
+            </div>
+          </div>
+
+          <!-- Product Content -->
+          <div class="product-content">
+            <!-- Category & Price Row -->
+            <div class="product-meta">
+              <span class="product-category">{{ product.category }}</span>
+              <span class="product-price">KES {{ product.price | number:'1.0-0' }}</span>
+            </div>
+
+            <!-- Product Name -->
+            <h3 class="product-name" [title]="product.name">{{ product.name }}</h3>
+
+            <!-- Product Description (Truncated) -->
+            @if (product.description) {
+              <p class="product-description" [title]="product.description">
+                {{ product.description | slice:0:80 }}{{ product.description.length > 80 ? '...' : '' }}
+              </p>
+            }
+
+            <!-- Stock Indicator -->
+            <div class="product-stock-indicator">
+              @if (product.stock > 10) {
+                <span class="stock-status in-stock">
+                  <span class="stock-dot"></span>
+                  In Stock ({{ product.stock }})
+                </span>
+              } @else if (product.stock > 0) {
+                <span class="stock-status low-stock">
+                  <span class="stock-dot"></span>
+                  Only {{ product.stock }} left
+                </span>
+              } @else {
+                <span class="stock-status out-of-stock">
+                  <span class="stock-dot"></span>
+                  Out of Stock
+                </span>
+              }
+            </div>
+
+            <!-- Add to Cart Button -->
+            <button
+              class="btn-primary btn-full btn-add-to-cart"
+              [class.disabled]="product.stock === 0"
+              [disabled]="product.stock === 0"
+              (click)="addToCart(product)"
+              type="button"
+            >
+              <ng-icon name="lucideShoppingCart" size="18" />
+              <span>{{ getCartQuantity(product.id) > 0 ? 'Add More (' + getCartQuantity(product.id) + ')' : 'Add to Cart' }}</span>
+            </button>
+          </div>
+        </div>
+      }
+    </div>
+
+    <!-- Load More Button -->
+    @if (products.length < total) {
+      <div class="load-more-container">
+        <button class="btn-secondary" (click)="loadMore()" [disabled]="isLoading">
+          @if (isLoading) {
+            <svg class="animate-spin" xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24">
+              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+              <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+            </svg>
+            <span>Loading...</span>
+          } @else {
+            <ng-icon name="lucidePlus" size="16" />
+            <span>Load More ({{ total - products.length }} left)</span>
+          }
+        </button>
+      </div>
+    }
+  }
+
+  @if (showLightbox) {
+    <div class="lightbox-overlay" (click)="closeLightbox()">
+      <button class="lightbox-close" (click)="closeLightbox()">
+        <ng-icon name="lucideX" size="32" />
+      </button>
+      <button class="lightbox-nav lightbox-prev" (click)="prevImage($event)" [disabled]="lightboxIndex <= 0">
+        <ng-icon name="lucideChevronLeft" size="32" />
+      </button>
+      <div class="lightbox-content" (click)="$event.stopPropagation()">
+        <img [src]="lightboxImages[lightboxIndex]" [alt]="'Image ' + (lightboxIndex + 1)" class="lightbox-image" />
+      </div>
+      <button class="lightbox-nav lightbox-next" (click)="nextImage($event)" [disabled]="lightboxIndex >= lightboxImages.length - 1">
+        <ng-icon name="lucideChevronRight" size="32" />
+      </button>
+      <div class="lightbox-counter">
+        {{ lightboxIndex + 1 }} / {{ lightboxImages.length }}
+      </div>
+    </div>
+  }
+
+  @if (showCart) {
+    <div class="cart-overlay" (click)="toggleCart()"></div>
+    <div class="cart-panel">
+      <div class="cart-header">
+        <h2>Shopping Cart</h2>
+        <button class="btn-icon" (click)="toggleCart()">
+          <ng-icon name="lucideX" size="24" />
+        </button>
+      </div>
+
+      @if (cart.length === 0) {
+        <div class="cart-empty">
+          <p>Your cart is empty</p>
+        </div>
+      } @else {
+        <div class="cart-items">
+          @for (item of cart; track item.productId) {
+            <div class="cart-item">
+              <div class="cart-item-info">
+                <span class="cart-item-name">{{ item.product.name }}</span>
+                <span class="cart-item-price">KES {{ item.product.price | number:'1.0-0' }} x {{ item.quantity }}</span>
+              </div>
+              <div class="cart-item-actions">
+                <button class="btn-icon-small" (click)="decreaseQuantity(item.productId)">
+                  <ng-icon name="lucideMinus" size="16" />
+                </button>
+                <span class="cart-item-quantity">{{ item.quantity }}</span>
+                <button class="btn-icon-small" (click)="increaseQuantity(item.productId)">
+                  <ng-icon name="lucidePlus" size="16" />
+                </button>
+                <button class="btn-icon-small danger" (click)="removeFromCart(item.productId)">
+                  <ng-icon name="lucideTrash2" size="16" />
+                </button>
+              </div>
+            </div>
+          }
+        </div>
+
+        <div class="cart-footer">
+          <div class="cart-total">
+            <span>Total:</span>
+            <span class="total-amount">KES {{ cartTotal | number:'1.0-0' }}</span>
+          </div>
+          <button class="btn-primary btn-full btn-checkout" (click)="checkout()" [disabled]="checkoutInProgress">
+            @if (checkoutInProgress) {
+              <ng-icon name="lucideLoader2" size="20" class="spin" />
+              <span>Processing...</span>
+            } @else {
+              Checkout
+            }
+          </button>
+        </div>
+      }
+    </div>
+  }
+
+  <a routerLink="/" class="back-link">Back to home</a>
+</div>

@@ -1,0 +1,245 @@
+<div class="reports-page">
+  <!-- Header -->
+  <header class="page-header">
+    <div class="header-content">
+      <div>
+        <h1 class="page-title">
+          <ng-icon name="lucideShield" size="28" />
+          User Reports
+        </h1>
+        <p class="page-subtitle">Review and manage user reports</p>
+      </div>
+      <div class="header-actions">
+        <button class="btn-export btn-excel" (click)="exportExcel()" title="Export to Excel">
+          <ng-icon name="lucideFileSpreadsheet" size="18" />
+          <span>Excel</span>
+        </button>
+        <button class="btn-export btn-pdf" (click)="exportPdf()" title="Export to PDF">
+          <ng-icon name="lucideDownload" size="18" />
+          <span>PDF</span>
+        </button>
+        <button class="btn-refresh" (click)="loadReports()" [disabled]="isLoading">
+          <ng-icon name="lucideRefreshCw" size="18" />
+          <span>Refresh</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Stats Cards -->
+  @if (stats) {
+    <div class="stats-grid">
+      <div class="stat-card stat-total">
+        <div class="stat-icon">
+          <ng-icon name="lucideFileText" size="24" />
+        </div>
+        <div class="stat-content">
+          <span class="stat-value">{{ stats.total }}</span>
+          <span class="stat-label">Total Reports</span>
+        </div>
+      </div>
+      <div class="stat-card stat-pending">
+        <div class="stat-icon">
+          <ng-icon name="lucideAlertTriangle" size="24" />
+        </div>
+        <div class="stat-content">
+          <span class="stat-value">{{ stats.pending }}</span>
+          <span class="stat-label">Pending</span>
+        </div>
+      </div>
+      <div class="stat-card stat-review">
+        <div class="stat-icon">
+          <ng-icon name="lucideEye" size="24" />
+        </div>
+        <div class="stat-content">
+          <span class="stat-value">{{ stats.underReview }}</span>
+          <span class="stat-label">Under Review</span>
+        </div>
+      </div>
+      <div class="stat-card stat-action">
+        <div class="stat-icon">
+          <ng-icon name="lucideCheckCircle" size="24" />
+        </div>
+        <div class="stat-content">
+          <span class="stat-value">{{ stats.actionTaken }}</span>
+          <span class="stat-label">Action Taken</span>
+        </div>
+      </div>
+    </div>
+  }
+
+  <!-- Filter Tabs -->
+  <div class="filter-tabs">
+    @for (option of statusOptions; track option.value) {
+      <button
+        class="filter-tab"
+        [class.active]="selectedStatus === option.value"
+        [attr.data-color]="option.color"
+        (click)="filterByStatus(option.value)"
+      >
+        {{ option.label }}
+        @if (option.value !== 'all' && stats) {
+          <span class="filter-count">
+            {{ getStatCount(option.value) }}
+          </span>
+        }
+      </button>
+    }
+  </div>
+
+  <!-- Reports List -->
+  @if (isLoading) {
+    <div class="loading-state card">
+      <div class="loading-spinner"></div>
+      <p>Loading reports...</p>
+    </div>
+  } @else if (reports.length === 0) {
+    <div class="empty-state card">
+      <div class="empty-icon">
+        <ng-icon name="lucideCheckCircle" size="56" />
+      </div>
+      <h3 class="empty-title">No Reports</h3>
+      <p class="empty-text">
+        @if (selectedStatus === 'all') {
+          There are no user reports at this time.
+        } @else {
+          There are no reports with this status filter.
+        }
+      </p>
+    </div>
+  } @else {
+    <div class="reports-list">
+      @for (report of reports; track report.id) {
+        <div class="report-card card" [class.expanded]="expandedReportId === report.id">
+          <!-- Report Header -->
+          <div class="report-header" (click)="toggleExpand(report.id)">
+            <div class="report-main">
+              <div class="report-badges">
+                <span class="status-badge" [attr.data-status]="report.status">
+                  {{ report.status.replace('_', ' ') }}
+                </span>
+                <span class="reason-badge">
+                  <ng-icon [name]="getReasonIcon(report.reason)" size="14" />
+                  {{ reasonLabels[report.reason] }}
+                </span>
+              </div>
+              <div class="report-users">
+                <span class="reporter">
+                  <ng-icon name="lucideUser" size="14" />
+                  {{ report.reporterName }}
+                </span>
+                <span class="report-sep">reported</span>
+                <span class="reported">
+                  <ng-icon name="lucideUser" size="14" />
+                  {{ report.reportedUserName }}
+                </span>
+              </div>
+              <div class="report-date">
+                <ng-icon name="lucideCalendar" size="14" />
+                {{ formatDate(report.createdAt) }}
+              </div>
+            </div>
+            <button class="expand-btn" [class.expanded]="expandedReportId === report.id">
+              <ng-icon name="lucideChevronDown" size="20" />
+            </button>
+          </div>
+
+          <!-- Report Details -->
+          @if (expandedReportId === report.id) {
+            <div class="report-details">
+              <div class="detail-section">
+                <h4 class="detail-title">
+                  <ng-icon name="lucideFileText" size="18" />
+                  Report Description
+                </h4>
+                <p class="detail-text">{{ report.description }}</p>
+              </div>
+
+              <div class="detail-grid">
+                <div class="detail-item">
+                  <span class="detail-label">Reporter Email</span>
+                  <span class="detail-value">{{ report.reporterEmail ?? 'N/A' }}</span>
+                </div>
+                <div class="detail-item">
+                  <span class="detail-label">Reported User ID</span>
+                  <span class="detail-value">{{ report.reportedUserId }}</span>
+                </div>
+                <div class="detail-item">
+                  <span class="detail-label">Reported User Email</span>
+                  <span class="detail-value">{{ report.reportedUserEmail }}</span>
+                </div>
+                <div class="detail-item">
+                  <span class="detail-label">Submitted</span>
+                  <span class="detail-value">{{ formatDate(report.createdAt) }}</span>
+                </div>
+              </div>
+
+              @if (report.adminNotes) {
+                <div class="detail-section admin-notes">
+                  <h4 class="detail-title">
+                    <ng-icon name="lucideShield" size="18" />
+                    Admin Notes
+                  </h4>
+                  <p class="detail-text">{{ report.adminNotes }}</p>
+                </div>
+              }
+
+              <!-- Actions -->
+              <div class="report-actions">
+                <div class="action-group">
+                  <span class="action-label">Update Status:</span>
+                  <div class="status-buttons">
+                    <button
+                      class="status-btn"
+                      [class.active]="report.status === 'pending'"
+                      [disabled]="isUpdating"
+                      (click)="updateReportStatus(report.id, 'pending')"
+                    >
+                      Pending
+                    </button>
+                    <button
+                      class="status-btn under-review"
+                      [class.active]="report.status === 'under_review'"
+                      [disabled]="isUpdating"
+                      (click)="updateReportStatus(report.id, 'under_review')"
+                    >
+                      Under Review
+                    </button>
+                    <button
+                      class="status-btn resolved"
+                      [class.active]="report.status === 'resolved'"
+                      [disabled]="isUpdating"
+                      (click)="updateReportStatus(report.id, 'resolved')"
+                    >
+                      Resolved
+                    </button>
+                    <button
+                      class="status-btn dismissed"
+                      [class.active]="report.status === 'dismissed'"
+                      [disabled]="isUpdating"
+                      (click)="updateReportStatus(report.id, 'dismissed')"
+                    >
+                      Dismissed
+                    </button>
+                    <button
+                      class="status-btn action-taken"
+                      [class.active]="report.status === 'action_taken'"
+                      [disabled]="isUpdating"
+                      (click)="updateReportStatus(report.id, 'action_taken')"
+                    >
+                      Action Taken
+                    </button>
+                  </div>
+                </div>
+                <button class="btn-delete-report" (click)="deleteReport(report.id)">
+                  <ng-icon name="lucideTrash2" size="16" />
+                  <span>Delete Report</span>
+                </button>
+              </div>
+            </div>
+          }
+        </div>
+      }
+    </div>
+  }
+</div>
