@@ -1,6 +1,5 @@
 # Cursor rules (project-specific AI guidance)
 cursor/
 
-# Build artifacts (generated during CI/build — not committed)
-backend/dist/
+# Frontend build artifacts
 frontend/dist/
