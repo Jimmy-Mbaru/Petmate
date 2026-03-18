@@ -26,7 +26,7 @@ export class OwnerPetFormComponent implements OnInit {
   isEdit = false;
   isSubmitting = false;
   isUploadingPhoto = false;
-  private petId: number | null = null;
+  private petId: string | null = null;
   
   // Photo gallery
   uploadedPhotos: UploadedPhoto[] = [];
@@ -46,7 +46,7 @@ export class OwnerPetFormComponent implements OnInit {
     this.isEdit = !!this.route.snapshot.paramMap.get('id');
     const idParam = this.route.snapshot.paramMap.get('id');
     if (idParam) {
-      this.petId = +idParam;
+      this.petId = idParam;
       this.loadPet(this.petId);
     }
   }
@@ -68,7 +68,7 @@ export class OwnerPetFormComponent implements OnInit {
     return this.form.get('photoUrls') as FormArray;
   }
 
-  private loadPet(id: number): void {
+  private loadPet(id: string): void {
     this.petsService.findOne(id).subscribe({
       next: (pet) => {
         this.form.patchValue({

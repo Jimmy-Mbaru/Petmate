@@ -7,7 +7,7 @@ import { environment } from '../../../environments/environment';
 const MY_PETS_CACHE_TTL_MS = 30_000; // 30 seconds
 
 export interface Pet {
-  id: number;
+  id: string;
   name: string;
   species: string;
   breed: string;
@@ -47,7 +47,7 @@ export interface UpdatePetDto {
 }
 
 export interface PetMatch {
-  id: number | string;
+  id: string;
   name: string;
   species: string;
   breed: string;
@@ -64,7 +64,7 @@ export interface PetMatch {
 /** Backend returns { pet, score, explanations } */
 interface BackendPetMatch {
   pet: {
-    id: number | string;
+    id: string;
     name: string;
     species: string;
     breed: string;
@@ -127,21 +127,21 @@ export class PetsService {
   /**
    * Get pet by ID
    */
-  findOne(id: number): Observable<Pet> {
+  findOne(id: string): Observable<Pet> {
     return this.http.get<Pet>(`${this.apiUrl}/${id}`);
   }
 
   /**
    * Update own pet
    */
-  update(id: number, dto: UpdatePetDto): Observable<Pet> {
+  update(id: string, dto: UpdatePetDto): Observable<Pet> {
     return this.http.patch<Pet>(`${this.apiUrl}/${id}`, dto);
   }
 
   /**
    * Delete own pet
    */
-  remove(id: number): Observable<void> {
+  remove(id: string): Observable<void> {
     return this.http.delete<void>(`${this.apiUrl}/${id}`);
   }
 
@@ -149,7 +149,7 @@ export class PetsService {
    * Options sent to GET /pets/:id/matches. Only preferences the backend supports.
    */
   getMatches(
-    id: number | string,
+    id: string,
     options?: { similarBreed?: boolean; verifiedOnly?: boolean; activeOnly?: boolean },
   ): Observable<PetMatch[]> {
     let params = new HttpParams();

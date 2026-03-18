@@ -70,7 +70,7 @@ export class PetDetailComponent implements OnInit {
   pet: Pet | null = null;
   isLoading = true;
   selectedPhotoIndex = 0;
-  private petId: number | null = null;
+  private petId: string | null = null;
 
   constructor(
     private route: ActivatedRoute,
@@ -84,14 +84,14 @@ export class PetDetailComponent implements OnInit {
   ngOnInit(): void {
     const idParam = this.route.snapshot.paramMap.get('id');
     if (idParam) {
-      this.petId = +idParam;
+      this.petId = idParam;
       this.loadPet(this.petId);
     } else {
       this.router.navigate(['/app/pets']);
     }
   }
 
-  loadPet(id: number): void {
+  loadPet(id: string): void {
     this.isLoading = true;
     this.petsService.findOne(id).subscribe({
       next: (pet) => {

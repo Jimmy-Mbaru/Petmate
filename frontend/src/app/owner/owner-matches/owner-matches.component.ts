@@ -70,7 +70,7 @@ export class OwnerMatchesComponent implements OnInit {
   hasNoPets = false;
   showPreferences = false;
   myPets: Pet[] = [];
-  myPetId: number | string | null = null;
+  myPetId: string | null = null;
 
   preferences: MatchPreference[] = [
     { id: 'playdate', label: 'Playdate matching', icon: 'lucideHeart', enabled: true },
