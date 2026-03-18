@@ -2,6 +2,9 @@
 ALTER TABLE "User" ADD COLUMN IF NOT EXISTS "bio" TEXT;
 ALTER TABLE "User" ADD COLUMN IF NOT EXISTS "lastSeenAt" TIMESTAMP(3);
 
+-- Add missing createdAt to Product
+ALTER TABLE "Product" ADD COLUMN IF NOT EXISTS "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP;
+
 -- Add missing columns to UserReport
 ALTER TABLE "UserReport" ADD COLUMN IF NOT EXISTS "description" TEXT NOT NULL DEFAULT '';
 ALTER TABLE "UserReport" ADD COLUMN IF NOT EXISTS "reviewedByAdminId" TEXT;
@@ -47,7 +50,7 @@ END$$;
 -- Add missing indexes on UserReport
 CREATE INDEX IF NOT EXISTS "UserReport_reporterId_idx" ON "UserReport"("reporterId");
 
--- Add Product indexes
+-- Add Product indexes (createdAt must exist before indexing it)
 CREATE INDEX IF NOT EXISTS "Product_isActive_createdAt_idx" ON "Product"("isActive", "createdAt");
 CREATE INDEX IF NOT EXISTS "Product_isActive_category_idx" ON "Product"("isActive", "category");
 CREATE INDEX IF NOT EXISTS "Product_isActive_price_idx" ON "Product"("isActive", "price");
