@@ -66,8 +66,21 @@ export class EmailService {
       this.configService.get<string>('BREVO_SENDER_EMAIL') ||
       this.configService.get<string>('SMTP_FROM') ||
       'PetMate <noreply@petmate.com>';
-    this.frontendUrl =
-      this.configService.get<string>('FRONTEND_URL') || 'http://localhost:4200';
+    const frontendUrlRaw = this.configService.get<string>('FRONTEND_URL')?.trim();
+    const nodeEnv =
+      this.configService.get<string>('NODE_ENV')?.trim().toLowerCase() ?? 'development';
+
+    if (!frontendUrlRaw) {
+      if (nodeEnv === 'production') {
+        // Avoid accidentally sending password/verification links to localhost in prod.
+        throw new Error('FRONTEND_URL must be set in production to generate email links.');
+      }
+
+      this.frontendUrl = 'http://localhost:4200';
+    } else {
+      // Remove trailing slashes to avoid double slashes in links.
+      this.frontendUrl = frontendUrlRaw.replace(/\/+$/, '');
+    }
 
     // SMTP config. For Brevo: use your Brevo login EMAIL as SMTP_USER and SMTP KEY (from
     // https://app.brevo.com/settings/keys/smtp) as SMTP_PASS — not the API key.

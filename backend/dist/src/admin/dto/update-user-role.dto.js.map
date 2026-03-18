@@ -1,0 +1,1 @@
+{"version":3,"file":"update-user-role.dto.js","sourceRoot":"","sources":["../../../../src/admin/dto/update-user-role.dto.ts"],"names":[],"mappings":";;;;;;;;;;;;AAAA,6CAA8C;AAC9C,qDAAyC;AACzC,2CAAsC;AAEtC,MAAa,iBAAiB;IAM5B,IAAI,CAAO;CACZ;AAPD,8CAOC;AADC;IALC,IAAA,qBAAW,EAAC;QACX,IAAI,EAAE,aAAI;QACV,WAAW,EAAE,8CAA8C;KAC5D,CAAC;IACD,IAAA,wBAAM,EAAC,aAAI,CAAC;;+CACF"}
