@@ -13,8 +13,12 @@ export const AdminGuard: CanActivateFn = (route, state) => {
   }
 
   if (currentUser) {
-    // Logged in but not admin -> redirect to owner dashboard
-    router.navigate(['/app/dashboard']);
+    // Logged in but not admin -> redirect to their dashboard
+    if (currentUser.role === 'HOST') {
+      router.navigate(['/app/host/dashboard']);
+    } else {
+      router.navigate(['/app/dashboard']);
+    }
     return false;
   }
 

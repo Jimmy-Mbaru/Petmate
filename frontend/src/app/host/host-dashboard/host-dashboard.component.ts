@@ -135,8 +135,10 @@ export class HostDashboardComponent implements OnInit, AfterViewInit, OnDestroy 
         this.loadBookingsForCharts();
       },
       error: (err) => {
-        // Profile might not exist yet, still load bookings
-        console.warn('Could not load profile:', err);
+        // 404 = no profile yet, that's fine; still load bookings
+        if (err?.status !== 404) {
+          console.warn('Could not load profile:', err);
+        }
         this.loadBookingsForCharts();
       },
     });
