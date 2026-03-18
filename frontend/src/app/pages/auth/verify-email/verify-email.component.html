@@ -23,7 +23,23 @@
           <p class="text-[#363636] text-sm mb-2">We've sent a verification link to</p>
           <p class="font-semibold text-[#d72323] text-sm mb-4">{{ emailSentTo }}</p>
           <p class="text-xs text-[#363636] mb-6">Click the link in the email to verify your account. Check your spam folder if you don't see it.</p>
-          
+
+          @if (resendSent) {
+            <p class="text-green-600 text-sm font-semibold mb-4">A new verification link has been sent!</p>
+          } @else {
+            <div class="mb-4">
+              <p class="text-xs text-[#363636] mb-2">Didn't receive the email?</p>
+              <button
+                type="button"
+                (click)="resendVerification()"
+                [disabled]="isResending"
+                class="px-6 py-2.5 rounded-lg border border-[#d72323] text-[#d72323] font-semibold text-sm hover:bg-[#d72323]/5 transition-all duration-200 disabled:opacity-60"
+              >
+                {{ isResending ? 'Sending...' : 'Resend Verification Email' }}
+              </button>
+            </div>
+          }
+
           <div class="flex flex-col sm:flex-row gap-2 justify-center">
             <a
               routerLink="/auth/login"
@@ -82,21 +98,35 @@
           </div>
           <h2 class="font-['Playfair_Display',Georgia,serif] text-xl md:text-2xl font-bold text-[#000000] mb-2">Verification Failed</h2>
           <p class="text-red-600 text-sm mb-4">{{ errorMessage }}</p>
-          <div class="flex flex-col sm:flex-row gap-2 justify-center">
-            <button
-              type="button"
-              (click)="resendVerification()"
-              class="px-6 py-2.5 rounded-lg border border-[#d72323] text-[#d72323] font-semibold text-sm hover:bg-[#d72323]/5 transition-all duration-200"
-            >
-              Resend Verification
-            </button>
-            <a
-              routerLink="/auth/login"
-              class="px-6 py-2.5 rounded-lg bg-linear-to-r from-[#d72323] to-[#bc1f1f] text-white font-semibold text-sm hover:shadow-lg hover:shadow-[#d72323]/30 transition-all duration-200"
-            >
-              Back to Login
-            </a>
-          </div>
+
+          @if (resendSent) {
+            <p class="text-green-600 text-sm font-semibold mb-4">A new verification link has been sent! Check your inbox.</p>
+          } @else {
+            <div class="mb-4">
+              <p class="text-xs text-[#363636] mb-2">Request a new verification link:</p>
+              <input
+                type="email"
+                [(ngModel)]="resendEmail"
+                placeholder="Enter your email address"
+                class="w-full px-4 py-2.5 rounded-lg border border-gray-200 focus:outline-none focus:border-[#d72323] focus:ring-2 focus:ring-[#d72323]/20 text-sm mb-2"
+              />
+              <button
+                type="button"
+                (click)="resendVerification()"
+                [disabled]="isResending"
+                class="w-full px-6 py-2.5 rounded-lg border border-[#d72323] text-[#d72323] font-semibold text-sm hover:bg-[#d72323]/5 transition-all duration-200 disabled:opacity-60"
+              >
+                {{ isResending ? 'Sending...' : 'Resend Verification Email' }}
+              </button>
+            </div>
+          }
+
+          <a
+            routerLink="/auth/login"
+            class="px-6 py-2.5 rounded-lg bg-linear-to-r from-[#d72323] to-[#bc1f1f] text-white font-semibold text-sm hover:shadow-lg hover:shadow-[#d72323]/30 transition-all duration-200"
+          >
+            Back to Login
+          </a>
         </div>
       }
     </div>

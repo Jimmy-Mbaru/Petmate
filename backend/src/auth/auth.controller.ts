@@ -119,6 +119,20 @@ export class AuthController {
     }
   }
 
+  @Post('resend-verification')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Resend email verification link' })
+  @ApiBody({ type: ForgotPasswordDto, description: 'Email to resend verification to' })
+  @ApiResponse({ status: 200, description: 'Generic response to avoid leaking whether the email exists' })
+  async resendVerification(@Body() dto: ForgotPasswordDto): Promise<ApiMessageResponse> {
+    try {
+      return await this.authService.resendVerification(dto.email);
+    } catch (error) {
+      this.logger.error('Resend verification failed', (error as Error)?.stack);
+      throw error;
+    }
+  }
+
   @Post('forgot-password')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Request password reset link' })

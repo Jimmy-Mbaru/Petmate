@@ -17,6 +17,7 @@ export class ResetPasswordComponent implements OnInit {
   confirmPassword = '';
   isLoading = signal(false);
   isSuccess = signal(false);
+  isInvalidToken = signal(false);
   showPassword = false;
 
   constructor(
@@ -29,8 +30,7 @@ export class ResetPasswordComponent implements OnInit {
   ngOnInit(): void {
     this.token = this.route.snapshot.queryParamMap.get('token') || '';
     if (!this.token) {
-      this.toast.error('Error', 'Invalid or missing reset token');
-      this.router.navigate(['/auth/login']);
+      this.isInvalidToken.set(true);
     }
   }
 
@@ -59,7 +59,12 @@ export class ResetPasswordComponent implements OnInit {
       },
       error: (err) => {
         this.isLoading.set(false);
-        this.toast.error('Error', err.error?.message || 'Failed to reset password');
+        const msg: string = err.error?.message || '';
+        if (msg.toLowerCase().includes('invalid') || msg.toLowerCase().includes('expired')) {
+          this.isInvalidToken.set(true);
+        } else {
+          this.toast.error('Error', msg || 'Failed to reset password');
+        }
       }
     });
   }

@@ -230,6 +230,13 @@ export class AuthService {
   }
 
   /**
+   * Resend the email verification link.
+   */
+  resendVerificationEmail(email: string): Observable<{ message: string }> {
+    return this.http.post<{ message: string }>(`${this.apiUrl}/auth/resend-verification`, { email });
+  }
+
+  /**
    * Request a password reset link.
    * @param email - The user's email address
    * @returns Observable with success message

@@ -1,12 +1,13 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { FormsModule } from '@angular/forms';
 import { AuthService } from '../../../core/auth/auth.service';
 import { ToastService } from '../../../core/services/toast.service';
 
 @Component({
   selector: 'app-verify-email',
   standalone: true,
-  imports: [RouterLink],
+  imports: [RouterLink, FormsModule],
   templateUrl: './verify-email.component.html',
 })
 export class VerifyEmailComponent implements OnInit {
@@ -16,6 +17,9 @@ export class VerifyEmailComponent implements OnInit {
   isEmailSent = false;
   emailSentTo = '';
   errorMessage = '';
+  resendEmail = '';
+  isResending = false;
+  resendSent = false;
 
   constructor(
     private route: ActivatedRoute,
@@ -78,7 +82,22 @@ export class VerifyEmailComponent implements OnInit {
   }
 
   resendVerification(): void {
-    // Navigate to register page or implement resend logic
-    this.toast.info('Info', 'Please contact support to resend verification email');
+    const email = this.resendEmail || this.emailSentTo;
+    if (!email) {
+      this.toast.error('Error', 'Please enter your email address');
+      return;
+    }
+    this.isResending = true;
+    this.authService.resendVerificationEmail(email).subscribe({
+      next: () => {
+        this.isResending = false;
+        this.resendSent = true;
+        this.toast.success('Email sent', 'A new verification link has been sent to your email');
+      },
+      error: () => {
+        this.isResending = false;
+        this.toast.error('Error', 'Failed to resend verification email. Please try again.');
+      },
+    });
   }
 }

@@ -452,6 +452,32 @@ export class AuthService {
   }
 
   /**
+   * Resend verification email.
+   * Does not reveal whether the email exists.
+   */
+  async resendVerification(email: string): Promise<ApiMessageResponse> {
+    try {
+      const user = await this.findUserByEmail(email);
+      if (!user) {
+        return { message: 'If this email exists, a verification link has been sent' };
+      }
+      if ((user as DbUser & { emailVerified?: boolean }).emailVerified) {
+        return { message: 'Email already verified' };
+      }
+      const { token } = await this.createEmailVerification(user.id, user.email);
+      await this.emailService.sendVerificationEmail({
+        email: user.email,
+        name: user.name,
+        verificationToken: token,
+      });
+      return { message: 'If this email exists, a verification link has been sent' };
+    } catch (error) {
+      this.logger.error('Resend verification failed', error);
+      throw error;
+    }
+  }
+
+  /**
    * Reset password using a valid token (not expired).
    * @param token - The reset token from requestPasswordReset
    * @param newPassword - The new password to set
