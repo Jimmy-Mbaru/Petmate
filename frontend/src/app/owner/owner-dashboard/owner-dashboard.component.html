@@ -33,10 +33,10 @@
         <ng-icon name="lucideCat" size="22" />
       </div>
       <div class="stat-content">
-        <span class="stat-value">{{ stats.pets }}</span>
+        <span class="stat-value">{{ isLoading ? '…' : stats.pets }}</span>
         <span class="stat-label">My Pets</span>
-        <span class="stat-change positive">
-          <ng-icon name="lucideTrendingUp" size="14" /> Add your first pet
+        <span class="stat-change" [class.positive]="stats.pets > 0" [class.neutral]="stats.pets === 0">
+          <ng-icon name="lucideTrendingUp" size="14" /> {{ getStatChange('pets') }}
         </span>
       </div>
     </div>
@@ -45,9 +45,9 @@
         <ng-icon name="lucideCalendar" size="22" />
       </div>
       <div class="stat-content">
-        <span class="stat-value">{{ stats.bookings }}</span>
+        <span class="stat-value">{{ isLoading ? '…' : stats.bookings }}</span>
         <span class="stat-label">Bookings</span>
-        <span class="stat-change neutral">No bookings yet</span>
+        <span class="stat-change" [class.positive]="stats.bookings > 0" [class.neutral]="stats.bookings === 0">{{ getStatChange('bookings') }}</span>
       </div>
     </div>
     <div class="stat-card stat-card-favorites" data-aos="fade-up" data-aos-duration="600" data-aos-delay="160">
@@ -55,9 +55,9 @@
         <ng-icon name="lucideHeart" size="22" />
       </div>
       <div class="stat-content">
-        <span class="stat-value">{{ stats.favorites }}</span>
+        <span class="stat-value">{{ isLoading ? '…' : stats.favorites }}</span>
         <span class="stat-label">Favorites</span>
-        <span class="stat-change neutral">Saved hosts & pets</span>
+        <span class="stat-change" [class.positive]="stats.favorites > 0" [class.neutral]="stats.favorites === 0">{{ getStatChange('favorites') }}</span>
       </div>
     </div>
     <div class="stat-card stat-card-orders" data-aos="fade-up" data-aos-duration="600" data-aos-delay="240">
@@ -65,9 +65,9 @@
         <ng-icon name="lucideShoppingBag" size="22" />
       </div>
       <div class="stat-content">
-        <span class="stat-value">{{ stats.orders }}</span>
+        <span class="stat-value">{{ isLoading ? '…' : stats.orders }}</span>
         <span class="stat-label">Store Orders</span>
-        <span class="stat-change neutral">Orders placed</span>
+        <span class="stat-change" [class.positive]="stats.orders > 0" [class.neutral]="stats.orders === 0">{{ getStatChange('orders') }}</span>
       </div>
     </div>
     <div class="stat-card stat-card-messages" data-aos="fade-up" data-aos-duration="600" data-aos-delay="320">
@@ -75,9 +75,9 @@
         <ng-icon name="lucideMessageCircle" size="22" />
       </div>
       <div class="stat-content">
-        <span class="stat-value">{{ stats.messages }}</span>
-        <span class="stat-label">Messages</span>
-        <span class="stat-change neutral">Chat with hosts</span>
+        <span class="stat-value">{{ isLoading ? '…' : stats.messages }}</span>
+        <span class="stat-label">Unread Messages</span>
+        <span class="stat-change" [class.positive]="stats.messages > 0" [class.neutral]="stats.messages === 0">{{ getStatChange('messages') }}</span>
       </div>
     </div>
   </section>

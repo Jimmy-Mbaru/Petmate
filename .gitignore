@@ -3,3 +3,6 @@ cursor/
 
 # Frontend build artifacts
 frontend/dist/
+.gitignore
+
+node_modules/

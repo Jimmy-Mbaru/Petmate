@@ -84,6 +84,7 @@ export class OwnerDashboardComponent implements OnInit, AfterViewInit, OnDestroy
   };
   recentBookings: { id: string; title: string; date: string; status: string }[] = [];
   isLoading = false;
+  private loadPending = 0;
 
   activityPeriod: ActivityPeriod = 'week';
   readonly periodOptions: { value: ActivityPeriod; label: string }[] = [
@@ -123,16 +124,25 @@ export class OwnerDashboardComponent implements OnInit, AfterViewInit, OnDestroy
 
   loadDashboardData(): void {
     this.isLoading = true;
+    this.loadPending = 5; // pets, bookings, orders, messages, favorites
+
+    const done = () => {
+      this.loadPending--;
+      if (this.loadPending <= 0) {
+        this.isLoading = false;
+        this.cdr.detectChanges();
+      }
+    };
 
     // Load pets count
     this.petsService.getMyPets(1, 0).subscribe({
       next: (response) => {
         this.stats.pets = response.total;
         this.hasPets = response.total > 0;
-        this.cdr.detectChanges();
         this.updateDistributionChart();
+        done();
       },
-      error: () => { this.hasPets = false; },
+      error: () => { this.hasPets = false; done(); },
     });
 
     // Load bookings
@@ -145,30 +155,30 @@ export class OwnerDashboardComponent implements OnInit, AfterViewInit, OnDestroy
           date: new Date(booking.startDate).toLocaleDateString(),
           status: booking.status,
         }));
-        this.cdr.detectChanges();
         this.updateDistributionChart();
+        done();
       },
-      error: () => {},
+      error: () => { done(); },
     });
 
     // Load orders
     this.storeService.myOrders(1, 0).subscribe({
       next: (response) => {
         this.stats.orders = response.total;
-        this.cdr.detectChanges();
         this.updateDistributionChart();
+        done();
       },
-      error: () => {},
+      error: () => { done(); },
     });
 
     // Load unread messages count
     this.chatService.getUnreadCount().subscribe({
       next: (response) => {
         this.stats.messages = response.unreadCount;
-        this.cdr.detectChanges();
         this.updateDistributionChart();
+        done();
       },
-      error: () => {},
+      error: () => { done(); },
     });
 
     // Favorites: count pets + boarding profiles (parallel)
@@ -179,18 +189,29 @@ export class OwnerDashboardComponent implements OnInit, AfterViewInit, OnDestroy
       favDone++;
       if (favDone === 2) {
         this.stats.favorites = favPets + favBoarding;
-        this.cdr.detectChanges();
         this.updateDistributionChart();
+        done();
       }
     };
     this.favoritesService.getFavoritePets().subscribe({
       next: (pets) => { favPets = pets.length; maybeUpdateFav(); },
+      error: () => { maybeUpdateFav(); },
     });
     this.favoritesService.getFavoriteBoardingProfiles().subscribe({
       next: (boarding) => { favBoarding = boarding.length; maybeUpdateFav(); },
+      error: () => { maybeUpdateFav(); },
     });
+  }
 
-    this.isLoading = false;
+  getStatChange(stat: 'pets' | 'bookings' | 'favorites' | 'orders' | 'messages'): string {
+    const v = this.stats[stat];
+    switch (stat) {
+      case 'pets':       return v > 0 ? `${v} registered` : 'Add your first pet';
+      case 'bookings':   return v > 0 ? `${v} total` : 'No bookings yet';
+      case 'favorites':  return v > 0 ? `${v} saved` : 'Start saving';
+      case 'orders':     return v > 0 ? `${v} placed` : 'Shop now';
+      case 'messages':   return v > 0 ? `${v} unread` : 'No unread messages';
+    }
   }
 
   ngOnDestroy(): void {
