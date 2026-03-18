@@ -43,6 +43,10 @@ export class StoreComponent implements OnInit, OnDestroy {
   lightboxImages: string[] = [];
   lightboxIndex = 0;
 
+  // Product detail modal
+  selectedProduct: Product | null = null;
+  showProductModal = false;
+
   @ViewChild('productsGrid') productsGridRef?: ElementRef<HTMLElement>;
   @ViewChild('loadingBlock') loadingBlockRef?: ElementRef<HTMLElement>;
 
@@ -338,6 +342,18 @@ export class StoreComponent implements OnInit, OnDestroy {
         console.error('Error checking out:', err);
       },
     });
+  }
+
+  openProductModal(product: Product): void {
+    this.selectedProduct = product;
+    this.showProductModal = true;
+    document.body.style.overflow = 'hidden';
+  }
+
+  closeProductModal(): void {
+    this.selectedProduct = null;
+    this.showProductModal = false;
+    document.body.style.overflow = '';
   }
 
   openLightbox(images: string[], index: number): void {

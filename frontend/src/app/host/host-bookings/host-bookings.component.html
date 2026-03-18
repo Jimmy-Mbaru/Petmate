@@ -71,7 +71,11 @@
     } @else {
       <div class="bookings-list space-y-4">
         @for (booking of getFilteredBookings(); track booking.id; let i = $index) {
-          <div class="card booking-card bg-white rounded-2xl p-6 border border-gray-100 hover:shadow-xl transition-all" data-aos="fade-up" [attr.data-aos-delay]="i * 50">
+          <div
+            class="card booking-card bg-white rounded-2xl p-6 border border-gray-100 hover:shadow-xl transition-all cursor-pointer"
+            data-aos="fade-up" [attr.data-aos-delay]="i * 50"
+            (click)="openDetailsModal(booking)"
+          >
             <div class="flex items-center justify-between flex-wrap gap-4">
               <div class="flex items-center gap-4 flex-1">
                 <div class="w-14 h-14 rounded-full bg-linear-to-br from-(--color-primary) to-(--color-primary-hover) flex items-center justify-center text-white font-bold text-lg">
@@ -88,7 +92,7 @@
                 </div>
               </div>
 
-              <div class="flex items-center gap-3">
+              <div class="flex items-center gap-3" (click)="$event.stopPropagation()">
                 <span class="px-4 py-2 text-xs font-bold rounded-full uppercase tracking-wide border" [class]="getStatusClass(booking.status)">
                   {{ getStatusLabel(booking.status) }}
                 </span>
@@ -111,6 +115,14 @@
                     </button>
                   </div>
                 }
+
+                <button
+                  type="button"
+                  (click)="openDetailsModal(booking)"
+                  class="px-4 py-2 border-2 border-gray-200 text-gray-600 font-semibold rounded-xl hover:bg-gray-50 transition-all text-sm"
+                >
+                  View details
+                </button>
               </div>
             </div>
           </div>
@@ -119,3 +131,115 @@
     }
   </div>
 </div>
+
+<!-- Booking Details Modal -->
+@if (showDetailsModal && selectedBooking) {
+  <div
+    class="hb-modal-backdrop fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4"
+    (click)="onModalBackdropClick($event)"
+    role="dialog" aria-modal="true"
+  >
+    <div class="bg-white rounded-2xl shadow-2xl w-full max-w-lg max-h-[90vh] overflow-y-auto" (click)="$event.stopPropagation()">
+      <!-- Modal Header -->
+      <div class="flex items-center justify-between p-6 border-b border-gray-100">
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-full bg-linear-to-br from-(--color-primary) to-(--color-primary-hover) flex items-center justify-center text-white font-bold">
+            {{ (selectedBooking.owner?.name || 'G').charAt(0).toUpperCase() }}
+          </div>
+          <div>
+            <h2 class="text-xl font-bold text-gray-900 m-0">Booking #{{ selectedBooking.id }}</h2>
+            <p class="text-sm text-gray-500 m-0">{{ selectedBooking.owner?.name || 'Guest' }}</p>
+          </div>
+        </div>
+        <button type="button" (click)="closeDetailsModal()" class="w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-100 transition-all text-gray-500">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+      </div>
+
+      <!-- Modal Body -->
+      <div class="p-6 space-y-5">
+        <!-- Status -->
+        <div class="flex items-center justify-between">
+          <span class="text-sm font-medium text-gray-500">Status</span>
+          <span class="px-4 py-1.5 text-xs font-bold rounded-full uppercase tracking-wide border" [class]="getStatusClass(selectedBooking.status)">
+            {{ getStatusLabel(selectedBooking.status) }}
+          </span>
+        </div>
+
+        <!-- Owner info -->
+        @if (selectedBooking.owner?.email) {
+          <div class="flex items-center justify-between">
+            <span class="text-sm font-medium text-gray-500">Owner Email</span>
+            <span class="text-sm font-semibold text-gray-900">{{ selectedBooking.owner?.email }}</span>
+          </div>
+        }
+
+        <!-- Dates -->
+        <div class="bg-gray-50 rounded-xl p-4 space-y-3">
+          <div class="flex items-center justify-between">
+            <span class="text-sm font-medium text-gray-500">Check-in</span>
+            <span class="text-sm font-semibold text-gray-900">{{ formatDate(selectedBooking.startDate) }}</span>
+          </div>
+          <div class="flex items-center justify-between">
+            <span class="text-sm font-medium text-gray-500">Check-out</span>
+            <span class="text-sm font-semibold text-gray-900">{{ formatDate(selectedBooking.endDate) }}</span>
+          </div>
+          <div class="flex items-center justify-between">
+            <span class="text-sm font-medium text-gray-500">Duration</span>
+            <span class="text-sm font-semibold text-gray-900">{{ getPriceBreakdown(selectedBooking).nights }} night{{ getPriceBreakdown(selectedBooking).nights !== 1 ? 's' : '' }}</span>
+          </div>
+        </div>
+
+        <!-- Price breakdown -->
+        <div class="bg-gray-50 rounded-xl p-4 space-y-3">
+          <h3 class="text-sm font-bold text-gray-700 m-0 uppercase tracking-wide">Price Breakdown</h3>
+          <div class="flex items-center justify-between">
+            <span class="text-sm text-gray-500">{{ getPriceBreakdown(selectedBooking).nights }} night{{ getPriceBreakdown(selectedBooking).nights !== 1 ? 's' : '' }} × KES {{ getPriceBreakdown(selectedBooking).pricePerNight | number:'1.0-0' }}</span>
+            <span class="text-sm font-semibold text-gray-900">KES {{ selectedBooking.totalPrice | number }}</span>
+          </div>
+          <div class="flex items-center justify-between border-t border-gray-200 pt-3">
+            <span class="text-sm font-bold text-gray-700">Total</span>
+            <span class="text-base font-bold text-gray-900">KES {{ selectedBooking.totalPrice | number }}</span>
+          </div>
+        </div>
+
+        <!-- Booking meta -->
+        <div class="space-y-2 text-sm text-gray-500">
+          <div class="flex items-center justify-between">
+            <span>Booked on</span>
+            <span class="text-gray-700">{{ formatDateTime(selectedBooking.createdAt) }}</span>
+          </div>
+        </div>
+
+        <!-- Actions for PENDING bookings -->
+        @if (selectedBooking.status === 'PENDING') {
+          <div class="flex gap-3 pt-2">
+            <button
+              type="button"
+              (click)="updateBookingStatus(selectedBooking.id, 'DECLINED'); closeDetailsModal()"
+              class="flex-1 px-4 py-3 border-2 border-red-200 text-red-600 font-semibold rounded-xl hover:bg-red-50 transition-all"
+            >
+              Decline
+            </button>
+            <button
+              type="button"
+              (click)="updateBookingStatus(selectedBooking.id, 'ACCEPTED'); closeDetailsModal()"
+              class="flex-1 px-4 py-3 bg-linear-to-r from-green-500 to-green-600 text-white font-semibold rounded-xl hover:shadow-lg transition-all"
+            >
+              Accept
+            </button>
+          </div>
+        }
+      </div>
+
+      <!-- Modal Footer -->
+      <div class="px-6 pb-6">
+        <button type="button" (click)="closeDetailsModal()" class="w-full px-4 py-3 border-2 border-gray-200 text-gray-600 font-semibold rounded-xl hover:bg-gray-50 transition-all">
+          Close
+        </button>
+      </div>
+    </div>
+  </div>
+}

@@ -191,11 +191,11 @@
               >
                 <ng-icon name="lucideHeart" size="18" />
               </button>
-              <button 
+              <button
                 class="action-btn action-btn-view"
                 type="button"
                 title="Quick view"
-                (click)="openLightbox(product.imageUrls ?? (product.imageUrl ? [product.imageUrl] : []), 0)"
+                (click)="openProductModal(product); $event.stopPropagation()"
               >
                 <ng-icon name="lucideEye" size="18" />
               </button>
@@ -353,3 +353,114 @@
 
   <a routerLink="/" class="back-link">Back to home</a>
 </div>
+
+<!-- Product Detail Modal -->
+@if (showProductModal && selectedProduct) {
+  <div
+    class="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4"
+    (click)="closeProductModal()"
+    role="dialog" aria-modal="true"
+  >
+    <div class="bg-white rounded-2xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto" (click)="$event.stopPropagation()">
+      <!-- Header -->
+      <div class="flex items-center justify-between p-5 border-b border-gray-100 sticky top-0 bg-white z-10">
+        <h2 class="text-xl font-bold text-gray-900 m-0">{{ selectedProduct.name }}</h2>
+        <button type="button" (click)="closeProductModal()" class="w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-100 transition-all text-gray-500">
+          <ng-icon name="lucideX" size="20" />
+        </button>
+      </div>
+
+      <!-- Body -->
+      <div class="p-5 space-y-5">
+        <!-- Images -->
+        @if (selectedProduct.imageUrls && selectedProduct.imageUrls.length > 0) {
+          <div class="flex gap-3 overflow-x-auto pb-1">
+            @for (img of selectedProduct.imageUrls; track img; let i = $index) {
+              <img
+                [src]="img"
+                [alt]="selectedProduct.name"
+                class="h-52 w-52 object-cover rounded-xl flex-shrink-0 cursor-pointer hover:opacity-90 transition-opacity"
+                (click)="openLightbox(selectedProduct.imageUrls!, i)"
+              />
+            }
+          </div>
+        } @else if (selectedProduct.imageUrl) {
+          <img
+            [src]="selectedProduct.imageUrl"
+            [alt]="selectedProduct.name"
+            class="w-full h-64 object-cover rounded-xl cursor-pointer"
+            (click)="openLightbox([selectedProduct.imageUrl], 0)"
+          />
+        }
+
+        <!-- Category & Price -->
+        <div class="flex items-center justify-between flex-wrap gap-2">
+          <span class="px-3 py-1 text-xs font-semibold bg-gray-100 text-gray-600 rounded-full uppercase tracking-wide">{{ selectedProduct.category }}</span>
+          <span class="text-2xl font-bold text-gray-900">KES {{ selectedProduct.price | number:'1.0-0' }}</span>
+        </div>
+
+        <!-- Description -->
+        @if (selectedProduct.description) {
+          <p class="text-gray-600 leading-relaxed m-0">{{ selectedProduct.description }}</p>
+        }
+
+        <!-- Stock -->
+        <div class="flex items-center gap-2">
+          @if (selectedProduct.stock > 10) {
+            <span class="inline-flex items-center gap-1.5 px-3 py-1 bg-green-100 text-green-700 text-sm font-semibold rounded-full">
+              <span class="w-2 h-2 rounded-full bg-green-500"></span>
+              In Stock ({{ selectedProduct.stock }} available)
+            </span>
+          } @else if (selectedProduct.stock > 0) {
+            <span class="inline-flex items-center gap-1.5 px-3 py-1 bg-orange-100 text-orange-700 text-sm font-semibold rounded-full">
+              <span class="w-2 h-2 rounded-full bg-orange-500"></span>
+              Only {{ selectedProduct.stock }} left
+            </span>
+          } @else {
+            <span class="inline-flex items-center gap-1.5 px-3 py-1 bg-red-100 text-red-600 text-sm font-semibold rounded-full">
+              <span class="w-2 h-2 rounded-full bg-red-500"></span>
+              Out of Stock
+            </span>
+          }
+        </div>
+
+        <!-- Cart quantity if in cart -->
+        @if (getCartQuantity(selectedProduct.id) > 0) {
+          <div class="flex items-center justify-between bg-gray-50 rounded-xl p-4">
+            <span class="text-sm font-semibold text-gray-700">In your cart</span>
+            <div class="flex items-center gap-3">
+              <button type="button" (click)="decreaseQuantity(selectedProduct.id)" class="w-8 h-8 flex items-center justify-center rounded-full border-2 border-gray-200 hover:bg-gray-100 transition-all">
+                <ng-icon name="lucideMinus" size="14" />
+              </button>
+              <span class="text-lg font-bold text-gray-900 min-w-6 text-center">{{ getCartQuantity(selectedProduct.id) }}</span>
+              <button type="button" (click)="increaseQuantity(selectedProduct.id)" class="w-8 h-8 flex items-center justify-center rounded-full border-2 border-gray-200 hover:bg-gray-100 transition-all">
+                <ng-icon name="lucidePlus" size="14" />
+              </button>
+            </div>
+          </div>
+        }
+      </div>
+
+      <!-- Footer -->
+      <div class="p-5 border-t border-gray-100 flex gap-3">
+        <button
+          type="button"
+          (click)="toggleWishlist(selectedProduct)"
+          class="flex items-center gap-2 px-4 py-3 border-2 border-gray-200 text-gray-600 font-semibold rounded-xl hover:bg-gray-50 transition-all"
+        >
+          <ng-icon name="lucideHeart" size="18" />
+          Wishlist
+        </button>
+        <button
+          type="button"
+          [disabled]="selectedProduct.stock === 0"
+          (click)="addToCart(selectedProduct)"
+          class="flex-1 flex items-center justify-center gap-2 px-4 py-3 bg-linear-to-r from-(--color-primary) to-(--color-primary-hover) text-white font-semibold rounded-xl hover:shadow-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          <ng-icon name="lucideShoppingCart" size="18" />
+          {{ selectedProduct.stock === 0 ? 'Out of Stock' : getCartQuantity(selectedProduct.id) > 0 ? 'Add More to Cart' : 'Add to Cart' }}
+        </button>
+      </div>
+    </div>
+  </div>
+}

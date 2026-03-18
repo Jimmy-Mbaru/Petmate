@@ -21,6 +21,9 @@ export class HostBookingsComponent implements OnInit {
   readonly filter = signal<BookingFilter>('all');
   readonly filterOptions: readonly BookingFilter[] = ['all', 'pending', 'accepted', 'declined', 'completed', 'cancelled'];
 
+  selectedBooking: Booking | null = null;
+  showDetailsModal = false;
+
   constructor(
     @Inject(BoardingService) private boardingService: BoardingService,
     private toastService: ToastService,
@@ -79,6 +82,38 @@ export class HostBookingsComponent implements OnInit {
         console.error('[HostBookings] Failed to update booking:', error);
         this.toastService.error('Error', `Failed to ${status.toLowerCase()} booking`);
       },
+    });
+  }
+
+  openDetailsModal(booking: Booking): void {
+    this.selectedBooking = booking;
+    this.showDetailsModal = true;
+  }
+
+  closeDetailsModal(): void {
+    this.selectedBooking = null;
+    this.showDetailsModal = false;
+  }
+
+  onModalBackdropClick(event: Event): void {
+    if ((event.target as HTMLElement).classList.contains('hb-modal-backdrop')) {
+      this.closeDetailsModal();
+    }
+  }
+
+  getPriceBreakdown(booking: Booking): { nights: number; pricePerNight: number; total: number } {
+    if (!booking?.startDate || !booking?.endDate) {
+      return { nights: 1, pricePerNight: booking?.totalPrice || 0, total: booking?.totalPrice || 0 };
+    }
+    const start = new Date(booking.startDate);
+    const end = new Date(booking.endDate);
+    const nights = Math.max(1, Math.ceil((end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24)));
+    return { nights, pricePerNight: booking.totalPrice / nights, total: booking.totalPrice };
+  }
+
+  formatDateTime(d: string): string {
+    return new Date(d).toLocaleString(undefined, {
+      month: 'short', day: 'numeric', year: 'numeric', hour: '2-digit', minute: '2-digit',
     });
   }
 
