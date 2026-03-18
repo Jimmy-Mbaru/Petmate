@@ -1,7 +1,7 @@
 import { Component, OnInit, AfterViewInit, OnDestroy, signal, ViewChild, ElementRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import AOS from 'aos';
-import { AdminService, type DashboardStats, type TopProductItem, type TopHostItem } from '../../../core/services/admin.service';
+import { AdminService, type DashboardStats, type TopProductItem, type TopHostItem, type SystemActivityItem } from '../../../core/services/admin.service';
 import { StoreService, type Product, type PaginatedResponse } from '../../../core/services/store.service';
 import {
   Chart,
@@ -41,12 +41,7 @@ export class SystemStatsComponent implements OnInit, AfterViewInit, OnDestroy {
   readonly topProducts = signal<TopProductItem[]>([]);
   readonly topHosts = signal<TopHostItem[]>([]);
   readonly lowStockProducts = signal<Product[]>([]);
-  readonly recentActivity = signal<any[]>([
-    { type: 'USER', description: 'New host application from Sarah M.', time: '2m ago', color: 'blue' },
-    { type: 'ORDER', description: 'Order #8293 fulfilled by Admin', time: '15m ago', color: 'green' },
-    { type: 'SYSTEM', description: 'Monthly backup completed', time: '1h ago', color: 'purple' },
-    { type: 'SECURITY', description: 'Suspicious login attempt blocked', time: '3h ago', color: 'red' },
-  ]);
+  readonly recentActivity = signal<{ type: string; description: string; time: string; color: string }[]>([]);
   readonly systemStats = signal({
     uptime: '99.9%',
     apiResponseTime: '45ms',
@@ -148,6 +143,38 @@ export class SystemStatsComponent implements OnInit, AfterViewInit, OnDestroy {
       next: (data: TopHostItem[]) => this.topHosts.set(data),
       error: (err: any) => console.error('Failed to load top hosts', err)
     });
+
+    this.adminService.getSystemActivity().subscribe({
+      next: (data: SystemActivityItem[]) => this.buildRecentActivity(data),
+      error: (err: any) => console.error('Failed to load system activity', err)
+    });
+  }
+
+  private buildRecentActivity(data: SystemActivityItem[]): void {
+    const events: { type: string; description: string; time: string; color: string }[] = [];
+    const today = new Date().toISOString().slice(0, 10);
+    const yesterday = new Date(Date.now() - 86400000).toISOString().slice(0, 10);
+
+    // Build events from most-recent days, most-active metrics first
+    const recent = [...data].reverse().slice(0, 7);
+    for (const day of recent) {
+      const label = day.date === today ? 'today' : day.date === yesterday ? 'yesterday' : new Date(day.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+      if (day.orders > 0) {
+        events.push({ type: 'ORDER', description: `${day.orders} order${day.orders !== 1 ? 's' : ''} placed ${label}`, time: label, color: 'green' });
+      }
+      if (day.bookings > 0) {
+        events.push({ type: 'BOOKING', description: `${day.bookings} boarding booking${day.bookings !== 1 ? 's' : ''} made ${label}`, time: label, color: 'blue' });
+      }
+      if (day.newUsers > 0) {
+        events.push({ type: 'USER', description: `${day.newUsers} new user${day.newUsers !== 1 ? 's' : ''} registered ${label}`, time: label, color: 'purple' });
+      }
+      if (day.messages > 0) {
+        events.push({ type: 'CHAT', description: `${day.messages} message${day.messages !== 1 ? 's' : ''} sent ${label}`, time: label, color: 'blue' });
+      }
+      if (events.length >= 8) break;
+    }
+
+    this.recentActivity.set(events.slice(0, 8));
   }
 
   loadRevenueChart(): void {

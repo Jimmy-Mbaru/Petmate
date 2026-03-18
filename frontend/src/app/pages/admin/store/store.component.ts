@@ -278,6 +278,15 @@ export class AdminStoreComponent implements OnInit, AfterViewInit, OnDestroy {
     });
   }
 
+  setView(v: 'overview' | 'products' | 'orders'): void {
+    this.view.set(v);
+    if (v === 'overview') {
+      // Canvas elements are re-created by Angular after the @if block renders;
+      // wait one tick then re-initialize the charts.
+      setTimeout(() => this.updateCharts(), 50);
+    }
+  }
+
   /**
    * Rebuild overview charts after orders/products change.
    */
@@ -575,28 +584,61 @@ export class AdminStoreComponent implements OnInit, AfterViewInit, OnDestroy {
     this.modalMode.set('revenue');
     this.modalOpen.set(true);
 
-    // Fetch real revenue data from backend
+    // Inject "real" chart data from orders already loaded on this page.
+    // This avoids showing dummy zeroes if the admin-only revenue endpoint fails.
+    const computed = this.computeProductWeeklyRevenue(product);
+    setTimeout(() => {
+      this.initProductRevenueChart({
+        productId: String(product.id),
+        labels: computed.labels,
+        data: computed.data,
+        totalRevenue: computed.totalRevenue,
+        totalItemsSold: computed.totalItemsSold,
+      });
+    }, 50);
+
+    // Optional refresh from backend (authoritative, but can fail due to auth/network).
     this.storeService.getProductRevenue(product.id).subscribe({
-      next: (revenueData) => {
-        setTimeout(() => {
-          this.initProductRevenueChart(revenueData);
-        }, 100);
-      },
-      error: (error) => {
-        console.error('Failed to load product revenue:', error);
-        this.toastService.error('Error', 'Failed to load revenue data');
-        // Still initialize with empty data
-        setTimeout(() => {
-          this.initProductRevenueChart({
-            productId: String(product.id),
-            labels: ['Week 1', 'Week 2', 'Week 3', 'Week 4'],
-            data: [0, 0, 0, 0],
-            totalRevenue: 0,
-            totalItemsSold: 0,
-          });
-        }, 100);
-      },
+      next: (revenueData) => setTimeout(() => this.initProductRevenueChart(revenueData), 50),
+      error: (error) => console.warn('Failed to refresh product revenue:', error),
     });
+  }
+
+  private computeProductWeeklyRevenue(product: Product): {
+    labels: string[];
+    data: number[];
+    totalRevenue: number;
+    totalItemsSold: number;
+  } {
+    const labels = ['Week 1', 'Week 2', 'Week 3', 'Week 4'];
+    const statusOk = new Set(['DELIVERED', 'PAID', 'SHIPPED']);
+
+    const weeklyRevenue = new Array(4).fill(0);
+    let totalItemsSold = 0;
+
+    const now = new Date();
+    const msPerWeek = 7 * 24 * 60 * 60 * 1000;
+
+    const orders = this.orders();
+    orders.forEach((order) => {
+      if (!statusOk.has(order.status)) return;
+      const orderDate = new Date(order.createdAt);
+      const weeksAgo = Math.floor((now.getTime() - orderDate.getTime()) / msPerWeek);
+
+      if (weeksAgo < 0 || weeksAgo >= 4) return;
+
+      (order.items ?? []).forEach((item) => {
+        if (String(item.productId) !== String(product.id)) return;
+        const qty = Number(item.quantity ?? 0);
+        const unitPrice = Number(item.unitPrice ?? 0);
+
+        weeklyRevenue[3 - weeksAgo] += unitPrice * qty;
+        totalItemsSold += qty;
+      });
+    });
+
+    const totalRevenue = weeklyRevenue.reduce((a, b) => a + b, 0);
+    return { labels, data: weeklyRevenue, totalRevenue, totalItemsSold };
   }
 
   closeModal(): void {

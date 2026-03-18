@@ -10,7 +10,7 @@
       <div class="flex gap-3">
         <button
           type="button"
-          (click)="view.set('overview')"
+          (click)="setView('overview')"
           [class.bg-linear-to-r]="view() === 'overview'"
           [class.from-(--color-primary)]="view() === 'overview'"
           [class.to-(--color-primary-hover)]="view() === 'overview'"

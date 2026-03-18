@@ -333,6 +333,7 @@ export class StoreComponent implements OnInit, OnDestroy {
         this.toast.success('Order', `Order placed successfully! Order #${order.id}`);
         this.cart = [];
         this.showCart = false;
+        this.router.navigate(['/app/store/orders']);
       },
       error: (err) => {
         this.checkoutInProgress = false;

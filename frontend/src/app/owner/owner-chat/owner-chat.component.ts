@@ -128,7 +128,11 @@ export class OwnerChatComponent implements OnInit, OnDestroy {
 
   private handleNewMessage(message: ChatMessage): void {
     const currentUserId = this.currentUserId;
-    this.loadConversations();
+    // Refresh conversation list silently (without full loading state)
+    this.chatService.getConversations().subscribe({
+      next: (conversations) => { this.conversations = conversations; },
+      error: () => {}
+    });
 
     const currentConv = this.selectedConversation;
     if (!currentConv || !currentUserId) {
@@ -195,7 +199,7 @@ export class OwnerChatComponent implements OnInit, OnDestroy {
         userId,
         userName,
         lastMessage: '',
-        lastMessageAt: new Date(0).toISOString(),
+        lastMessageAt: new Date().toISOString(),
         lastMessageFromSelf: false,
         unreadCount: 0,
       };
@@ -260,6 +264,12 @@ export class OwnerChatComponent implements OnInit, OnDestroy {
     };
 
     this.messages = [...this.messages, optimistic];
+    // Update conversation list preview without triggering the full loading state
+    this.conversations = this.conversations.map(c =>
+      c.userId === receiverId
+        ? { ...c, lastMessage: content, lastMessageAt: optimistic.sentAt, lastMessageFromSelf: true }
+        : c
+    );
     setTimeout(() => this.scrollToBottom(), 100);
 
     if (this.socket && this.socketConnected) {
@@ -292,8 +302,6 @@ export class OwnerChatComponent implements OnInit, OnDestroy {
         }
       });
     }
-
-    this.loadConversations();
   }
 
   closeMessages(): void {
