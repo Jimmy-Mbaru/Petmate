@@ -343,7 +343,7 @@ export class BoardingService {
       }) as any; // Type assertion to handle Prisma's complex include types
 
       if (!profileWithRelations) {
-        throw new NotFoundException('Boarding profile not found');
+        return null;
       }
 
       const profile = profileWithRelations as {

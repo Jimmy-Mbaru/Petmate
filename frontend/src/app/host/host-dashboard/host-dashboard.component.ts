@@ -118,6 +118,12 @@ export class HostDashboardComponent implements OnInit, AfterViewInit, OnDestroy 
     // First, load the host's profile with stats
     this.boardingService.getMyProfile().subscribe({
       next: (profile) => {
+        if (!profile) {
+          // No profile yet — send host to set one up
+          this.hasProfile.set(false);
+          this.router.navigate(['/app/host/profile']);
+          return;
+        }
         this.profile = profile;
         this.hasProfile.set(true);
         this.stats.update(s => ({
@@ -138,7 +144,7 @@ export class HostDashboardComponent implements OnInit, AfterViewInit, OnDestroy 
         this.loadBookingsForCharts();
       },
       error: () => {
-        // 404 = no profile yet; redirect to profile setup
+        // Unexpected error; still redirect to profile setup
         this.hasProfile.set(false);
         this.router.navigate(['/app/host/profile']);
       },
