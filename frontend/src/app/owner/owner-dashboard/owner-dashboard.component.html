@@ -10,6 +10,23 @@
     </div>
   </header>
 
+  <!-- Onboarding Banner (no pets yet) -->
+  @if (hasPets === false) {
+    <div class="mx-auto mb-6 rounded-2xl border-2 border-dashed border-[#d72323]/30 bg-[#d72323]/5 p-8 text-center" data-aos="fade-up">
+      <div class="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-[#d72323]/10 mb-4">
+        <svg class="w-7 h-7 text-[#d72323]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/>
+        </svg>
+      </div>
+      <h3 class="text-lg font-bold text-gray-900 mb-1">Add your first pet</h3>
+      <p class="text-gray-500 text-sm mb-5 max-w-sm mx-auto">Get started by adding your pet's profile to find matches and book boarding.</p>
+      <a routerLink="/app/pets/new" class="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[#d72323] hover:bg-[#bc1f1f] text-white font-semibold text-sm shadow-lg shadow-[#d72323]/20 transition-all">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+        Add a Pet
+      </a>
+    </div>
+  }
+
   <section id="stats" class="stats-grid" aria-label="Overview stats">
     <div class="stat-card stat-card-pets" data-aos="fade-up" data-aos-duration="600" data-aos-delay="0">
       <div class="stat-icon theme-icon">

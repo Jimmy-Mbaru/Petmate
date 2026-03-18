@@ -74,6 +74,7 @@ export class OwnerDashboardComponent implements OnInit, AfterViewInit, OnDestroy
 
   userName = '';
   userRole = 'Owner';
+  hasPets: boolean | null = null; // null = loading, false = no pets, true = has pets
   stats = {
     pets: 0,
     bookings: 0,
@@ -127,10 +128,11 @@ export class OwnerDashboardComponent implements OnInit, AfterViewInit, OnDestroy
     this.petsService.getMyPets(1, 0).subscribe({
       next: (response) => {
         this.stats.pets = response.total;
+        this.hasPets = response.total > 0;
         this.cdr.detectChanges();
         this.updateDistributionChart();
       },
-      error: (error) => console.error('Error loading pets:', error),
+      error: () => { this.hasPets = false; },
     });
 
     // Load bookings
@@ -146,7 +148,7 @@ export class OwnerDashboardComponent implements OnInit, AfterViewInit, OnDestroy
         this.cdr.detectChanges();
         this.updateDistributionChart();
       },
-      error: (error) => console.error('Error loading bookings:', error),
+      error: () => {},
     });
 
     // Load orders
@@ -156,7 +158,7 @@ export class OwnerDashboardComponent implements OnInit, AfterViewInit, OnDestroy
         this.cdr.detectChanges();
         this.updateDistributionChart();
       },
-      error: (error) => console.error('Error loading orders:', error),
+      error: () => {},
     });
 
     // Load unread messages count
@@ -166,7 +168,7 @@ export class OwnerDashboardComponent implements OnInit, AfterViewInit, OnDestroy
         this.cdr.detectChanges();
         this.updateDistributionChart();
       },
-      error: (error) => console.error('Error loading messages:', error),
+      error: () => {},
     });
 
     // Favorites: count pets + boarding profiles (parallel)

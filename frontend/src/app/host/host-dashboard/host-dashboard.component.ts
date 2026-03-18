@@ -50,6 +50,7 @@ export class HostDashboardComponent implements OnInit, AfterViewInit, OnDestroy 
 
   userName = '';
   profile: BoardingProfileWithStats | null = null;
+  hasProfile = signal<boolean | null>(null); // null = loading, false = no profile, true = has profile
   stats = signal({
     profile: null as { id: number; location: string; isApproved: boolean; averageRating?: number } | null,
     bookings: 0,
@@ -117,6 +118,7 @@ export class HostDashboardComponent implements OnInit, AfterViewInit, OnDestroy 
     this.boardingService.getMyProfile().subscribe({
       next: (profile) => {
         this.profile = profile;
+        this.hasProfile.set(true);
         this.stats.update(s => ({
           ...s,
           profile: {
@@ -134,11 +136,9 @@ export class HostDashboardComponent implements OnInit, AfterViewInit, OnDestroy 
         // Then load bookings for charts and recent list
         this.loadBookingsForCharts();
       },
-      error: (err) => {
-        // 404 = no profile yet, that's fine; still load bookings
-        if (err?.status !== 404) {
-          console.warn('Could not load profile:', err);
-        }
+      error: () => {
+        // 404 = no profile yet; show onboarding prompt
+        this.hasProfile.set(false);
         this.loadBookingsForCharts();
       },
     });

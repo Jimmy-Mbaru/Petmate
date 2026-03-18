@@ -52,12 +52,11 @@ export const httpErrorInterceptor: HttpInterceptorFn = (
             // Don't redirect on 403, let the user stay on current page
             break;
           case 404:
-            errorMessage = 'The requested resource was not found.';
-            // Only redirect to 404 page for navigation requests, not API calls
-            if (!req.url.includes('/api/')) {
-              shouldRedirect = true;
-              redirectUrl = '/404';
-            }
+            // Don't show toast for API 404s — components handle "not found" themselves
+            // (e.g. "no profile yet" is an expected 404, not an error worth alerting)
+            return throwError(() => error);
+          case 410:
+            errorMessage = 'The requested resource no longer exists.';
             break;
           case 409:
             errorMessage = 'Conflict: The resource already exists or is in use.';

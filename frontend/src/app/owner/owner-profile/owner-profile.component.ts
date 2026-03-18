@@ -74,70 +74,39 @@ export class OwnerProfileComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    console.log('OwnerProfile: ngOnInit called');
     this.loadProfile();
   }
 
   loadProfile(): void {
     const user = this.auth.getCurrentUser();
-    
-    console.log('OwnerProfile: Current user from auth:', user);
-    console.log('OwnerProfile: User ID:', user?.id);
-    console.log('OwnerProfile: User email:', user?.email);
-    
     if (!user?.id) {
       this.isLoading = false;
       this.toast.error('Error', 'User not authenticated. Please log in again.');
-      console.error('OwnerProfile: No user ID found');
       return;
     }
 
     this.isLoading = true;
-    console.log('OwnerProfile: Loading profile for user ID:', user.id);
-    
     this.usersService.getProfile(user.id).subscribe({
       next: (p) => {
-        console.log('OwnerProfile: Profile loaded successfully:', p);
         this.profile = p;
-        // Split name into first and last
         const nameParts = (p.name || '').split(' ');
         const firstName = nameParts[0] || '';
         const lastName = nameParts.slice(1).join(' ') || '';
-
-        console.log('OwnerProfile: Name parts:', { firstName, lastName, fullName: p.name });
-
         const formValues = {
           firstName,
           lastName,
           bio: p.bio || '',
           avatarUrl: p.avatarUrl ?? '',
         };
-
-        console.log('OwnerProfile: Patching form with:', formValues);
         this.form.patchValue(formValues);
-        this.originalFormValues.set({
-          firstName,
-          lastName,
-          bio: p.bio || '',
-        });
+        this.originalFormValues.set({ firstName, lastName, bio: p.bio || '' });
         this.isLoading = false;
-        console.log('OwnerProfile: Loading complete, isLoading set to false');
       },
       error: (error) => {
-        console.error('OwnerProfile: Error loading profile:', error);
-        console.error('OwnerProfile: Error status:', error?.status);
-        console.error('OwnerProfile: Error message:', error?.message);
         this.isLoading = false;
-        
         let errorMsg = 'Failed to load profile.';
-        if (error?.status === 401) {
-          errorMsg = 'Authentication failed. Please log in again.';
-        } else if (error?.status === 404) {
-          errorMsg = 'User profile not found.';
-        } else if (error?.status === 0) {
-          errorMsg = 'Cannot connect to server. Please try again later.';
-        }
-        
+        if (error?.status === 401) errorMsg = 'Authentication failed. Please log in again.';
+        else if (error?.status === 0) errorMsg = 'Cannot connect to server. Please try again later.';
         this.toast.error('Error', errorMsg);
       },
     });
