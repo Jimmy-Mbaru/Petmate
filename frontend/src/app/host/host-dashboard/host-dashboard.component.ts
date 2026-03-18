@@ -1,6 +1,6 @@
 import { Component, Inject, OnInit, AfterViewInit, OnDestroy, signal, ViewChild, ElementRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterLink } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import AOS from 'aos';
 import {
   Chart,
@@ -74,6 +74,7 @@ export class HostDashboardComponent implements OnInit, AfterViewInit, OnDestroy 
 
   constructor(
     private auth: AuthService,
+    private router: Router,
     @Inject(BoardingService) private boardingService: BoardingService
   ) {}
 
@@ -137,9 +138,9 @@ export class HostDashboardComponent implements OnInit, AfterViewInit, OnDestroy 
         this.loadBookingsForCharts();
       },
       error: () => {
-        // 404 = no profile yet; show onboarding prompt
+        // 404 = no profile yet; redirect to profile setup
         this.hasProfile.set(false);
-        this.loadBookingsForCharts();
+        this.router.navigate(['/app/host/profile']);
       },
     });
   }

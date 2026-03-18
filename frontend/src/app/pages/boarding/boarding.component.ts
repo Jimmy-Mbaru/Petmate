@@ -1,7 +1,7 @@
 import { DecimalPipe } from '@angular/common';
 import { ChangeDetectorRef, Component, Inject, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { RouterLink } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import {
   lucideSearch,
@@ -65,6 +65,7 @@ export class BoardingComponent implements OnInit {
   constructor(
     @Inject(BoardingService) private boardingService: BoardingService,
     private toast: ToastService,
+    private router: Router,
     public userLocation: UserLocationService,
     private cdr: ChangeDetectorRef
   ) {}
@@ -296,8 +297,8 @@ export class BoardingComponent implements OnInit {
     
     const currentUserId = localStorage.getItem('petmate_auth');
     if (!currentUserId) {
-      this.toast.error('Login required', 'Please log in to make a booking');
       this.closeBookingModal();
+      this.router.navigate(['/auth/login'], { queryParams: { returnUrl: '/boarding' } });
       return;
     }
     
@@ -322,8 +323,8 @@ export class BoardingComponent implements OnInit {
 
         let errorMsg = 'Failed to book this slot';
         if (error?.status === 401 || error?.status === 403) {
-          errorMsg = 'Please log in to make a booking';
-          this.toast.error('Authentication required', errorMsg);
+          this.router.navigate(['/auth/login'], { queryParams: { returnUrl: '/boarding' } });
+          return;
         } else if (error?.status === 400) {
           errorMsg = error?.error?.message || 'Invalid booking dates';
           this.toast.error('Invalid booking', errorMsg);

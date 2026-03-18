@@ -45,7 +45,6 @@ export class HostBookingsComponent implements OnInit {
         this.bookings.set(data);
         this.total.set(response.total || 0);
         this.loading.set(false);
-        console.log(`[HostBookings] Loaded ${data.length} bookings (total: ${this.total()})`);
       },
       error: (error) => {
         console.error('[HostBookings] Failed to load bookings:', error);

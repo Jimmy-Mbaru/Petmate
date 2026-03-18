@@ -1,6 +1,6 @@
 import { Component, ElementRef, Inject, OnDestroy, OnInit, ViewChild, ChangeDetectorRef } from '@angular/core';
 import { DecimalPipe, SlicePipe } from '@angular/common';
-import { RouterLink } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import { lucideShoppingBag, lucideSearch, lucidePlus, lucideMinus, lucideTrash2, lucideX, lucideChevronLeft, lucideChevronRight, lucideLoader2, lucideAlertTriangle, lucideHeart, lucideEye, lucideShoppingCart, lucidePackage } from '@ng-icons/lucide';
 import { StoreService, type Product, type SearchProductsParams, type CheckoutItem } from '../../core/services/store.service';
@@ -51,6 +51,7 @@ export class StoreComponent implements OnInit, OnDestroy {
     @Inject(FavoritesService) private favoritesService: FavoritesService,
     private toast: ToastService,
     private auth: AuthService,
+    private router: Router,
     private dialogService: DialogService,
     private cdr: ChangeDetectorRef
   ) {}
@@ -307,7 +308,7 @@ export class StoreComponent implements OnInit, OnDestroy {
 
   checkout(): void {
     if (!this.auth.getCurrentUser()) {
-      this.toast.error('Checkout', 'Please login to checkout');
+      this.router.navigate(['/auth/login'], { queryParams: { returnUrl: '/store' } });
       return;
     }
 

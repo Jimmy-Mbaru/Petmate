@@ -50,13 +50,10 @@ export class OwnerBookingsComponent implements OnInit {
         this.cdr.detectChanges();
       },
       error: (error) => {
-        console.error('[OwnerBookings] Failed to load bookings:', error);
         this.isLoading = false;
         this.cdr.detectChanges();
-        
         if (error?.status === 429) {
           this.toast.error('Too many requests', 'Please wait a moment and try again');
-          console.warn('Rate limit exceeded - please slow down requests');
         } else {
           this.toast.error('Error', 'Failed to load bookings');
         }
