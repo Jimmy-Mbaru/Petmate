@@ -171,9 +171,10 @@ export class OwnerProfileComponent implements OnInit {
     if (!this.profile) return;
 
     this.isSaving = true;
-    const { firstName, lastName } = this.form.value;
+    const { firstName, lastName, bio } = this.form.value;
     const updateDto: UpdateUserDto = {
       name: `${firstName?.trim() || ''} ${lastName?.trim() || ''}`.trim(),
+      bio: bio?.trim() || '',
       avatarUrl,
     };
 
@@ -213,9 +214,10 @@ export class OwnerProfileComponent implements OnInit {
       return;
     }
 
-    const { firstName, lastName } = this.form.value;
+    const { firstName, lastName, bio } = this.form.value;
     const updateDto: UpdateUserDto = {
       name: `${firstName?.trim() || ''} ${lastName?.trim() || ''}`.trim(),
+      bio: bio?.trim() || '',
     };
 
     this.isSaving = true;
@@ -233,7 +235,7 @@ export class OwnerProfileComponent implements OnInit {
           this.originalFormValues.set({
             firstName,
             lastName,
-            bio: this.form.value.bio || '',
+            bio: updated.bio || '',
           });
 
           this.isSaving = false;
