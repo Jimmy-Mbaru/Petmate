@@ -404,10 +404,12 @@ export class AdminStoreComponent implements OnInit, AfterViewInit, OnDestroy {
   updateOrderStatus(orderId: string, event: Event): void {
     const select = event.target as HTMLSelectElement;
     const newStatus = select.value;
+    const currentOrder = this.orders().find(o => o.id === orderId);
 
-    // Prevent updating if already delivered or cancelled
-    if (newStatus === 'DELIVERED' || newStatus === 'CANCELLED') {
-      select.value = this.orders().find(o => o.id === orderId)?.status || 'PLACED';
+    // Prevent changing status of orders already in a terminal state
+    if (currentOrder?.status === 'DELIVERED' || currentOrder?.status === 'CANCELLED') {
+      select.value = currentOrder.status;
+      this.toastService.error('Cannot update', 'Delivered and cancelled orders cannot be changed.');
       return;
     }
 
@@ -419,7 +421,14 @@ export class AdminStoreComponent implements OnInit, AfterViewInit, OnDestroy {
         );
       },
       error: (err) => {
-        this.toastService.error('Error', 'Failed to update order status');
+        const status = err?.status;
+        if (status === 403) {
+          this.toastService.error('Access denied', 'Your session may have expired. Please log out and log back in.');
+        } else if (status === 400) {
+          this.toastService.error('Invalid transition', err?.error?.message || 'This status change is not allowed.');
+        } else {
+          this.toastService.error('Error', 'Failed to update order status');
+        }
         console.error(err);
         this.loadStoreData(); // Refresh to reset select
       }
