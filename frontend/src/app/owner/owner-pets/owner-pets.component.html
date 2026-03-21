@@ -11,9 +11,18 @@
   </header>
 
   @if (isLoading) {
-    <div class="loading-state">
-      <div class="loading-spinner"></div>
-      <p>Loading your pets...</p>
+    <div class="pets-grid" aria-label="Loading pets">
+      @for (item of skeletonItems; track item) {
+        <div class="pet-card-modern card skeleton-card">
+          <div class="skeleton-pet-image skeleton-shimmer"></div>
+          <div class="skeleton-body">
+            <div class="skeleton-line skeleton-shimmer" style="width:55%; height:20px;"></div>
+            <div class="skeleton-line skeleton-shimmer" style="width:35%; height:14px; margin-top:6px;"></div>
+            <div class="skeleton-line skeleton-shimmer" style="width:80%; height:13px; margin-top:10px;"></div>
+            <div class="skeleton-line skeleton-shimmer" style="width:40%; height:32px; margin-top:14px; border-radius:8px;"></div>
+          </div>
+        </div>
+      }
     </div>
   } @else if (pets.length === 0) {
     <div class="empty-state card">

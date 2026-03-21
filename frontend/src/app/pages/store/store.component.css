@@ -480,6 +480,49 @@
   text-align: center;
   padding: 1rem;
 }
+/* Skeleton card */
+.skeleton-card {
+  pointer-events: none;
+}
+.skeleton-image {
+  width: 100%;
+  aspect-ratio: 1 / 1;
+}
+.skeleton-body {
+  padding: 1.25rem 1.5rem 1.5rem;
+  display: flex;
+  flex-direction: column;
+}
+.skeleton-line {
+  display: block;
+}
+
+/* Error state */
+.error-state {
+  text-align: center;
+  padding: 3rem 2rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+}
+.error-icon {
+  color: var(--color-primary);
+  opacity: 0.7;
+}
+.error-title {
+  font-family: var(--font-display);
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: var(--color-text);
+  margin: 0;
+}
+.error-text {
+  color: var(--color-text-muted);
+  margin: 0;
+  font-size: 0.9rem;
+}
+
 .empty-state, .loading-state {
   text-align: center;
   padding: 3rem 2rem;

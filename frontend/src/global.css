@@ -29,6 +29,67 @@
   --shadow-card: rgba(50, 50, 93, 0.25) 0px 50px 100px -20px, rgba(0, 0, 0, 0.3) 0px 30px 60px -30px, rgba(10, 37, 64, 0.35) 0px -2px 6px 0px inset;
 }
 
+/* ── Dark mode overrides ───────────────────────────────────────── */
+html[data-theme="dark"] {
+  --color-surface: #130f0f;
+  --color-text: #f0e8e8;
+  --color-text-muted: #9a8a8a;
+  --color-white: #1e1717;
+  --color-dark: #f0e8e8;
+  --color-cream: #130f0f;
+  --color-orange-soft: rgba(215, 35, 35, 0.18);
+  --shadow-soft: 0 4px 24px rgba(0, 0, 0, 0.5);
+  --shadow-card: 0 4px 24px rgba(0, 0, 0, 0.5);
+}
+
+html[data-theme="dark"] body {
+  background-color: #130f0f;
+  background-image:
+    radial-gradient(circle at 1px 1px, rgba(215, 35, 35, 0.08) 1px, transparent 0),
+    linear-gradient(rgba(215, 35, 35, 0.02) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(215, 35, 35, 0.02) 1px, transparent 1px);
+  color: var(--color-text);
+}
+
+/* Card backgrounds in dark mode */
+html[data-theme="dark"] .card,
+html[data-theme="dark"] .product-card,
+html[data-theme="dark"] .pet-card-modern {
+  background: #1e1717 !important;
+  border-color: rgba(255, 255, 255, 0.06) !important;
+}
+
+/* Input fields in dark mode */
+html[data-theme="dark"] input,
+html[data-theme="dark"] select,
+html[data-theme="dark"] textarea {
+  background: #2a2020 !important;
+  color: var(--color-text) !important;
+  border-color: rgba(255, 255, 255, 0.12) !important;
+}
+
+/* Skeleton shimmer for dark mode */
+html[data-theme="dark"] .skeleton-shimmer {
+  background: linear-gradient(90deg, #2a2020 25%, #3a2a2a 50%, #2a2020 75%);
+  background-size: 200% 100%;
+}
+
+/* ── /Dark mode ─────────────────────────────────────────────────── */
+
+/* ── Skeleton shimmer utility ──────────────────────────────────── */
+.skeleton-shimmer {
+  background: linear-gradient(90deg, #f0e0e0 25%, #ffe8e8 50%, #f0e0e0 75%);
+  background-size: 200% 100%;
+  animation: skeleton-wave 1.6s ease-in-out infinite;
+  border-radius: 8px;
+}
+
+@keyframes skeleton-wave {
+  0%   { background-position:  200% 0; }
+  100% { background-position: -200% 0; }
+}
+/* ── /Skeleton ─────────────────────────────────────────────────── */
+
 html {
   background-color: #f5eded;
   min-height: 100vh;

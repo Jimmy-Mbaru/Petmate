@@ -17,6 +17,7 @@ import { DialogService } from '../../core/services/dialog.service';
 export class OwnerPetsComponent implements OnInit {
   pets: Pet[] = [];
   isLoading = true;
+  readonly skeletonItems = Array(6).fill(0);
 
   constructor(
     @Inject(PetsService) private petsService: PetsService,

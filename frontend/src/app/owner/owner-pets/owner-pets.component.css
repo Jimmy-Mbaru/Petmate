@@ -508,6 +508,12 @@
   transform: translateX(3px);
 }
 
+/* Skeleton */
+.skeleton-card { pointer-events: none; }
+.skeleton-pet-image { width: 100%; aspect-ratio: 16/9; min-height: 140px; max-height: 170px; }
+.skeleton-body { padding: 1rem 1.25rem 1.25rem; display: flex; flex-direction: column; }
+.skeleton-line { display: block; border-radius: 6px; }
+
 @media (min-width: 641px) and (max-width: 1280px) {
   .pets-grid {
     grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));

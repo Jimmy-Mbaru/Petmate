@@ -1,12 +1,12 @@
-<nav
-  class="flex items-center justify-between px-6 py-4 font-(family-name:--font-body) bg-black/80 backdrop-blur-md text-white z-50 transition-all duration-300"
->
+<nav class="flex items-center justify-between px-6 py-4 font-(family-name:--font-body) bg-black/80 backdrop-blur-md text-white z-50 transition-all duration-300">
   <a routerLink="/" class="inline-flex items-center gap-2 font-bold text-lg uppercase tracking-wide no-underline text-inherit">
     <span class="flex w-6 h-6 text-(--color-orange)" aria-hidden="true">
       <svg class="w-full h-full" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M12 10a2 2 0 1 0 0 4 2 2 0 0 0 0-4zm-4 3a2 2 0 1 0 0 4 2 2 0 0 0 0-4zm8 0a2 2 0 1 0 0 4 2 2 0 0 0 0-4zm-4 2a4 4 0 0 1-4-4 4 4 0 0 1 4-4 4 4 0 0 1 4 4 4 4 0 0 1-4 4z"/><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z"/></svg>
     </span>
     PetMate
   </a>
+
+  <!-- Desktop nav links -->
   <ul class="hidden md:flex list-none m-0 p-0 gap-8">
     <li><a routerLink="/boarding" routerLinkActive="opacity-100" class="no-underline text-inherit opacity-90 font-medium hover:opacity-100">Find a Match</a></li>
     <li><a href="#how-it-works" (click)="setActiveSection('how-it-works')" [class.opacity-100]="activeSection === 'how-it-works'" [class.opacity-60]="activeSection !== 'how-it-works'" class="no-underline text-inherit font-medium hover:opacity-100 transition-opacity">How It Works</a></li>
@@ -14,7 +14,20 @@
     <li><a href="#faq" (click)="setActiveSection('faq')" [class.opacity-100]="activeSection === 'faq'" [class.opacity-60]="activeSection !== 'faq'" class="no-underline text-inherit font-medium hover:opacity-100 transition-opacity">FAQ</a></li>
     <li><a href="#about" (click)="setActiveSection('about')" [class.opacity-100]="activeSection === 'about'" [class.opacity-60]="activeSection !== 'about'" class="no-underline text-inherit font-medium hover:opacity-100 transition-opacity">About</a></li>
   </ul>
-  <div class="flex items-center gap-3">
+
+  <!-- Desktop auth + theme toggle -->
+  <div class="hidden md:flex items-center gap-3">
+    <!-- Dark mode toggle -->
+    <button type="button" class="theme-toggle" (click)="toggleTheme()" [attr.aria-label]="themeService.isDark() ? 'Switch to light mode' : 'Switch to dark mode'">
+      @if (themeService.isDark()) {
+        <!-- Sun icon -->
+        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+      } @else {
+        <!-- Moon icon -->
+        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
+      }
+    </button>
+
     @if (authService.currentUser$ | async) {
       <a routerLink="/app/dashboard" class="px-4 py-2 text-white font-medium text-sm no-underline rounded-(--radius-btn) border border-white/40 hover:bg-white/10 transition-colors">
         Dashboard
@@ -31,4 +44,44 @@
       </a>
     }
   </div>
+
+  <!-- Mobile right: theme toggle + hamburger -->
+  <div class="flex md:hidden items-center gap-2">
+    <button type="button" class="theme-toggle" (click)="toggleTheme()" [attr.aria-label]="themeService.isDark() ? 'Switch to light mode' : 'Switch to dark mode'">
+      @if (themeService.isDark()) {
+        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+      } @else {
+        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
+      }
+    </button>
+    <button type="button" class="hamburger" (click)="toggleMobileMenu()" [attr.aria-expanded]="mobileMenuOpen" aria-label="Toggle menu">
+      @if (mobileMenuOpen) {
+        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
+      } @else {
+        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="4" x2="20" y1="12" y2="12"/><line x1="4" x2="20" y1="6" y2="6"/><line x1="4" x2="20" y1="18" y2="18"/></svg>
+      }
+    </button>
+  </div>
 </nav>
+
+<!-- Mobile menu drawer -->
+<div class="mobile-menu" [class.open]="mobileMenuOpen" (click)="closeMobileMenuOnBackdrop($event)">
+  <div class="mobile-menu-inner">
+    <nav class="mobile-nav">
+      <a routerLink="/boarding" class="mobile-nav-item" (click)="mobileMenuOpen = false">Find a Match</a>
+      <a href="#how-it-works" class="mobile-nav-item" (click)="mobileMenuOpen = false; setActiveSection('how-it-works')">How It Works</a>
+      <a href="#success-stories" class="mobile-nav-item" (click)="mobileMenuOpen = false; setActiveSection('success-stories')">Success Stories</a>
+      <a href="#faq" class="mobile-nav-item" (click)="mobileMenuOpen = false; setActiveSection('faq')">FAQ</a>
+      <a href="#about" class="mobile-nav-item" (click)="mobileMenuOpen = false; setActiveSection('about')">About</a>
+    </nav>
+    <div class="mobile-auth">
+      @if (authService.currentUser$ | async) {
+        <a routerLink="/app/dashboard" class="mobile-btn mobile-btn-secondary" (click)="mobileMenuOpen = false">Dashboard</a>
+        <button type="button" class="mobile-btn mobile-btn-primary" (click)="logout(); mobileMenuOpen = false">Log out</button>
+      } @else {
+        <a routerLink="/auth/login" class="mobile-btn mobile-btn-secondary" (click)="mobileMenuOpen = false">Log In</a>
+        <a routerLink="/auth/register" class="mobile-btn mobile-btn-primary" (click)="mobileMenuOpen = false">Sign Up</a>
+      }
+    </div>
+  </div>
+</div>

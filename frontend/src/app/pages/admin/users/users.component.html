@@ -276,21 +276,99 @@
         </div>
       </div>
     } @else {
+      <!-- Bulk action bar -->
+      @if (selectionCount() > 0) {
+        <div class="flex items-center gap-3 mb-4 px-5 py-3 bg-white rounded-2xl border-2 border-red-200 shadow-md" data-aos="fade-down">
+          <div class="flex items-center gap-2 text-sm font-semibold text-gray-700">
+            <div class="w-6 h-6 rounded-full flex items-center justify-center text-white text-xs font-bold" style="background: var(--color-primary);">
+              {{ selectionCount() }}
+            </div>
+            <span>{{ selectionCount() }} user{{ selectionCount() !== 1 ? 's' : '' }} selected</span>
+          </div>
+          <div class="flex items-center gap-2 ml-auto">
+            <button
+              type="button"
+              (click)="bulkDeactivate()"
+              class="inline-flex items-center gap-1.5 px-4 py-2 bg-amber-50 border border-amber-200 text-amber-700 text-sm font-semibold rounded-xl hover:bg-amber-100 transition-all cursor-pointer"
+            >
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636" />
+              </svg>
+              Deactivate
+            </button>
+            <button
+              type="button"
+              (click)="bulkDelete()"
+              class="inline-flex items-center gap-1.5 px-4 py-2 bg-red-50 border border-red-200 text-red-700 text-sm font-semibold rounded-xl hover:bg-red-100 transition-all cursor-pointer"
+            >
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+              </svg>
+              Delete
+            </button>
+            <button
+              type="button"
+              (click)="clearSelection()"
+              class="inline-flex items-center gap-1 px-3 py-2 text-gray-500 text-sm hover:text-gray-700 rounded-xl hover:bg-gray-100 transition-all cursor-pointer"
+            >
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+              </svg>
+              Clear
+            </button>
+          </div>
+        </div>
+      }
+
+      <!-- Select all row -->
+      <div class="flex items-center gap-3 mb-3 px-1">
+        <label class="flex items-center gap-2 cursor-pointer select-none">
+          <input
+            type="checkbox"
+            [checked]="isAllSelected()"
+            [indeterminate]="isIndeterminate()"
+            (change)="toggleSelectAll()"
+            class="w-4 h-4 rounded border-gray-300 cursor-pointer accent-red-600"
+          />
+          <span class="text-sm text-gray-500 font-medium">Select all ({{ filteredUsers().length }})</span>
+        </label>
+      </div>
+
       <div class="users-cards-grid">
         @for (user of filteredUsers(); track user.id; let i = $index) {
-          <div class="user-card-slot">
-            <app-user-card
-              [user]="user"
-              [showActions]="true"
-              [isAdminView]="true"
-              (viewUser)="onViewUser($event)"
-              (editUser)="onEditUser($event)"
-              (deleteUser)="onDeleteUser($event)"
-              (suspendUser)="onSuspendUser($event)"
-              (changeRole)="onChangeRole($any($event).user, $any($event).event)"
-              data-aos="fade-up"
-              [attr.data-aos-delay]="i * 50"
-            />
+          <div class="user-card-slot relative">
+            <!-- Selection checkbox overlay -->
+            <label
+              class="absolute top-4 left-4 z-10 cursor-pointer"
+              (click)="$event.stopPropagation()"
+            >
+              <input
+                type="checkbox"
+                [checked]="selectedUserIds().has(user.id)"
+                (change)="toggleSelection(user.id)"
+                class="w-4 h-4 rounded border-gray-300 cursor-pointer accent-red-600"
+              />
+            </label>
+            <div
+              class="h-full transition-all duration-200"
+              [class.ring-2]="selectedUserIds().has(user.id)"
+              [class.ring-red-400]="selectedUserIds().has(user.id)"
+              [class.ring-offset-1]="selectedUserIds().has(user.id)"
+              style="border-radius: 1rem;"
+            >
+              <app-user-card
+                [user]="user"
+                [showActions]="true"
+                [isAdminView]="true"
+                (viewUser)="onViewUser($event)"
+                (editUser)="onEditUser($event)"
+                (deleteUser)="onDeleteUser($event)"
+                (suspendUser)="onSuspendUser($event)"
+                (changeRole)="onChangeRole($any($event).user, $any($event).event)"
+                data-aos="fade-up"
+                [attr.data-aos-delay]="i * 50"
+              />
+            </div>
           </div>
         }
       </div>

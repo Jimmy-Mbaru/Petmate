@@ -66,6 +66,19 @@ export class AdminUsersComponent implements OnInit, AfterViewInit, OnDestroy {
   readonly modalMode = signal<'view' | 'edit'>('view');
   readonly selectedUser = signal<UserProfile | null>(null);
 
+  // Bulk selection state
+  readonly selectedUserIds = signal<Set<string>>(new Set());
+  readonly selectionCount = computed(() => this.selectedUserIds().size);
+  readonly isAllSelected = computed(() => {
+    const ids = this.selectedUserIds();
+    const users = this.filteredUsers();
+    return users.length > 0 && users.every(u => ids.has(u.id));
+  });
+  readonly isIndeterminate = computed(() => {
+    const count = this.selectionCount();
+    return count > 0 && count < this.filteredUsers().length;
+  });
+
   constructor(
     private usersService: UsersService,
     private toastService: ToastService,
@@ -226,6 +239,100 @@ export class AdminUsersComponent implements OnInit, AfterViewInit, OnDestroy {
     } else {
       select.value = user.role; // Reset if cancelled
     }
+  }
+
+  toggleSelection(id: string): void {
+    const current = new Set(this.selectedUserIds());
+    if (current.has(id)) {
+      current.delete(id);
+    } else {
+      current.add(id);
+    }
+    this.selectedUserIds.set(current);
+  }
+
+  toggleSelectAll(): void {
+    if (this.isAllSelected()) {
+      this.selectedUserIds.set(new Set());
+    } else {
+      this.selectedUserIds.set(new Set(this.filteredUsers().map(u => u.id)));
+    }
+  }
+
+  clearSelection(): void {
+    this.selectedUserIds.set(new Set());
+  }
+
+  async bulkDeactivate(): Promise<void> {
+    const ids = [...this.selectedUserIds()];
+    const confirmed = await this.dialogService.confirm({
+      title: 'Deactivate Users',
+      message: `Are you sure you want to deactivate ${ids.length} selected user${ids.length !== 1 ? 's' : ''}?`,
+      confirmText: 'Deactivate',
+      type: 'danger'
+    });
+
+    if (!confirmed) return;
+
+    let successCount = 0;
+    let errorCount = 0;
+    const total = ids.length;
+
+    const processNext = (index: number) => {
+      if (index >= total) {
+        if (successCount > 0) {
+          this.toastService.success('Success', `${successCount} user${successCount !== 1 ? 's' : ''} deactivated`);
+          this.clearSelection();
+          this.loadUsers();
+        }
+        if (errorCount > 0) {
+          this.toastService.error('Error', `Failed to deactivate ${errorCount} user${errorCount !== 1 ? 's' : ''}`);
+        }
+        return;
+      }
+      this.usersService.deleteUser(ids[index]).subscribe({
+        next: () => { successCount++; processNext(index + 1); },
+        error: () => { errorCount++; processNext(index + 1); }
+      });
+    };
+
+    processNext(0);
+  }
+
+  async bulkDelete(): Promise<void> {
+    const ids = [...this.selectedUserIds()];
+    const confirmed = await this.dialogService.confirm({
+      title: 'Delete Users',
+      message: `Are you sure you want to permanently delete ${ids.length} selected user${ids.length !== 1 ? 's' : ''}? This cannot be undone.`,
+      confirmText: 'Delete',
+      type: 'danger'
+    });
+
+    if (!confirmed) return;
+
+    let successCount = 0;
+    let errorCount = 0;
+    const total = ids.length;
+
+    const processNext = (index: number) => {
+      if (index >= total) {
+        if (successCount > 0) {
+          this.toastService.success('Success', `${successCount} user${successCount !== 1 ? 's' : ''} deleted`);
+          this.clearSelection();
+          this.loadUsers();
+        }
+        if (errorCount > 0) {
+          this.toastService.error('Error', `Failed to delete ${errorCount} user${errorCount !== 1 ? 's' : ''}`);
+        }
+        return;
+      }
+      this.usersService.deleteUser(ids[index]).subscribe({
+        next: () => { successCount++; processNext(index + 1); },
+        error: () => { errorCount++; processNext(index + 1); }
+      });
+    };
+
+    processNext(0);
   }
 
   closeModal(): void {

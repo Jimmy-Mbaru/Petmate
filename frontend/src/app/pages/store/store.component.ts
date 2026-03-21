@@ -35,6 +35,8 @@ export class StoreComponent implements OnInit, OnDestroy {
   cart: CartItem[] = [];
   checkoutInProgress = false;
   ordersCount = 0;
+  hasLoadError = false;
+  readonly skeletonItems = Array(6).fill(0);
   categories: string[] = ['Food', 'Toys', 'Accessories', 'Health', 'Grooming', 'Beds'];
   private filterDebounceTimer: ReturnType<typeof setTimeout> | null = null;
 
@@ -86,6 +88,12 @@ export class StoreComponent implements OnInit, OnDestroy {
     }, StoreComponent.DEBOUNCE_MS);
   }
 
+  retryLoad(): void {
+    this.hasLoadError = false;
+    this.offset = 0;
+    this.loadProducts();
+  }
+
   loadProducts(): void {
     this.isLoading = true;
     const wasInitialLoad = this.offset === 0;
@@ -108,6 +116,7 @@ export class StoreComponent implements OnInit, OnDestroy {
             this.products = [...this.products, ...response.data];
           }
           this.total = response.total || 0;
+          this.hasLoadError = false;
         }
         this.isLoading = false;
         this.cdr.detectChanges();
@@ -118,14 +127,9 @@ export class StoreComponent implements OnInit, OnDestroy {
       },
       error: (error) => {
         this.isLoading = false;
+        if (this.products.length === 0) this.hasLoadError = true;
         this.cdr.detectChanges();
         console.error('Error loading products:', error);
-        console.error('Error details:', {
-          status: error?.status,
-          message: error?.message,
-          error: error?.error,
-        });
-        // Don't clear products on error - keep showing what we have
         this.toast.error('Error', 'Failed to load products. Please check your connection.');
       },
     });

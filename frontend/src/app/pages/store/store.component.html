@@ -102,17 +102,39 @@
     }
   </div>
 
-  <!-- Loading State - Only show on initial load when no products exist -->
+  <!-- Skeleton loading grid - initial load -->
   @if (isLoading && products.length === 0) {
-    <div class="loading-state" #loadingBlock aria-live="polite">
-      <div class="loading-spinner"></div>
-      <p class="loading-text">Loading products…</p>
-      <p class="loading-hint">This may take a moment</p>
+    <div class="products-grid" #loadingBlock aria-live="polite" aria-label="Loading products">
+      @for (item of skeletonItems; track item) {
+        <div class="product-card card skeleton-card">
+          <div class="skeleton-image skeleton-shimmer"></div>
+          <div class="skeleton-body">
+            <div class="skeleton-line skeleton-shimmer" style="width:40%; height:14px;"></div>
+            <div class="skeleton-line skeleton-shimmer" style="width:75%; height:18px; margin-top:6px;"></div>
+            <div class="skeleton-line skeleton-shimmer" style="width:90%; height:13px; margin-top:8px;"></div>
+            <div class="skeleton-line skeleton-shimmer" style="width:60%; height:13px; margin-top:4px;"></div>
+            <div class="skeleton-line skeleton-shimmer" style="width:50%; height:38px; margin-top:14px; border-radius:8px;"></div>
+          </div>
+        </div>
+      }
     </div>
   }
-  
+
+  <!-- Error State -->
+  @if (hasLoadError && !isLoading && products.length === 0) {
+    <div class="error-state card">
+      <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="error-icon"><circle cx="12" cy="12" r="10"/><line x1="12" x2="12" y1="8" y2="12"/><line x1="12" x2="12.01" y1="16" y2="16"/></svg>
+      <p class="error-title">Failed to load products</p>
+      <p class="error-text">Check your connection and try again.</p>
+      <button type="button" class="btn-primary" (click)="retryLoad()">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"/><path d="M8 16H3v5"/></svg>
+        Retry
+      </button>
+    </div>
+  }
+
   <!-- Empty State - Show when not loading and no products -->
-  @if (!isLoading && products.length === 0) {
+  @if (!isLoading && !hasLoadError && products.length === 0) {
     <div class="empty-state card">
       <p class="empty-title">No products found</p>
       <p class="empty-text">Try adjusting your search filters</p>

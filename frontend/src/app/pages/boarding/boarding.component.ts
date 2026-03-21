@@ -42,6 +42,8 @@ import { MapComponent, type MapMarker } from '../../shared/components/map/map.co
 export class BoardingComponent implements OnInit {
   profiles: BoardingProfile[] = [];
   isLoading = false;
+  hasLoadError = false;
+  readonly skeletonItems = Array(6).fill(0);
   searchQuery: SearchBoardingParams = {};
   locationSearchText = '';
   limit = 12;
@@ -75,6 +77,12 @@ export class BoardingComponent implements OnInit {
     this.loadProfiles();
   }
 
+  retryLoad(): void {
+    this.hasLoadError = false;
+    this.offset = 0;
+    this.loadProfiles();
+  }
+
   loadProfiles(): void {
     this.isLoading = true;
     this.boardingService
@@ -84,6 +92,7 @@ export class BoardingComponent implements OnInit {
           queueMicrotask(() => {
             this.profiles = response.data;
             this.total = response.total;
+            this.hasLoadError = false;
             this.updateMapMarkers();
             this.isLoading = false;
             this.cdr.markForCheck();
@@ -91,6 +100,7 @@ export class BoardingComponent implements OnInit {
         },
         error: (error) => {
           queueMicrotask(() => {
+            if (this.profiles.length === 0) this.hasLoadError = true;
             this.isLoading = false;
             this.cdr.markForCheck();
           });
