@@ -10,7 +10,7 @@
 }
 
 .user-card-slot {
-  flex: 1 1 440px;
+  flex: 1 1 300px;
   min-width: 0;
   display: flex;
 }
