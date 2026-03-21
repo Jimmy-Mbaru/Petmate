@@ -780,6 +780,21 @@
   border-radius: 20px;
 }
 
+/* Laptop — ensure 3-column grid; tighten spacing and card internals */
+@media (min-width: 769px) and (max-width: 1280px) {
+  .products-grid {
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: 1.25rem;
+  }
+  .product-content {
+    padding: 1rem 1.1rem;
+    gap: 0.5rem;
+  }
+  .store-page {
+    padding: 1.25rem 1.5rem;
+  }
+}
+
 @media (max-width: 768px) {
   .filter-row {
     grid-template-columns: 1fr;
