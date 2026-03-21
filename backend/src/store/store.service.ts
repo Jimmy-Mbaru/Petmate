@@ -78,7 +78,7 @@ export class StoreService {
       const where: Prisma.ProductWhereInput = {
         isActive: isActiveOnly,
       };
-      if (filters.category) where.category = filters.category as ProductCategory;
+      if (filters.category) where.category = filters.category.toUpperCase() as ProductCategory;
 
       // Full-text search on name and description (case-insensitive partial match)
       if (filters.q?.trim()) {

@@ -1,14 +1,14 @@
 <footer class="mt-0 py-12 md:py-16 px-6 md:px-10 bg-(--color-dark) text-white font-(family-name:--font-body)">
   <div class="max-w-[1200px] mx-auto">
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 lg:gap-10">
-      <div class="lg:col-span-1">
+    <div class="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-8 lg:gap-10 mb-10">
+      <div class="col-span-2 sm:col-span-2 lg:col-span-1">
         <a routerLink="/" class="inline-flex items-center gap-2 font-bold text-lg uppercase tracking-wide no-underline text-white mb-3">
           <span class="flex w-6 h-6 text-(--color-orange)" aria-hidden="true">
             <svg class="w-full h-full" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M12 10a2 2 0 1 0 0 4 2 2 0 0 0 0-4zm-4 3a2 2 0 1 0 0 4 2 2 0 0 0 0-4zm8 0a2 2 0 1 0 0 4 2 2 0 0 0 0-4zm-4 2a4 4 0 0 1-4-4 4 4 0 0 1 4-4 4 4 0 0 1 4 4 4 4 0 0 1-4 4z"/><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z"/></svg>
           </span>
           PetMate
         </a>
-        <p class="text-sm text-white/70 m-0 leading-relaxed max-w-[240px]">
+        <p class="text-sm text-white/70 m-0 leading-relaxed max-w-full lg:max-w-[240px]">
           Elite companion matching for discerning pet owners. Find the companion that reflects your lifestyle and soul.
         </p>
       </div>
@@ -32,7 +32,7 @@
       </div>
       <div>
         <h4 class="text-xs font-bold uppercase tracking-wider text-white m-0 mb-4">Connect</h4>
-        <div class="flex gap-3 mb-6">
+        <div class="flex gap-3">
           <a href="#" aria-label="Facebook" class="w-10 h-10 rounded-full border border-white/40 flex items-center justify-center text-white hover:bg-white/10 transition-colors">
             <svg class="w-5 h-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
           </a>
@@ -43,8 +43,10 @@
             <svg class="w-5 h-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
           </a>
         </div>
-        <p class="text-sm text-white/60 m-0">&copy; {{ currentYear }} PETMATE. All rights reserved.</p>
       </div>
+    </div>
+    <div class="border-t border-white/10 pt-6 text-center">
+      <p class="text-sm text-white/60 m-0">&copy; {{ currentYear }} PETMATE. All rights reserved.</p>
     </div>
   </div>
 </footer>

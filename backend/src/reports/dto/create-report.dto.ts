@@ -1,4 +1,4 @@
-import { IsString, IsEnum, IsNotEmpty, MinLength, MaxLength } from 'class-validator';
+import { IsString, IsEnum, IsNotEmpty, IsOptional, MinLength, MaxLength } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 
 export enum ReportReason {
@@ -40,10 +40,12 @@ export class CreateReportDto {
 
 export class UpdateReportDto {
   @ApiProperty({ enum: ReportStatus, required: false, description: 'New status for the report' })
+  @IsOptional()
   @IsEnum(ReportStatus)
   status?: ReportStatus;
 
   @ApiProperty({ required: false, description: 'Admin notes about the report' })
+  @IsOptional()
   @IsString()
   adminNotes?: string;
 }

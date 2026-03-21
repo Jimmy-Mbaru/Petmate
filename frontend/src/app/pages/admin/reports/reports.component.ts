@@ -167,7 +167,7 @@ export class AdminReportsComponent implements OnInit {
   updateReportStatus(reportId: number, status: ReportStatus): void {
     this.isUpdating = true;
     
-    this.reportsService.updateReport(reportId, { status }).subscribe({
+    this.reportsService.updateReport(reportId, { status, adminNotes: '' }).subscribe({
       next: () => {
         this.isUpdating = false;
         this.toast.success('Updated', `Report marked as ${status.replace('_', ' ')}`);

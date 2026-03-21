@@ -62,6 +62,14 @@ export class StoreComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.loadProducts();
+    this.loadOrdersCount();
+  }
+
+  private loadOrdersCount(): void {
+    this.storeService.myOrders(1, 0).subscribe({
+      next: (res) => { this.ordersCount = res.total ?? 0; },
+      error: () => { this.ordersCount = 0; }
+    });
   }
 
   ngOnDestroy(): void {

@@ -32,11 +32,17 @@ html[data-host-sidebar="collapsed"] .host-layout app-footer {
   width: calc(100% - 72px);
 }
 
-/* Mobile breakpoint */
+/* Mobile breakpoint — sidebar collapses to icon-only (72px) on mobile */
 @media (max-width: 768px) {
-  app-footer,
-  .owner-layout app-footer,
-  .host-layout app-footer {
+  /* Public pages have no sidebar — full width */
+  app-footer {
+    margin-left: 0;
+    width: 100%;
+  }
+
+  /* App layout footers offset by the collapsed 72px sidebar */
+  html[data-owner-sidebar] app-footer,
+  html[data-host-sidebar] app-footer {
     margin-left: 72px;
     width: calc(100% - 72px);
   }
