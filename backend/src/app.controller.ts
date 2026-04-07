@@ -12,14 +12,21 @@ export class AppController {
   constructor(private readonly appService: AppService) {}
 
   @Get()
-  @ApiOperation({ summary: 'Health check / API root' })
+  @ApiOperation({ summary: 'API root' })
   @ApiResponse({ status: 200, description: 'API is running' })
   getHello(): string {
     try {
       return this.appService.getHello();
     } catch (error) {
-      this.logger.error('Health check failed', (error as Error)?.stack);
+      this.logger.error('Root check failed', (error as Error)?.stack);
       throw error;
     }
+  }
+
+  @Get('health')
+  @ApiOperation({ summary: 'Health check' })
+  @ApiResponse({ status: 200, description: 'Service is healthy' })
+  health(): { status: string; timestamp: string } {
+    return { status: 'ok', timestamp: new Date().toISOString() };
   }
 }

@@ -1,8 +1,9 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { Router, RouterLink, ActivatedRoute } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { AuthService } from '../../../core/auth/auth.service';
 import { ToastService } from '../../../core/services/toast.service';
+import { BackendStatusService } from '../../../core/services/backend-status.service';
 
 @Component({
   selector: 'app-login',
@@ -11,27 +12,37 @@ import { ToastService } from '../../../core/services/toast.service';
   templateUrl: './login.component.html',
   styleUrls: ['./login.component.css'],
 })
-export class LoginComponent implements OnInit {
+export class LoginComponent implements OnInit, OnDestroy {
   email = '';
   password = '';
   rememberMe = false;
   showPassword = false;
   isLoading = false;
+  isServerWakingUp = false;
   errorMessage = '';
   showSuccessMessage = false;
   returnUrl = '/';
   emailTouched = false;
   passwordTouched = false;
 
+  private slowTimer: ReturnType<typeof setTimeout> | null = null;
+
   constructor(
     private router: Router,
     private route: ActivatedRoute,
     private authService: AuthService,
-    private toast: ToastService
+    private toast: ToastService,
+    private backendStatus: BackendStatusService
   ) {}
 
   ngOnInit(): void {
     this.returnUrl = this.route.snapshot.queryParams['returnUrl'] || '/';
+    // Pre-warm the server so it wakes up while the user is typing
+    this.backendStatus.warmUp();
+  }
+
+  ngOnDestroy(): void {
+    if (this.slowTimer) clearTimeout(this.slowTimer);
   }
 
   togglePassword(): void {
@@ -68,21 +79,29 @@ export class LoginComponent implements OnInit {
     }
 
     this.isLoading = true;
+    this.isServerWakingUp = false;
     this.errorMessage = '';
+
+    // Show a hint if the server takes more than 5s (likely cold start)
+    this.slowTimer = setTimeout(() => { this.isServerWakingUp = true; }, 5000);
 
     this.authService.login({ email: this.email, password: this.password }).subscribe({
       next: () => {
+        if (this.slowTimer) { clearTimeout(this.slowTimer); this.slowTimer = null; }
         this.isLoading = false;
+        this.isServerWakingUp = false;
         this.showSuccessMessage = true;
         this.toast.success('Welcome back', 'You have signed in successfully.');
         const user = this.authService.getCurrentUser();
         const target = this.getRedirectTarget(user?.role, this.returnUrl);
         setTimeout(() => {
           this.router.navigateByUrl(target);
-        }, 1500);
+        }, 800);
       },
       error: (error) => {
+        if (this.slowTimer) { clearTimeout(this.slowTimer); this.slowTimer = null; }
         this.isLoading = false;
+        this.isServerWakingUp = false;
         const msg = this.getErrorMessage(error);
         this.errorMessage = msg;
         this.toast.error('Login failed', msg);

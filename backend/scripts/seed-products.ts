@@ -1,3 +1,7 @@
+/**
+ * Sample store products for local / staging.
+ * Run: npm run seed:products   (or via npm run seed:all / prisma db seed)
+ */
 import { PrismaClient, ProductCategory } from '@prisma/client';
 
 const prisma = new PrismaClient();
@@ -9,7 +13,8 @@ const products = [
     price: 4500,
     stock: 50,
     category: ProductCategory.FOOD,
-    imageUrl: 'https://images.unsplash.com/photo-1589924691995-400dc9ecc119?w=800',
+    imageUrl:
+      'https://images.unsplash.com/photo-1589924691995-400dc9ecc119?w=800',
   },
   {
     name: 'Cat Litter 10kg',
@@ -17,7 +22,8 @@ const products = [
     price: 1200,
     stock: 30,
     category: ProductCategory.OTHER,
-    imageUrl: 'https://images.unsplash.com/photo-1514888286974-6c03e2ca1dba?w=800',
+    imageUrl:
+      'https://images.unsplash.com/photo-1514888286974-6c03e2ca1dba?w=800',
   },
   {
     name: 'Chew Toy',
@@ -25,7 +31,8 @@ const products = [
     price: 800,
     stock: 100,
     category: ProductCategory.TOYS,
-    imageUrl: 'https://images.unsplash.com/photo-1576201836106-db1758fd1c97?w=800',
+    imageUrl:
+      'https://images.unsplash.com/photo-1576201836106-db1758fd1c97?w=800',
   },
 ];
 

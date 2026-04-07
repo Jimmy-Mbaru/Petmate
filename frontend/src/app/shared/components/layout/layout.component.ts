@@ -8,11 +8,12 @@ import { LoadingComponent } from '../../loading/loading.component';
 import { ConfirmationModalComponent } from '../ui/confirmation-modal/confirmation-modal.component';
 import { RouteProgressComponent } from '../route-progress/route-progress.component';
 import { BackToTopComponent } from '../back-to-top/back-to-top.component';
+import { OfflineBannerComponent } from '../offline-banner/offline-banner.component';
 
 @Component({
   selector: 'app-layout',
   standalone: true,
-  imports: [RouterOutlet, NavbarComponent, FooterComponent, ToastComponent, LoadingComponent, ConfirmationModalComponent, RouteProgressComponent, BackToTopComponent],
+  imports: [RouterOutlet, NavbarComponent, FooterComponent, ToastComponent, LoadingComponent, ConfirmationModalComponent, RouteProgressComponent, BackToTopComponent, OfflineBannerComponent],
   templateUrl: './layout.component.html',
   styleUrl: './layout.component.css',
 })
